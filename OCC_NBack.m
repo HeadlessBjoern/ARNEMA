@@ -9,7 +9,7 @@ if TRAINING == 0
     disp('STARTING EEG RECORDING...');
     initEEG;
 end
-
+ 
 % Calibrate ET (Tobii Pro Fusion) 
 disp('CALIBRATING ET...');
 calibrateET
@@ -104,6 +104,7 @@ text.instructionStyle = 0;              % Styling of instruction text (0 = norma
 text.instructionWrap = 80;              % Number of characters at which to wrap instruction text
 text.color = 0;                         % Color of text (0 = black)
 
+% Define startExperimentText
 if TRAINING == 1
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n' ...
@@ -130,7 +131,13 @@ else
     end
 end
 
+% Define startBlockText
 startBlockText = 'Press any key to begin the next block.';
+
+% Define clarificationText
+clarificationText = ['Q        A         T   \n\n' ...
+                     '                   ^ as you see this letter \n\n' ...
+                     '^ react to this letter'];
 
 % Set up temporal parameters (all in seconds)
 timing.minSOA = .3;                             % Minimum stimulus onset asynchrony
@@ -214,59 +221,23 @@ else
     data.probeLetter(BLOCK) = probeLetter(BLOCK);
 end
 
-% Randomize letter sequence
-digits = randperm(length(alphabet102));
-% Take random digits and get their corresponding letters from alphabet
-rawLetterSequence = alphabet102(digits);
-% Create vector of repeating alphabet with pseudorandom match probability for probeLetter of 33%
-% Take 30 random indices of the rawLetterSequence and insert probeLetter
-digits31 = digits(1:31);
-for idxLetter = 1:length(digits31)
-    rawLetterSequence(digits31(idxLetter)) = probeLetter(BLOCK);
-end
-letterSequence = rawLetterSequence;
-pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
+% Randomise letterSequence from OCC_NBack and create a vector
+% of repeating alphabet with pseudorandom match probability for
+% probeLetter of 33%. Checks for PRMP.
+letterSequenceRandomisationPRMPCheck;
 
-% Check letter sequence for pseudorandom match probability for probeLetter of 32%-34% and display in CW
-if pseudoRandomMatchProbability > 32 && pseudoRandomMatchProbability < 34
-    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').']);
-% If pseudoRandomMatchProbability is not between 32%-34%, redo letterSequence
-else
-    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').' ...
-          ' Creating new letterSequence.']);
-    while pseudoRandomMatchProbability <= 32 || pseudoRandomMatchProbability >= 34
-        % Pick probe stimulus from letters 
-        if TRAINING == 1
-            probeLetter = 'Q';
-        else
-            % Randomize letter sequence
-            digitsProbe = randperm(length(alphabet));
-            % Pick first 'length(alphabet)' digit and get the corresponding letter from alphabet
-            probeLetter(BLOCK) = alphabet(digitsProbe(1, 1));
-            % Save stimulus (probeLetter) in data
-            data.probeLetter(BLOCK) = probeLetter(BLOCK);
-        end
-        
-        % Randomize letter sequence
-        digits = randperm(length(alphabet102));
-        % Take random digits and get their corresponding letters from alphabet
-        rawLetterSequence = alphabet102(digits);
-        % Create vector of repeating alphabet with pseudorandom match probability for probeLetter of 33%
-        % Take 30 random indices of the rawLetterSequence and insert probeLetter
-        digits31 = digits(1:30);
-        for idxLetter = 1:length(digits31)
-            rawLetterSequence(digits31(idxLetter)) = probeLetter(BLOCK);
-        end
-        letterSequence = rawLetterSequence;
-        pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
-        if pseudoRandomMatchProbability > 32 && pseudoRandomMatchProbability < 34
-            disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').']);
-        else
-            disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').' ...
-          ' Creating new letterSequence.']);
-        end
+% Check for probe letter grouping; only allow grouping of up 3 probe letters after each other in letterSequence
+for countGrouping = 2:length(letterSequence-2)
+    % Check groups of probe letters and replace with random letter if group is greater than 3
+    if letterSequence(countGrouping) == probeLetter && letterSequence(countGrouping-1) == probeLetter && letterSequence(countGrouping+1) == probeLetter && letterSequence(countGrouping+2) == probeLetter
+        disp('Too much grouping of probeLetter in letterSequence. Creating new letterSequence');
+        letterSequenceRandomisationPRMPCheck;
+    elseif letterSequence(countGrouping) == probeLetter && letterSequence(countGrouping-1) == probeLetter && letterSequence(countGrouping+1) == probeLetter && letterSequence(countGrouping-2) == probeLetter
+        disp('Too much grouping of probeLetter in letterSequence. Creating new letterSequence');
+        letterSequenceRandomisationPRMPCheck;   
     end
 end
+disp('No grouping of probeLetter in letterSequence > 3. Saving letterSequence and continuing...');
 
 % Save sequence of letters of this block in data
 if BLOCK >= 1
@@ -276,10 +247,18 @@ end
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
 startExperimentTime = Screen('Flip',ptbWindow);
+disp('Participant is reading the instructions');
 waitResponse = 1;
 while waitResponse
     [time, keyCode] = KbWait(-1,2);
     waitResponse = 0;
+end
+
+% Show clarification text for BLOCK = 2
+if BLOCK == 2
+    DrawFormattedText(ptbWindow,clarificationText,'center','center',color.textVal);
+    Screen('Flip',ptbWindow);
+    disp('Participant is reading the clarification text');
 end
 
 % Show probeLetter for memorization
@@ -294,6 +273,7 @@ probeLetterText = ['Memorize this letter! \n\n' ...
 
 DrawFormattedText(ptbWindow,probeLetterText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
+disp('Participant is memorizing the probe letter');
 if TRAINING == 1
     EThndl.sendMessage(MEMORIZATION); % ET
 else
