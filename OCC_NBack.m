@@ -48,6 +48,7 @@ TASK_START = 10;
 MATCH = 4; % trigger for probe stimulus
 NO_MATCH = 5; % trigger for probe stimulus
 FIXATION = 15; % trigger for fixation cross
+PRESENTATION0 = 29; % trigger for digit presentation (training task; 1-back)
 PRESENTATION1 = 21; % trigger for digit presentation (1-back)
 PRESENTATION2 = 22; % trigger for digit presentation (2-back)
 DIGITOFF = 28; % trigger for change of digit to cfi
@@ -66,9 +67,9 @@ TASK_END = 90;
 % Set up experiment parameters
 % Number of trials for the experiment
 if TRAINING == 1
-    experiment.nTrials = 4;             
+    experiment.nTrials = 12;             
 else
-    experiment.nTrials = 100;           % 2 blocks x 100 trials = 200 trials               
+    experiment.nTrials = 102;           % 2 blocks x 100 trials = 200 trials               
 end
         
 % Set up equipment parameters
@@ -105,27 +106,27 @@ text.color = 0;                         % Color of text (0 = black)
 
 if TRAINING == 1
     loadingText = 'Loading training task...';
-    startExperimentText = ['Training task. \n\n ...' ...
+    startExperimentText = ['Training task. \n\n' ...
     'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
     'Afterwards, a series of random letters will be shown to you. \n\n' ...
-    'Your task is to press a specified button (see next page) if this is the same letter as the previous letter you were shown. \n\n' ...
+    'Your task is to press SPACE if this is the same letter as the previous letter you were shown. \n\n' ...
     'Don''t worry, you can do a training sequence in the beginning. \n\n' ...
-    'Press any key to continue.'];
+    '\n\n Press any key to continue.'];
 else
     if BLOCK == 1
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
     'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
     'Afterwards, a series of random letters will be shown to you. \n\n' ...
-    'Your task is to press a specified button (see next page) if this is the same letter as the previous letter you were shown. \n\n' ...
-    'Press any key to continue.'];
+    'Your task is to press SPACE if this is the same letter as the previous letter you were shown. \n\n' ...
+    '\n\n Press any key to continue.'];
     elseif BLOCK == 2
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
     'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
     'Afterwards, a series of random letters will be shown to you. \n\n' ...
-    'Your task is to press a specified button (see next page) if this is the same letter as the letter you were shown before the last one. \n\n' ...
-    'Press any key to continue.'];
+    'Your task is to press SPACE if this is the same letter as the letter you were shown before the last one. \n\n' ...
+    '\n\n Press any key to continue.'];
     end
 end
 
@@ -179,11 +180,6 @@ Screen('Flip',ptbWindow);
 % Retrieve response key
 spaceKeyCode = KbName('Space'); % Retrieve key code for spacebar
 
-% Define instruction text
-responseInstructionText = ['If you think the previous letter was your letter, press SPACE. \n\n' ...
-                           '\n\n' ...
-                           'Press any key to continue.'];
-
 % Calculate equipment parameters
 equipment.mpd = (equipment.viewDist/2)*tan(deg2rad(2*stimulus.regionEccentricity_dva))/stimulus.regionEccentricity_dva; % Millimetres per degree
 equipment.ppd = equipment.ppm*equipment.mpd;    % Pixels per degree
@@ -196,15 +192,15 @@ fixCoords = [fixHorizontal; fixVertical];
 
 % Create data structure for preallocating data 
 data = struct;
-data.letterSequence(1, BLOCK) = NaN;
-data.probeLetter(1, BLOCK) = NaN;
+data.letterSequence = strings;
+data.probeLetter = strings;
 data.trialMatch(1, experiment.nTrials) = NaN;
 data.allResponses(1, experiment.nTrials) = NaN;
 data.allCorrect(1, experiment.nTrials) = NaN;
 
 % Create stimuli
 alphabet = 'A' : 'Z';
-alphabet100 = [alphabet alphabet alphabet alphabet(1:end-4)]; % Create vector of repeating alphabet up to 100 letters
+alphabet102 = [alphabet alphabet alphabet alphabet(1:end-2)]; % Create vector of repeating alphabet up to 100 letters
 
 % Pick probe stimulus from letters 
 if TRAINING == 1
@@ -219,14 +215,14 @@ else
 end
 
 % Randomize letter sequence
-digits = randperm(length(alphabet100));
+digits = randperm(length(alphabet102));
 % Take random digits and get their corresponding letters from alphabet
-rawLetterSequence = alphabet100(digits);
+rawLetterSequence = alphabet102(digits);
 % Create vector of repeating alphabet with pseudorandom match probability for probeLetter of 33%
 % Take 30 random indices of the rawLetterSequence and insert probeLetter
-digits30 = digits(1:30);
-for idxLetter = 1:length(digits30)
-    rawLetterSequence(digits30(idxLetter)) = probeLetter(BLOCK);
+digits31 = digits(1:31);
+for idxLetter = 1:length(digits31)
+    rawLetterSequence(digits31(idxLetter)) = probeLetter(BLOCK);
 end
 letterSequence = rawLetterSequence;
 pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
@@ -252,14 +248,14 @@ else
         end
         
         % Randomize letter sequence
-        digits = randperm(length(alphabet100));
+        digits = randperm(length(alphabet102));
         % Take random digits and get their corresponding letters from alphabet
-        rawLetterSequence = alphabet100(digits);
+        rawLetterSequence = alphabet102(digits);
         % Create vector of repeating alphabet with pseudorandom match probability for probeLetter of 33%
         % Take 30 random indices of the rawLetterSequence and insert probeLetter
-        digits30 = digits(1:30);
-        for idxLetter = 1:length(digits30)
-            rawLetterSequence(digits30(idxLetter)) = probeLetter(BLOCK);
+        digits31 = digits(1:30);
+        for idxLetter = 1:length(digits31)
+            rawLetterSequence(digits31(idxLetter)) = probeLetter(BLOCK);
         end
         letterSequence = rawLetterSequence;
         pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
@@ -274,7 +270,7 @@ end
 
 % Save sequence of letters of this block in data
 if BLOCK >= 1
-    data.letterSequence{BLOCK} = letterSequence;
+    data.letterSequence = letterSequence;
 end
 
 % Show task instruction text
@@ -286,23 +282,12 @@ while waitResponse
     waitResponse = 0;
 end
 
-% Show response instruction text
-DrawFormattedText(ptbWindow,responseInstructionText,'center','center',color.textVal);
-Screen('Flip',ptbWindow);
-waitResponse = 1;
-while waitResponse
-    [time, keyCode] = KbWait(-1,2);
-    waitResponse = 0;
-end
-
 % Show probeLetter for memorization
 % Increase size of stimuli
 Screen('TextSize', ptbWindow, 60); 
 probeLetterText = ['Memorize this letter! \n\n' ...
                    '\n\n '...
-                   '\n\n '...
-                   '\n\n Your letter is:' probeLetter(BLOCK) '.'...
-                   '\n\n '...
+                   '\n\n Your letter is: ' probeLetter(BLOCK) '.'...
                    '\n\n '...
                    '\n\n '...
                    '\n\n Press any key to continue.'];
@@ -310,9 +295,9 @@ probeLetterText = ['Memorize this letter! \n\n' ...
 DrawFormattedText(ptbWindow,probeLetterText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
 if TRAINING == 1
-    EThndl.sendMessage(MEMORIZATION,endTime); % ET
+    EThndl.sendMessage(MEMORIZATION); % ET
 else
-    EThndl.sendMessage(MEMORIZATION,endTime); % ET
+    EThndl.sendMessage(MEMORIZATION); % ET
     sendtrigger(MEMORIZATION,port,SITE,stayup); % EEG
 end
 waitResponse = 1;
@@ -435,23 +420,35 @@ for thisTrial = 1:experiment.nTrials
         end
     end
     
-    % Save match/no match
-    if letterSequence(thisTrial) == probeLetter(BLOCK)
-        thisTrialMatch = 1;
-    else 
-        thisTrialMatch = 0;
-    end
+    % Save match/no match 
+    if BLOCK == 1 && thisTrial > 1
+        if letterSequence(thisTrial-1) == probeLetter(BLOCK)
+            thisTrialMatch = 1;
+        else 
+            thisTrialMatch = 0;
+        end
     data.trialMatch(thisTrial) = thisTrialMatch;
+    elseif BLOCK == 2 && thisTrial > 2
+        if letterSequence(thisTrial-2) == probeLetter(BLOCK)
+            thisTrialMatch = 1;
+        else 
+            thisTrialMatch = 0;
+        end
+    data.trialMatch(thisTrial) = thisTrialMatch;
+    end
+    
 
     % Check if response was correct
-    if thisTrialMatch == 1 && data.allResponses(thisTrial) == spaceKeyCode  % Correct matched trial 
-        data.allCorrect(thisTrial) = 1;   
-    elseif thisTrialMatch == 1 && data.allResponses(thisTrial) == 0  % Incorrect matched trial 
-        data.allCorrect(thisTrial) = 0;   
-    elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == 0  % Correct unmatched trial 
-        data.allCorrect(thisTrial) = 1;   
-    elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == spaceKeyCode  % Incorrect unmatched trial 
-        data.allCorrect(thisTrial) = 0;   
+    if BLOCK == 1 && thisTrial > 1
+        if thisTrialMatch == 1 && data.allResponses(thisTrial) == spaceKeyCode  % Correct matched trial 
+            data.allCorrect(thisTrial) = 1;   
+        elseif thisTrialMatch == 1 && data.allResponses(thisTrial) == 0  % Incorrect matched trial 
+            data.allCorrect(thisTrial) = 0;   
+        elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == 0  % Correct unmatched trial 
+            data.allCorrect(thisTrial) = 1;   
+        elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == spaceKeyCode  % Incorrect unmatched trial 
+            data.allCorrect(thisTrial) = 0;   
+        end
     end
 
     endTime = Screen('Flip',ptbWindow, 1);
@@ -459,9 +456,9 @@ for thisTrial = 1:experiment.nTrials
     % Display (in-)correct response in CW
     if data.allCorrect(thisTrial) == 1
         feedbackText = 'Correct!';
-    elseif data.allCorrect(thisTrial) == 0 & badResponseFlag == false
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == false
         feedbackText = 'Incorrect!';
-    elseif data.allCorrect(thisTrial) == 0 & badResponseFlag == true
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true
         feedbackText = 'Wrong button! Use only A or L.';
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
@@ -518,7 +515,7 @@ end
 
 if TRAINING == 1
     EThndl.sendMessage(TRIGGER);
-    disp('End of Training Block .');
+    disp('End of Training Block.');
 else
     EThndl.sendMessage(TRIGGER);
     sendtrigger(TRIGGER,port,SITE,stayup);
@@ -576,9 +573,7 @@ end
 % Save data
 saves = struct;
 saves.data = data;
-saves.data.KeyCodeA = KeyCodeA;
-saves.data.KeyCodeL = KeyCodeL;
-saves.data.KeyBindingsYesIsL = YesIsL;
+saves.data.spaceKeyCode = spaceKeyCode;
 saves.experiment = experiment;
 saves.screenWidth = screenWidth;
 saves.screenHeight = screenHeight;
@@ -615,7 +610,11 @@ trigger.RESP_NO = RESP_NO;
 trigger.TASK_END = TASK_END;
 
 % stop and close EEG and ET recordings
-disp(['BLOCK ' num2str(BLOCK) ' FINISHED...']);
+if TRAINING == 1
+    disp('TRAINING FINISHED...');
+else
+    disp(['BLOCK ' num2str(BLOCK) ' FINISHED...']);
+end
 disp('SAVING DATA...');
 save(fullfile(filePath, fileName), 'saves', 'trigger'); 
 closeEEGandET;
@@ -633,7 +632,7 @@ if TRAINING == 1
         breakInstructionText = ['Score too low! ' num2str(percentTotalCorrect) ' % correct. ' ...
                                 '\n\n Press any key to repeat the training task.'];
     end
-elseif BLOCK == 6
+elseif BLOCK == 2
     breakInstructionText = ['End of the Task! ' ...
                             '\n\n Press any key to view your stats.'];
 else

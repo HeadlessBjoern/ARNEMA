@@ -39,7 +39,7 @@ try
     end
     try
         InitializePsychSound;
-        pahandle = PsychPortAudio('Open', [2], [], 0, freq1, nrchannels, [], sugLat); % DAWID - look for devices - here 2
+        pahandle = PsychPortAudio('Open', 2, [], 0, freq1, nrchannels, [], sugLat); % DAWID - look for devices - here 2
         duration_probe1 = size(wavedata_probe1,2)/freq1;
     catch
         error('Sound Initialisation Error');
@@ -74,7 +74,9 @@ ENDBLOCK3 = 43; % trigger for end of block 3
 ENDBLOCK4 = 44; % trigger for end of block 4
 ENDBLOCK5 = 45; % trigger for end of block 5
 ENDBLOCK6 = 46; % trigger for end of block 6
-RETENTION = 50; % trigger for retention
+RETENTION1 = 51; % trigger for retention (setSize = 1)
+RETENTION4 = 54; % trigger for retention (setSize = 4)
+RETENTION7 = 57; % trigger for retention (setSize = 7)
 RESP_YES = 77; % trigger for response yes (depends on changing key bindings)
 RESP_NO = 78; % trigger for response no (depends on changing key bindings)
 badResponse = 79; % trigger for wrong keyboard input (any key apart from 'A', 'L' or 'Space')
@@ -85,7 +87,7 @@ TASK_END = 90; % trigger for ET cutting
 if TRAINING == 1
     experiment.nTrials = 4;
 else
-    experiment.nTrials = 54; % 6 blocks x 54 trials = 324 trials               
+    experiment.nTrials = 25; % 6 blocks x 25 trials = 150 trials               
 end
 experiment.setSizes = [1,4,7];          % Number of items presented on the screen
 
@@ -113,7 +115,7 @@ color.textVal = 0;                  % Color of text
 text.color = 0;                     % Color of text (0 = black)
 
 if TRAINING == 1
-    loadingText = ['Loading training task...'];
+    loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
     'Try to memorize these digit sequences. \n\n' ...
     'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
@@ -123,7 +125,7 @@ if TRAINING == 1
     'Press any key to continue.'];
 else
     if BLOCK == 1
-        loadingText = ['Loading actual task...'];
+        loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
     'Try to memorize these digit sequences. \n\n' ...
     'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
@@ -132,22 +134,20 @@ else
     'Feedback will be provided after each trial. \n\n' ...
     'Press any key to continue.'];
     else
-        loadingText = ['Loading actual task...'];
+        loadingText = 'Loading actual task...';
         startExperimentText = ['Block ' num2str(BLOCK) ' / 6 \n\n' ...
                                'Press any key to continue.'];
     end
 end
 
-startBlockText = ['Press any key to begin the next block.'];
+startBlockText = 'Press any key to begin the next block.';
 
 % Set up temporal parameters (all in seconds)
-timing.minSOA = .3;                 % Minimum stimulus onset asynchrony
-timing.maxSOA = .4;                 % Maximum stimulus onset asynchrony
 timing.cfi = 2;                    % Duration of central fixation interval
 timing.digitPresentation = 1.2;     % Duration of digit presentation
 timing.blank = 1;                   % Duration of blank screen
 timing.retentionInterval = 3;       % Duration of blank retention interval
-timing.probeStimulus = 5;           % Duration of probe stimulus
+timing.probeStimulus = 5;           % Duration of probe stimulus               
 
 % Shuffle rng for random elements
 rng('default');             
@@ -225,13 +225,13 @@ data.sequenceDigits{1, experiment.nTrials} = 0;
 data.trialSetSize(1, experiment.nTrials) = 0;
 data.probeDigit(1, experiment.nTrials) = NaN;
 data.trialMatch(1, experiment.nTrials) = NaN;
-data.trialSOA{1, experiment.nTrials} = 0;
 data.allResponses(1, experiment.nTrials) = 0;
 data.allCorrect(1, experiment.nTrials) = NaN;
 
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
 startExperimentTime = Screen('Flip',ptbWindow);
+disp('Participant is reading the instructions');
 waitResponse = 1;
 while waitResponse
     [time, keyCode] = KbWait(-1,2);
@@ -241,6 +241,7 @@ end
 % Show response instruction text
 DrawFormattedText(ptbWindow,responseInstructionText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
+disp('Participant is reading the response instructions');
 waitResponse = 1;
 while waitResponse
     [time, keyCode] = KbWait(-1,2);
@@ -274,7 +275,11 @@ else
     TRIGGER = BLOCK0;
 end
 
-disp(['Start of Block ' num2str(BLOCK)]);
+if TRAINING == 1
+    disp('Start of Block 0 (Training)');
+else
+    disp(['Start of Block ' num2str(BLOCK)]);
+end
 
 if TRAINING == 1
     EThndl.sendMessage(TRIGGER);
@@ -289,8 +294,7 @@ for thisTrial = 1:experiment.nTrials
 
     disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial #
     data.trialSetSize(thisTrial) = randsample(experiment.setSizes, 1);  % Determine set size on trial
-    data.trialSOA{thisTrial} = mod(randperm(experiment.nTrials),round((timing.maxSOA-timing.minSOA)/flipInterval));    % Determine each trial's stimulus onset asychrony
-    
+
     % Randomize digit sequence
     digits = randperm(10)-1;
     thisTrialSequenceDigits = digits(1, 1:data.trialSetSize(thisTrial));
@@ -301,14 +305,13 @@ for thisTrial = 1:experiment.nTrials
     % Central fixation interval (500ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
     Screen('Flip', ptbWindow);
-    WaitSecs(timing.cfi);
-
     if TRAINING == 1
         EThndl.sendMessage(FIXATION);
     else
         EThndl.sendMessage(FIXATION);
         sendtrigger(FIXATION,port,SITE,stayup);
     end
+    WaitSecs(timing.cfi);
 
     % Present stimuli from digitSequence one after another
     for iters = 1:data.trialSetSize(thisTrial) 
@@ -348,14 +351,21 @@ for thisTrial = 1:experiment.nTrials
 
     % Retention interval
     Screen('Flip', ptbWindow);
-    WaitSecs(timing.retentionInterval);
+    if data.trialSetSize(thisTrial) == 1
+            TRIGGER = RETENTION1;
+    elseif data.trialSetSize(thisTrial) == 4
+            TRIGGER = RETENTION4;
+    elseif data.trialSetSize(thisTrial) == 7
+            TRIGGER = RETENTION7;
+    end
 
     if TRAINING == 1
-        EThndl.sendMessage(RETENTION);
+        EThndl.sendMessage(TRIGGER);
     else
-        EThndl.sendMessage(RETENTION);
-        sendtrigger(RETENTION,port,SITE,stayup);
+        EThndl.sendMessage(TRIGGER);
+        sendtrigger(TRIGGER,port,SITE,stayup);
     end
+    WaitSecs(timing.retentionInterval);
 
     % Randomize matching between digits in sequence, present probe stimulus and draw (probeDigit)
     chance = randsample(1:2, 1);
@@ -408,13 +418,13 @@ for thisTrial = 1:experiment.nTrials
                 data.allResponses(thisTrial) = whichKey;
 
                 % Send triggers
-                if whichKey == KeyCodeA & YesIsL == true
+                if whichKey == KeyCodeA && YesIsL == true
                     TRIGGER = RESP_NO;
-                elseif whichKey == KeyCodeA & YesIsL == false
+                elseif whichKey == KeyCodeA && YesIsL == false
                     TRIGGER = RESP_YES;
-                elseif whichKey == KeyCodeL & YesIsL == true
+                elseif whichKey == KeyCodeL && YesIsL == true
                     TRIGGER = RESP_YES;
-                elseif whichKey == KeyCodeL & YesIsL == false
+                elseif whichKey == KeyCodeL && YesIsL == false
                     TRIGGER = RESP_NO;
                 end
 
@@ -463,9 +473,9 @@ for thisTrial = 1:experiment.nTrials
     % Give feedback for (in-)correct response
     if data.allCorrect(thisTrial) == 1
         feedbackText = 'Correct!';
-    elseif data.allCorrect(thisTrial) == 0 & badResponseFlag == false
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == false
         feedbackText = 'Incorrect!';
-    elseif data.allCorrect(thisTrial) == 0 & badResponseFlag == true
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true
         feedbackText = 'Wrong button! Use only A or L.';
     end
 
@@ -493,8 +503,8 @@ for thisTrial = 1:experiment.nTrials
 
     % Blank screen before presentation of next digit (500-1500msa)
     Screen('Flip', ptbWindow);
-    timing.blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
-    WaitSecs(timing.blankJitter(thisTrial));
+    blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
+    WaitSecs(blankJitter(thisTrial));
 
     % Check if subject fixate at center, give warning if not
     checkFixation;
@@ -564,6 +574,7 @@ saves.data = data;
 saves.data.KeyCodeA = KeyCodeA;
 saves.data.KeyCodeL = KeyCodeL;
 saves.data.KeyBindingsYesIsL = YesIsL;
+saves.data.blankJitter = blankJitter;
 saves.experiment = experiment;
 saves.screenWidth = screenWidth;
 saves.screenHeight = screenHeight;
@@ -604,7 +615,9 @@ trigger.ENDBLOCK3 = ENDBLOCK3;
 trigger.ENDBLOCK4 = ENDBLOCK4;
 trigger.ENDBLOCK5 = ENDBLOCK5;
 trigger.ENDBLOCK6 = ENDBLOCK6;
-trigger.RETENTION = RETENTION;
+trigger.RETENTION1 = RETENTION1;
+trigger.RETENTION4 = RETENTION4;
+trigger.RETENTION7 = RETENTION7;
 trigger.RESP_YES = RESP_YES;
 trigger.RESP_NO = RESP_NO;
 trigger.badResponse = badResponse;
@@ -683,7 +696,7 @@ end
 % Show break instruction text
 if TRAINING == 1
     if percentTotalCorrect >= THRESH
-        breakInstructionText = ['Well done! \n\n Press any key to start the actual task.'];
+        breakInstructionText = 'Well done! \n\n Press any key to start the actual task.';
     else
         breakInstructionText = ['Score too low! ' num2str(percentTotalCorrect) ' % correct. ' ...
                                 '\n\n Press any key to repeat the training task.'];
@@ -704,7 +717,6 @@ while waitResponse
 end
 
 % Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 6)
-
 if BLOCK >= 1 && BLOCK < 6
     waitTime = 30;
     intervalTime = 1;
@@ -713,7 +725,7 @@ if BLOCK >= 1 && BLOCK < 6
     
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
                     ' \n\n ' ...
-                    ' \n\n Block ' (num2str(BLOCK)) ' will start afterwards.'];
+                    ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
     
     DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
     Screen('Flip',ptbWindow);
@@ -724,7 +736,7 @@ if BLOCK >= 1 && BLOCK < 6
         printTime = waitTime - timePassed;
         waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
                         ' \n\n ' ...
-                        ' \n\n Block ' (num2str(BLOCK)) ' will start afterwards.'];
+                        ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
     end
@@ -746,8 +758,8 @@ if BLOCK == 6
                    ' \n\n ' ...
                    ' \n\n ' ...
                    'Press any key to end the task.'];
-    disp(['End of Block ' num2str(BLOCK) '. Participant ' num2str(subjectID) ' has earned CHF ' num2str(amountCHFextraTotal) ' extra in total.']);
     format bank % Change format for display
+    disp(['End of Block ' num2str(BLOCK) '. Participant ' num2str(subjectID) ' has earned CHF ' num2str(amountCHFextraTotal) ' extra in total.']);
     DrawFormattedText(ptbWindow,endTextCash,'center','center',color.textVal); % Display output for participant
     format default % Change format back to default
     Screen('Flip',ptbWindow);
