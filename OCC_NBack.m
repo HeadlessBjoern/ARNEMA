@@ -58,8 +58,9 @@ ENDBLOCK0 = 49; % trigger for end of training block
 ENDBLOCK1 = 41; % trigger for end of block 1 (1-back)
 ENDBLOCK2 = 42; % trigger for end of block 2 (2-back)
 MEMORIZATION = 55; % trigger for probe letter memorization
-RESP_YES = 77; % trigger for response yes (depends on changing key bindings)
-RESP_NO = 78; % trigger for response no (depends on changing key bindings)
+RESP_YES = 77; % trigger for response yes (spacebar)
+RESP_NO = 78; % trigger for response no (no input)
+RESP_WRONG = 79;% trigger for wrong keyboard input response
 TASK_END = 90; 
 
 % Set up experiment parameters
@@ -175,23 +176,13 @@ ptb_drawformattedtext_disableClipping = 1;
 DrawFormattedText(ptbWindow,loadingText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
   
-% Retrieve response keys
-KeyCodeA = KbName('A');         % Retrieve key code for the 1 button
-KeyCodeL = KbName('L');% KbName('/?');    % Retrieve key code for the 3 button (/? is the PTB code for the keyboard rather than numpad slash button)
+% Retrieve response key
 spaceKeyCode = KbName('Space'); % Retrieve key code for spacebar
 
-% Assign response keys
-if mod(subject.ID,2) == 0       % Use subject ID for assignment to ensure counterbalancing
-    YesIsL = true;       % L is YES, A is NO
-    responseInstructionText = ['If you think the previous letter was your letter, press L. \n\n' ...
-                               'Use your right hand to press L \n\n' ...
-                               'Press any key to continue.'];
-elseif mod(subject.ID,2) == 1
-    YesIsL = false;      % L is NO, A is YES
-    responseInstructionText = ['If you think the previous letter was your letter, press A. \n\n' ...
-                               'Use your right hand to press A \n\n' ...
-                               'Press any key to continue.'];
-end
+% Define instruction text
+responseInstructionText = ['If you think the previous letter was your letter, press SPACE. \n\n' ...
+                           '\n\n' ...
+                           'Press any key to continue.'];
 
 % Calculate equipment parameters
 equipment.mpd = (equipment.viewDist/2)*tan(deg2rad(2*stimulus.regionEccentricity_dva))/stimulus.regionEccentricity_dva; % Millimetres per degree
@@ -208,7 +199,7 @@ data = struct;
 data.letterSequence(1, BLOCK) = NaN;
 data.probeLetter(1, BLOCK) = NaN;
 data.trialMatch(1, experiment.nTrials) = NaN;
-data.allResponses(1, experiment.nTrials) = 0;
+data.allResponses(1, experiment.nTrials) = NaN;
 data.allCorrect(1, experiment.nTrials) = NaN;
 
 % Create stimuli
@@ -238,8 +229,8 @@ for idxLetter = 1:length(digits30)
     rawLetterSequence(digits30(idxLetter)) = probeLetter(BLOCK);
 end
 letterSequence = rawLetterSequence;
-
 pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
+
 % Check letter sequence for pseudorandom match probability for probeLetter of 32%-34% and display in CW
 if pseudoRandomMatchProbability > 32 && pseudoRandomMatchProbability < 34
     disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').']);
@@ -276,7 +267,7 @@ else
             disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').']);
         else
             disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').' ...
-          ' Redoing letterSequence.']);
+          ' Creating new letterSequence.']);
         end
     end
 end
@@ -384,10 +375,10 @@ for thisTrial = 1:experiment.nTrials
     end
     WaitSecs(timing.cfi);                            % Wait duration of the jittered central fixation interval
 
-    % Present stimuli from letter sequence one after another
+
     % Increase size of stimuli
     Screen('TextSize', ptbWindow, 60); 
-    % Serial presentation of each digit from digitSequence (2000ms)
+    % Present stimulus from letter sequence (2000ms)
     DrawFormattedText(ptbWindow,[num2str(letterSequence(thisTrial))],'center','center',text.color);
     Screen('Flip', ptbWindow);
     % Return size of text to default
@@ -410,23 +401,23 @@ for thisTrial = 1:experiment.nTrials
 
     % Get response
     getResponse = true;
+    badResponseFlag = false;
     maxResponseTime = GetSecs + 2;
     while getResponse
         [time,keyCode] = KbWait(-1, 2, maxResponseTime); % Wait 2 seconds for response, continue afterwards if there is no input.
         whichKey = find(keyCode);
         if ~isempty(whichKey)
-            if whichKey == KeyCodeA || whichKey == KeyCodeL
+            if whichKey == spaceKeyCode
                 getResponse = false;
                 data.allResponses(thisTrial) = whichKey;
 
                 % Send triggers
-                if whichKey == KeyCodeA & YesIsL == true
-                    TRIGGER = RESP_NO;
-                elseif whichKey == KeyCodeA & YesIsL == false
+                if whichKey == spaceKeyCode
                     TRIGGER = RESP_YES;
-                elseif whichKey == KeyCodeL & YesIsL == true
-                    TRIGGER = RESP_YES;
-                elseif whichKey == KeyCodeL & YesIsL == false
+                elseif whichKey ~= spaceKeyCode
+                    TRIGGER = RESP_WRONG;
+                    badResponseFlag = true;
+                else 
                     TRIGGER = RESP_NO;
                 end
 
@@ -453,18 +444,14 @@ for thisTrial = 1:experiment.nTrials
     data.trialMatch(thisTrial) = thisTrialMatch;
 
     % Check if response was correct
-    if YesIsL == 1       % L is YES, A is NO
-        if thisTrialMatch == 1     % Matched trial
-            data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
-        elseif thisTrialMatch == 0 % Unmatched trial
-            data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
-        end
-    elseif YesIsL == 0   % L is NO, A is YES
-        if thisTrialMatch == 1     % Unmatched trial
-            data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
-        elseif thisTrialMatch == 0 % Matched trial
-            data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
-        end
+    if thisTrialMatch == 1 && data.allResponses(thisTrial) == spaceKeyCode  % Correct matched trial 
+        data.allCorrect(thisTrial) = 1;   
+    elseif thisTrialMatch == 1 && data.allResponses(thisTrial) == 0  % Incorrect matched trial 
+        data.allCorrect(thisTrial) = 0;   
+    elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == 0  % Correct unmatched trial 
+        data.allCorrect(thisTrial) = 1;   
+    elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == spaceKeyCode  % Incorrect unmatched trial 
+        data.allCorrect(thisTrial) = 0;   
     end
 
     endTime = Screen('Flip',ptbWindow, 1);
@@ -472,8 +459,13 @@ for thisTrial = 1:experiment.nTrials
     % Display (in-)correct response in CW
     if data.allCorrect(thisTrial) == 1
         feedbackText = 'Correct!';
-    else
+    elseif data.allCorrect(thisTrial) == 0 & badResponseFlag == false
         feedbackText = 'Incorrect!';
+    elseif data.allCorrect(thisTrial) == 0 & badResponseFlag == true
+        feedbackText = 'Wrong button! Use only A or L.';
+        DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
+        Screen('Flip',ptbWindow);
+        WaitSecs(1);
     end
     disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
 
