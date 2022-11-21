@@ -1,5 +1,11 @@
 %% Resting state EEG
 
+TASK = 'Resting';
+TRAINING = 0; % no training for Resting
+
+% Run Resting
+disp('RESTING EEG...');
+
 %% start recording EEG
 disp('STARTING EEG RECORDING...');
 initEEG;

@@ -221,23 +221,10 @@ else
     data.probeLetter(BLOCK) = probeLetter(BLOCK);
 end
 
-% Randomise letterSequence from OCC_NBack and create a vector
-% of repeating alphabet with pseudorandom match probability for
-% probeLetter of 33%. Checks for PRMP.
-letterSequenceRandomisationPRMPCheck;
-
-% Check for probe letter grouping; only allow grouping of up 3 probe letters after each other in letterSequence
-for countGrouping = 2:length(letterSequence-2)
-    % Check groups of probe letters and replace with random letter if group is greater than 3
-    if letterSequence(countGrouping) == probeLetter && letterSequence(countGrouping-1) == probeLetter && letterSequence(countGrouping+1) == probeLetter && letterSequence(countGrouping+2) == probeLetter
-        disp('Too much grouping of probeLetter in letterSequence. Creating new letterSequence');
-        letterSequenceRandomisationPRMPCheck;
-    elseif letterSequence(countGrouping) == probeLetter && letterSequence(countGrouping-1) == probeLetter && letterSequence(countGrouping+1) == probeLetter && letterSequence(countGrouping-2) == probeLetter
-        disp('Too much grouping of probeLetter in letterSequence. Creating new letterSequence');
-        letterSequenceRandomisationPRMPCheck;   
-    end
-end
-disp('No grouping of probeLetter in letterSequence > 3. Saving letterSequence and continuing...');
+% Check pseudorandom match probability
+% Check probe letter grouping
+% Check probeLetters in the first 10 stimuli (min 2)
+letterSequenceChecks;
 
 % Save sequence of letters of this block in data
 if BLOCK >= 1
@@ -434,22 +421,27 @@ for thisTrial = 1:experiment.nTrials
     endTime = Screen('Flip',ptbWindow, 1);
 
     % Display (in-)correct response in CW
-    if data.allCorrect(thisTrial) == 1
+    if data.allCorrect(thisTrial) == 1 && thisTrial > 1
         feedbackText = 'Correct!';
-    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == false
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == false && thisTrial > 1
         feedbackText = 'Incorrect!';
-    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true && thisTrial > 1
         feedbackText = 'Wrong button! Use only A or L.';
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
         WaitSecs(1);
+    elseif thisTrial == 1
+        disp('No Response to Trial 1 in N-Back Task');
     end
-    disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
+    if thisTrial > 1
+        disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
+    end
 
     % Dynamically compute accuracy for past 10 trials and remind participant if accuracy drops below threshhold of 74%
     responsesLastTrials = 0;
     if thisTrial > 11
-       responsesLastTrials = data.allCorrect(end-9 : end);
+       % Get 10 last trials, but ignore last data point
+       responsesLastTrials = data.allCorrect(end-10 : end-1);
        percentLastTrialsCorrect = sum(responsesLastTrials)*10;
        if percentLastTrialsCorrect < 74
           feedbackLastTrials = ['Your accuracy has declined!'...
@@ -514,8 +506,9 @@ end
 
 % Compute accuracy and report after each block (no additional cash for training task)
 if TRAINING == 1
-    totalCorrect = sum(data.allCorrect);
-    totalTrials = thisTrial;
+    % Get sum of correct responses, but ignore first and last data point
+    totalCorrect = sum(data.allCorrect(1, 2:end-1));
+    totalTrials = thisTrial-1;
     percentTotalCorrect = totalCorrect / totalTrials * 100;
 
     feedbackBlockText = ['Your accuracy in the training task was ' num2str(percentTotalCorrect) ' %. '];
@@ -527,7 +520,7 @@ if TRAINING == 1
     Screen('Flip',ptbWindow);
     WaitSecs(5);
 else
-    totalCorrect = sum(data.allCorrect);
+    totalCorrect = sum(data.allCorrect(1, 2:end-1));
     totalTrials = thisTrial;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     if percentTotalCorrect(BLOCK) > 80

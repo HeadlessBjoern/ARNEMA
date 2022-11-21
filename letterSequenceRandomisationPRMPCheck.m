@@ -19,7 +19,7 @@ pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
 
 % Check letter sequence for pseudorandom match probability for probeLetter of 32%-34% and display in CW
 if pseudoRandomMatchProbability > 32 && pseudoRandomMatchProbability < 34
-    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').']);
+    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter '). Continuing...']);
 % If pseudoRandomMatchProbability is not between 32%-34%, redo letterSequence
 else
     disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').' ...
@@ -50,7 +50,7 @@ else
         letterSequence = rawLetterSequence;
         pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
         if pseudoRandomMatchProbability > 32 && pseudoRandomMatchProbability < 34
-            disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').']);
+            disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter '). Continuing...']);
         else
             disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').' ...
           ' Creating new letterSequence.']);
