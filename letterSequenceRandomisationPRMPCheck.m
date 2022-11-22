@@ -10,15 +10,15 @@ digits = randperm(length(alphabet102));
 rawLetterSequence = alphabet102(digits);
 % Create vector of repeating alphabet with pseudorandom match probability for probeLetter of 33%
 % Take 30 random indices of the rawLetterSequence and insert probeLetter
-digits31 = digits(1:31);
-for idxLetter = 1:length(digits31)
-    rawLetterSequence(digits31(idxLetter)) = probeLetter(BLOCK);
+digits30 = digits(1:30);
+for idxLetter = 1:length(digits30)
+    rawLetterSequence(digits30(idxLetter)) = probeLetter(BLOCK);
 end
 letterSequence = rawLetterSequence;
 pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
 
 % Check letter sequence for pseudorandom match probability for probeLetter of 32%-34% and display in CW
-if pseudoRandomMatchProbability > 32 && pseudoRandomMatchProbability < 34
+if pseudoRandomMatchProbability == 33
     disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter '). Continuing...']);
 % If pseudoRandomMatchProbability is not between 32%-34%, redo letterSequence
 else
@@ -43,13 +43,13 @@ else
         rawLetterSequence = alphabet102(digits);
         % Create vector of repeating alphabet with pseudorandom match probability for probeLetter of 33%
         % Take 30 random indices of the rawLetterSequence and insert probeLetter
-        digits31 = digits(1:30);
-        for idxLetter = 1:length(digits31)
-            rawLetterSequence(digits31(idxLetter)) = probeLetter(BLOCK);
+        digits30 = digits(1:30);
+        for idxLetter = 1:length(digits30)
+            rawLetterSequence(digits30(idxLetter)) = probeLetter(BLOCK);
         end
         letterSequence = rawLetterSequence;
         pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
-        if pseudoRandomMatchProbability > 32 && pseudoRandomMatchProbability < 34
+        if pseudoRandomMatchProbability == 33
             disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter '). Continuing...']);
         else
             disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter ').' ...

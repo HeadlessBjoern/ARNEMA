@@ -9,7 +9,7 @@ if TRAINING == 0
     disp('STARTING EEG RECORDING...');
     initEEG;
 end
- 
+
 % Calibrate ET (Tobii Pro Fusion) 
 disp('CALIBRATING ET...');
 calibrateET
@@ -69,7 +69,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;             
 else
-    experiment.nTrials = 102;           % 2 blocks x 100 trials = 200 trials               
+    experiment.nTrials = 20 % 102;           % 2 blocks x 100 trials = 200 trials               
 end
         
 % Set up equipment parameters
@@ -86,7 +86,7 @@ stimulus.fixationSize_dva = .15;        % Size of fixation cross in degress of v
 stimulus.fixationColor = 1;             % Color of fixation cross (1 = white)
 stimulus.fixationLineWidth = 3;         % Line width of fixation cross
 
-% Location
+% Locatio'GNLNNBSQMMXENINNEZNNQDECNNYBNTNWNXNAUXTPNRNLQNWICOJNAKFNNYSHJNHNFLXRNVDCVNKVFNUNNVERNSHNUDNBTANJDGIYNN'n
 stimulus.regionHeight_dva = 7.3;         % Height of the region
 stimulus.regionWidth_dva = 4;            % Width of the region
 stimulus.regionEccentricity_dva = 3;     % Eccentricity of regions from central fixation
@@ -137,11 +137,11 @@ startBlockText = 'Press any key to begin the next block.';
 % Define clarificationText
 clarificationText = ['Q        A         T   \n\n' ...
                      '                   ^ as you see this letter \n\n' ...
-                     '^ react to this letter'];
+                     '^ react to this letter' ...
+                     '\n\n' ...
+                     'Press any key to continue.'];
 
 % Set up temporal parameters (all in seconds)
-timing.minSOA = .3;                             % Minimum stimulus onset asynchrony
-timing.maxSOA = .4;                             % Maximum stimulus onset asynchrony
 timing.blank = 1;                               % Duration of blank screen
 timing.retentionInterval = 3;                   % Duration of blank retention interval
 timing.probeStimulus = 5;                       % Duration of probe stimulus
@@ -201,9 +201,9 @@ fixCoords = [fixHorizontal; fixVertical];
 data = struct;
 data.letterSequence = strings;
 data.probeLetter = strings;
-data.trialMatch(1, experiment.nTrials) = NaN;
-data.allResponses(1, experiment.nTrials) = NaN;
-data.allCorrect(1, experiment.nTrials) = NaN;
+data.trialMatch(1:experiment.nTrials) = NaN;
+data.allResponses(1:experiment.nTrials) = NaN;
+data.allCorrect(1:experiment.nTrials) = NaN;
 
 % Create stimuli
 alphabet = 'A' : 'Z';
@@ -216,9 +216,9 @@ else
     % Randomize letter sequence
     digitsProbe = randperm(length(alphabet));
     % Pick first 'length(alphabet)' digit and get the corresponding letter from alphabet
-    probeLetter(BLOCK) = alphabet(digitsProbe(1, 1));
+    probeLetter = alphabet(digitsProbe(1, 1));
     % Save stimulus (probeLetter) in data
-    data.probeLetter(BLOCK) = probeLetter(BLOCK);
+    data.probeLetter = probeLetter;
 end
 
 % Check pseudorandom match probability
@@ -234,7 +234,7 @@ end
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
 startExperimentTime = Screen('Flip',ptbWindow);
-disp('Participant is reading the instructions');
+disp('Participant is reading the instructions.');
 waitResponse = 1;
 while waitResponse
     [time, keyCode] = KbWait(-1,2);
@@ -245,7 +245,14 @@ end
 if BLOCK == 2
     DrawFormattedText(ptbWindow,clarificationText,'center','center',color.textVal);
     Screen('Flip',ptbWindow);
-    disp('Participant is reading the clarification text');
+    disp('Participant is reading the clarification text.');
+
+    waitResponse = 1;
+    while waitResponse
+        [time, keyCode] = KbWait(-1,2);
+        waitResponse = 0;
+    end
+
 end
 
 % Show probeLetter for memorization
@@ -253,20 +260,22 @@ end
 Screen('TextSize', ptbWindow, 60); 
 probeLetterText = ['Memorize this letter! \n\n' ...
                    '\n\n '...
-                   '\n\n Your letter is: ' probeLetter(BLOCK) '.'...
+                   '\n\n Your letter is: ' probeLetter '.'...
                    '\n\n '...
                    '\n\n '...
                    '\n\n Press any key to continue.'];
 
 DrawFormattedText(ptbWindow,probeLetterText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
-disp('Participant is memorizing the probe letter');
+
 if TRAINING == 1
     EThndl.sendMessage(MEMORIZATION); % ET
 else
     EThndl.sendMessage(MEMORIZATION); % ET
     sendtrigger(MEMORIZATION,port,SITE,stayup); % EEG
 end
+disp('Participant is memorizing the probe letter.');
+
 waitResponse = 1;
 while waitResponse
     [time, keyCode] = KbWait(-1,2);
@@ -302,7 +311,7 @@ else
 end
 
 if TRAINING == 1
-    disp('Start of Training Block .');
+    disp('Start of Training Block.');
 else
     disp(['Start of Block ' num2str(BLOCK)]);
 end
@@ -312,7 +321,7 @@ noFixation = 0;
 
 for thisTrial = 1:experiment.nTrials
 
-    disp(['Start Trial ' num2str(thisTrial)]); % Output of current trial #
+    disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial #
 
     % Jittered CFI before presentation of letter (3000ms +/- 1000ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
@@ -362,26 +371,26 @@ for thisTrial = 1:experiment.nTrials
             if whichKey == spaceKeyCode
                 getResponse = false;
                 data.allResponses(thisTrial) = whichKey;
+                TRIGGER = RESP_YES;
+            else
+                TRIGGER = RESP_WRONG;
+                data.allResponses(thisTrial) = whichKey;
+                badResponseFlag = true;
+            end 
 
-                % Send triggers
-                if whichKey == spaceKeyCode
-                    TRIGGER = RESP_YES;
-                elseif whichKey ~= spaceKeyCode
-                    TRIGGER = RESP_WRONG;
-                    badResponseFlag = true;
-                else 
-                    TRIGGER = RESP_NO;
-                end
-
-                if TRAINING == 1
-                    EThndl.sendMessage(TRIGGER,time);
-                else
-                    EThndl.sendMessage(TRIGGER,time);
-                    sendtrigger(TRIGGER,port,SITE,stayup)
-                end
-
-            end
+        elseif isempty(whichKey)
+            data.allResponses(thisTrial) = 0;
+            TRIGGER = RESP_NO;
         end
+            
+        % send triggers
+        if TRAINING == 1
+            EThndl.sendMessage(TRIGGER,time);
+        else
+            EThndl.sendMessage(TRIGGER,time);
+            sendtrigger(TRIGGER,port,SITE,stayup)
+        end
+
         if time > 1
             getResponse = false;
         end
@@ -389,14 +398,14 @@ for thisTrial = 1:experiment.nTrials
     
     % Save match/no match 
     if BLOCK == 1 && thisTrial > 1
-        if letterSequence(thisTrial-1) == probeLetter(BLOCK)
+        if letterSequence(thisTrial-1) == probeLetter
             thisTrialMatch = 1;
         else 
             thisTrialMatch = 0;
         end
     data.trialMatch(thisTrial) = thisTrialMatch;
     elseif BLOCK == 2 && thisTrial > 2
-        if letterSequence(thisTrial-2) == probeLetter(BLOCK)
+        if letterSequence(thisTrial-2) == probeLetter
             thisTrialMatch = 1;
         else 
             thisTrialMatch = 0;
@@ -415,6 +424,8 @@ for thisTrial = 1:experiment.nTrials
             data.allCorrect(thisTrial) = 1;   
         elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == spaceKeyCode  % Incorrect unmatched trial 
             data.allCorrect(thisTrial) = 0;   
+        elseif data.allResponses(thisTrial) ~= spaceKeyCode
+            data.allCorrect(thisTrial) = 0; 
         end
     end
 
@@ -426,7 +437,7 @@ for thisTrial = 1:experiment.nTrials
     elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == false && thisTrial > 1
         feedbackText = 'Incorrect!';
     elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true && thisTrial > 1
-        feedbackText = 'Wrong button! Use only A or L.';
+        feedbackText = 'Wrong button! Use only SPACE.';
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
         WaitSecs(1);
@@ -514,8 +525,8 @@ if TRAINING == 1
     feedbackBlockText = ['Your accuracy in the training task was ' num2str(percentTotalCorrect) ' %. '];
     
     format bank % Change format for display
-    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal); 
     disp(['Participant ' subjectID ' had an accuracy of ' num2str(percentTotalCorrect) ' % in the training task.'])
+    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal); 
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
@@ -618,6 +629,32 @@ waitResponse = 1;
 while waitResponse
     [time, keyCode] = KbWait(-1,2);
     waitResponse = 0;
+end
+
+% Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 6)
+if BLOCK == 1
+    waitTime = 30;
+    intervalTime = 1;
+    timePassed = 0;
+    printTime = 30;
+    
+    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+                    ' \n\n ' ...
+                    ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
+    
+    DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+    Screen('Flip',ptbWindow);
+    
+    while timePassed < waitTime
+        pause(intervalTime);
+        timePassed = timePassed + intervalTime;
+        printTime = waitTime - timePassed;
+        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+                        ' \n\n ' ...
+                        ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
+        DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+        Screen('Flip',ptbWindow);
+    end
 end
 
 % Save total amount earned and display

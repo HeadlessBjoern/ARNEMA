@@ -6,4 +6,4 @@ if amountProbeLettersFirst10 < 2
     disp('There is only one probeLetter in letterSequence. Creating new letterSequence...');
     letterSequenceChecks;
 end
-disp(['There are ' num2str(amountProbeLettersFirst10) ' probeLetters in letterSequence. Saving letterSequence and continuing...']);
+disp(['There are ' num2str(amountProbeLettersFirst10) ' probeLetters in the first 10 places in letterSequence. Saving letterSequence and continuing...']);

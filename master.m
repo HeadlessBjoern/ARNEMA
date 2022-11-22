@@ -39,7 +39,7 @@ dialogID;
 ListenChar(2);
 
 %% Resting state EEG
-Resting_EEG;
+% Resting_EEG;
 
 %% Randomize order of Sternberg Task and NBack Task
 rdmOrder;
