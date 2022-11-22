@@ -59,9 +59,10 @@ ENDBLOCK0 = 49; % trigger for end of training block
 ENDBLOCK1 = 41; % trigger for end of block 1 (1-back)
 ENDBLOCK2 = 42; % trigger for end of block 2 (2-back)
 MEMORIZATION = 55; % trigger for probe letter memorization
-RESP_YES = 77; % trigger for response yes (spacebar)
-RESP_NO = 78; % trigger for response no (no input)
-RESP_WRONG = 79;% trigger for wrong keyboard input response
+% 60-86 TRIGGERS for STIMULI (after definition of alphabet)
+RESP_YES = 87; % trigger for response yes (spacebar)
+RESP_NO = 88; % trigger for response no (no input)
+RESP_WRONG = 89;% trigger for wrong keyboard input response
 TASK_END = 90; 
 
 % Set up experiment parameters
@@ -82,11 +83,11 @@ equipment.gammaVals = [1 1 1];          % The gamma values for color calibration
 
 % Set up stimulus parameters Fixation
 stimulus.fixationOn = 1;                % Toggle fixation on (1) or off (0)
-stimulus.fixationSize_dva = .15;        % Size of fixation cross in degress of visual angle
+stimulus.fixationSize_dva = .5;        % Size of fixation cross in degress of visual angle
 stimulus.fixationColor = 1;             % Color of fixation cross (1 = white)
 stimulus.fixationLineWidth = 3;         % Line width of fixation cross
 
-% Locatio'GNLNNBSQMMXENINNEZNNQDECNNYBNTNWNXNAUXTPNRNLQNWICOJNAKFNNYSHJNHNFLXRNVDCVNKVFNUNNVERNSHNUDNBTANJDGIYNN'n
+% Location
 stimulus.regionHeight_dva = 7.3;         % Height of the region
 stimulus.regionWidth_dva = 4;            % Width of the region
 stimulus.regionEccentricity_dva = 3;     % Eccentricity of regions from central fixation
@@ -111,7 +112,8 @@ if TRAINING == 1
     'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
     'Afterwards, a series of random letters will be shown to you. \n\n' ...
     'Your task is to press SPACE if this is the same letter as the previous letter you were shown. \n\n' ...
-    'Don''t worry, you can do a training sequence in the beginning. \n\n' ...
+    'Otherwise, you can just not press any button. \n\n' ...
+    '\n\n Don''t worry, you can do a training sequence in the beginning. \n\n' ...
     '\n\n Press any key to continue.'];
 else
     if BLOCK == 1
@@ -120,6 +122,7 @@ else
     'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
     'Afterwards, a series of random letters will be shown to you. \n\n' ...
     'Your task is to press SPACE if this is the same letter as the previous letter you were shown. \n\n' ...
+     'Otherwise, you can just not press any button. \n\n' ...
     '\n\n Press any key to continue.'];
     elseif BLOCK == 2
         loadingText = 'Loading actual task...';
@@ -127,6 +130,7 @@ else
     'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
     'Afterwards, a series of random letters will be shown to you. \n\n' ...
     'Your task is to press SPACE if this is the same letter as the letter you were shown before the last one. \n\n' ...
+    'Otherwise, you can just not press any button. \n\n' ...
     '\n\n Press any key to continue.'];
     end
 end
@@ -209,6 +213,13 @@ data.allCorrect(1:experiment.nTrials) = NaN;
 alphabet = 'A' : 'Z';
 alphabet102 = [alphabet alphabet alphabet alphabet(1:end-2)]; % Create vector of repeating alphabet up to 100 letters
 
+% Define triggers for every letter as stimulus
+alphabetSTIM = {};
+for indx = 1:length(alphabet)
+    alphabetSTIM{indx} = alphabet(indx);
+    STIMULUS.(alphabetSTIM{indx}) = alphabet(indx);
+end
+
 % Pick probe stimulus from letters 
 if TRAINING == 1
     probeLetter = 'Q';
@@ -283,14 +294,13 @@ while waitResponse
 end
 % Return size of text to default
 Screen('TextSize', ptbWindow, 40);
-
-endTime = Screen('Flip',ptbWindow);
+Screen('Flip',ptbWindow);
 
 % Send triggers: task starts. If training, send only ET triggers
 if TRAINING == 1
-    EThndl.sendMessage(TASK_START,endTime); % ET
+    EThndl.sendMessage(TASK_START); % ET
 else
-    EThndl.sendMessage(TASK_START,endTime); % ET
+    EThndl.sendMessage(TASK_START); % ET
     sendtrigger(TASK_START,port,SITE,stayup); % EEG
 end
 
@@ -336,7 +346,6 @@ for thisTrial = 1:experiment.nTrials
     end
     WaitSecs(timing.cfi);                            % Wait duration of the jittered central fixation interval
 
-
     % Increase size of stimuli
     Screen('TextSize', ptbWindow, 60); 
     % Present stimulus from letter sequence (2000ms)
@@ -360,6 +369,11 @@ for thisTrial = 1:experiment.nTrials
         sendtrigger(TRIGGER,port,SITE,stayup);
     end
 
+    % Send triggers for stimulus identification
+    for ind = 1:length(alphabet)
+        STIMULUS.(alphabet(1))
+    end
+   
     % Get response
     getResponse = true;
     badResponseFlag = false;
@@ -412,7 +426,6 @@ for thisTrial = 1:experiment.nTrials
         end
     data.trialMatch(thisTrial) = thisTrialMatch;
     end
-    
 
     % Check if response was correct
     if BLOCK == 1 && thisTrial > 1
@@ -428,8 +441,6 @@ for thisTrial = 1:experiment.nTrials
             data.allCorrect(thisTrial) = 0; 
         end
     end
-
-    endTime = Screen('Flip',ptbWindow, 1);
 
     % Display (in-)correct response in CW
     if data.allCorrect(thisTrial) == 1 && thisTrial > 1
@@ -591,6 +602,7 @@ trigger.ENDBLOCK2 = ENDBLOCK2;
 trigger.MEMORIZATION = MEMORIZATION;
 trigger.RESP_YES = RESP_YES;
 trigger.RESP_NO = RESP_NO;
+trigger.RESP_WRONG = RESP_WRONG;
 trigger.TASK_END = TASK_END;
 
 % stop and close EEG and ET recordings
@@ -631,8 +643,31 @@ while waitResponse
     waitResponse = 0;
 end
 
-% Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 6)
-if BLOCK == 1
+% Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 2)
+if BLOCK == 1 && TRAINING == 1
+    waitTime = 30;
+    intervalTime = 1;
+    timePassed = 0;
+    printTime = 30;
+    
+    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+                    ' \n\n ' ...
+                    ' \n\n Block 1 of the N-back task will start afterwards.'];
+    
+    DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+    Screen('Flip',ptbWindow);
+    
+    while timePassed < waitTime
+        pause(intervalTime);
+        timePassed = timePassed + intervalTime;
+        printTime = waitTime - timePassed;
+        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+                        ' \n\n ' ...
+                        ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
+        DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+        Screen('Flip',ptbWindow);
+    end
+elseif BLOCK == 1 && TRAINING == 0
     waitTime = 30;
     intervalTime = 1;
     timePassed = 0;
