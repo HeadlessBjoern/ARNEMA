@@ -214,10 +214,11 @@ alphabet = 'A' : 'Z';
 alphabet102 = [alphabet alphabet alphabet alphabet(1:end-2)]; % Create vector of repeating alphabet up to 100 letters
 
 % Define triggers for every letter as stimulus
-alphabetSTIM = {};
-for indx = 1:length(alphabet)
-    alphabetSTIM{indx} = alphabet(indx);
-    STIMULUS.(alphabetSTIM{indx}) = alphabet(indx);
+STIM  = [];
+c = 1;
+for i = 60:86
+    STIM(c) = i;
+    c = c + 1;
 end
 
 % Pick probe stimulus from letters 
@@ -370,8 +371,14 @@ for thisTrial = 1:experiment.nTrials
     end
 
     % Send triggers for stimulus identification
-    for ind = 1:length(alphabet)
-        STIMULUS.(alphabet(1))
+    stimName = probeLetter;
+    searchStim = ismember(alphabetSTIM, stimName);
+    TRIGGER = STIM(searchStim);
+    if TRAINING == 1
+        EThndl.sendMessage(TRIGGER);
+    else
+        EThndl.sendMessage(TRIGGER);
+        sendtrigger(TRIGGER,port,SITE,stayup);
     end
    
     % Get response
