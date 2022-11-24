@@ -208,6 +208,7 @@ data.probeLetter = strings;
 data.trialMatch(1:experiment.nTrials) = NaN;
 data.allResponses(1:experiment.nTrials) = NaN;
 data.allCorrect(1:experiment.nTrials) = NaN;
+data.stims(1:experiment.nTrials) = NaN;
 
 % Create stimuli
 alphabet = 'A' : 'Z';
@@ -372,8 +373,9 @@ for thisTrial = 1:experiment.nTrials
 
     % Send triggers for stimulus identification
     stimName = probeLetter;
-    searchStim = ismember(alphabetSTIM, stimName);
+    searchStim = ismember(alphabet, stimName);
     TRIGGER = STIM(searchStim);
+    data.stims(thisTrial) = STIM(searchStim);
     if TRAINING == 1
         EThndl.sendMessage(TRIGGER);
     else
@@ -670,7 +672,7 @@ if BLOCK == 1 && TRAINING == 1
         printTime = waitTime - timePassed;
         waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
                         ' \n\n ' ...
-                        ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
+                        ' \n\n Block 1 of the N-back task will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
     end
