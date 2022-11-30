@@ -70,7 +70,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;             
 else
-    experiment.nTrials = 20 % 102;           % 2 blocks x 100 trials = 200 trials               
+    experiment.nTrials = 102;           % 2 blocks x 100 trials = 200 trials               
 end
         
 % Set up equipment parameters
@@ -449,6 +449,18 @@ for thisTrial = 1:experiment.nTrials
         elseif data.allResponses(thisTrial) ~= spaceKeyCode
             data.allCorrect(thisTrial) = 0; 
         end
+    elseif BLOCK == 2 && thisTrial > 2
+        if thisTrialMatch == 1 && data.allResponses(thisTrial) == spaceKeyCode  % Correct matched trial 
+            data.allCorrect(thisTrial) = 1;   
+        elseif thisTrialMatch == 1 && data.allResponses(thisTrial) == 0  % Incorrect matched trial 
+            data.allCorrect(thisTrial) = 0;   
+        elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == 0  % Correct unmatched trial 
+            data.allCorrect(thisTrial) = 1;   
+        elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == spaceKeyCode  % Incorrect unmatched trial 
+            data.allCorrect(thisTrial) = 0;   
+        elseif data.allResponses(thisTrial) ~= spaceKeyCode
+            data.allCorrect(thisTrial) = 0; 
+        end
     end
 
     % Display (in-)correct response in CW
@@ -463,17 +475,35 @@ for thisTrial = 1:experiment.nTrials
         WaitSecs(1);
     elseif thisTrial == 1
         disp('No Response to Trial 1 in N-Back Task');
+    elseif BLOCK == 2 && thisTrial == 2
+        disp('No Response to Trial 2 in Block 2 of N-Back Task');
     end
-    if thisTrial > 1
+    if BLOCK == 2 && thisTrial > 2
+        disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
+    elseif BLOCK == 1 && thisTrial > 1
         disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
     end
 
     % Dynamically compute accuracy for past 10 trials and remind participant if accuracy drops below threshhold of 74%
     responsesLastTrials = 0;
-    if thisTrial > 11
+    if BLOCK == 1 && thisTrial > 11
        % Get 10 last trials, but ignore last data point
        responsesLastTrials = data.allCorrect(end-10 : end-1);
-       percentLastTrialsCorrect = sum(responsesLastTrials)*10;
+       percentLastTrialsCorrect = (sum(responsesLastTrials)/length(responsesLastTrials))*100;
+       if percentLastTrialsCorrect < 74
+          feedbackLastTrials = ['Your accuracy has declined!'...
+                                '\n\n Of the last 10 trials only ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
+                                '\n\n You can earn more if you perform better.' ...
+                                '\n\n Please keep focused on the task!'];
+        disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %.']);
+        DrawFormattedText(ptbWindow,feedbackLastTrials,'center','center',color.textVal);
+        Screen('Flip',ptbWindow);
+        WaitSecs(5);
+       end
+    elseif BLOCK == 2 && thisTrial > 12
+       % Get 10 last trials, but ignore first two and last data point
+       responsesLastTrials = data.allCorrect(end-9 : end-1);
+       percentLastTrialsCorrect = (sum(responsesLastTrials)/length(responsesLastTrials))*100;
        if percentLastTrialsCorrect < 74
           feedbackLastTrials = ['Your accuracy has declined!'...
                                 '\n\n Of the last 10 trials only ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
@@ -539,7 +569,7 @@ end
 if TRAINING == 1
     % Get sum of correct responses, but ignore first and last data point
     totalCorrect = sum(data.allCorrect(1, 2:end-1));
-    totalTrials = thisTrial-1;
+    totalTrials = thisTrial-2;
     percentTotalCorrect = totalCorrect / totalTrials * 100;
 
     feedbackBlockText = ['Your accuracy in the training task was ' num2str(percentTotalCorrect) ' %. '];
@@ -550,9 +580,10 @@ if TRAINING == 1
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
-else
+elseif BLOCK == 1
+    % Get sum of correct responses, but ignore first and last data point
     totalCorrect = sum(data.allCorrect(1, 2:end-1));
-    totalTrials = thisTrial;
+    totalTrials = thisTrial-2;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     if percentTotalCorrect(BLOCK) > 80
        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
@@ -560,6 +591,29 @@ else
                              '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
                              '\n\n Keep it up!'];
     elseif percentTotalCorrect(BLOCK) < 80 && BLOCK == 1
+       amountCHFextra(BLOCK) = 0;
+       feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+                            '\n\n Your accuracy was very low in this block. Please stay focused!'];
+       disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
+    end
+    
+    format bank % Change format for display
+    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal); 
+    disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
+    format default % Change format back to default
+    Screen('Flip',ptbWindow);
+    WaitSecs(5);
+elseif BLOCK == 2
+    % Get sum of correct responses, but ignore first two and last data point
+    totalCorrect = sum(data.allCorrect(1, 3:end-1));
+    totalTrials = thisTrial-3;
+    percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
+    if percentTotalCorrect(BLOCK) > 80
+       amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
+       feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+                             '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
+                             '\n\n Keep it up!'];
+    elseif percentTotalCorrect(BLOCK) < 80
        amountCHFextra(BLOCK) = 0;
        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
                             '\n\n Your accuracy was very low in this block. Please stay focused!'];

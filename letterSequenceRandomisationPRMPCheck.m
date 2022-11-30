@@ -12,10 +12,10 @@ rawLetterSequence = alphabet102(digits);
 % Take 30 random indices of the rawLetterSequence and insert probeLetter
 digits30 = digits(1:30);
 for idxLetter = 1:length(digits30)
-    rawLetterSequence(digits30(idxLetter)) = probeLetter(BLOCK);
+    rawLetterSequence(digits30(idxLetter)) = probeLetter;
 end
 letterSequence = rawLetterSequence;
-pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
+pseudoRandomMatchProbability = count(letterSequence, probeLetter);
 
 % Check letter sequence for pseudorandom match probability for probeLetter of 32%-34% and display in CW
 if pseudoRandomMatchProbability == 33
@@ -32,9 +32,9 @@ else
             % Randomize letter sequence
             digitsProbe = randperm(length(alphabet));
             % Pick first 'length(alphabet)' digit and get the corresponding letter from alphabet
-            probeLetter(BLOCK) = alphabet(digitsProbe(1, 1));
+            probeLetter = alphabet(digitsProbe(1, 1));
             % Save stimulus (probeLetter) in data
-            data.probeLetter(BLOCK) = probeLetter(BLOCK);
+            data.probeLetter = probeLetter;
         end
         
         % Randomize letter sequence
@@ -45,10 +45,10 @@ else
         % Take 30 random indices of the rawLetterSequence and insert probeLetter
         digits30 = digits(1:30);
         for idxLetter = 1:length(digits30)
-            rawLetterSequence(digits30(idxLetter)) = probeLetter(BLOCK);
+            rawLetterSequence(digits30(idxLetter)) = probeLetter;
         end
         letterSequence = rawLetterSequence;
-        pseudoRandomMatchProbability = count(letterSequence, probeLetter(BLOCK));
+        pseudoRandomMatchProbability = count(letterSequence, probeLetter);
         if pseudoRandomMatchProbability == 33
             disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letter sequence are probe stimuli (' probeLetter '). Continuing...']);
         else
