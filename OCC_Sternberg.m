@@ -491,7 +491,7 @@ for thisTrial = 1:experiment.nTrials
        percentLastTrialsCorrect = sum(responsesLastTrials)*10;
        if percentLastTrialsCorrect < 74
           feedbackLastTrials = ['Your accuracy has declined!'...
-                                '\n\n Of the last 10 trials only ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
+                                '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
                                 '\n\n ' ...
                                 '\n\n Please stay focused on the task!'];
         disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %. [' num2str(responsesLastTrials) ']']);
@@ -509,11 +509,8 @@ for thisTrial = 1:experiment.nTrials
     % Check if subject fixate at center, give warning if not
     checkFixation;
     if noFixation > 2
-        PsychPortAudio('FillBuffer', pahandle,wavedata_probe1);
-        PsychPortAudio('Start', pahandle, 1, 0, 1);
         disp('No fixation. Playing audio instruction for fixation.');
         noFixation = 0; % reset
-        WaitSecs(6); % wait for audio instruction to end
     end
 end
 

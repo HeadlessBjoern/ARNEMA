@@ -372,7 +372,7 @@ for thisTrial = 1:experiment.nTrials
     end
 
     % Send triggers for stimulus identification
-    stimName = probeLetter;
+    stimName = letterSequence(thisTrial);
     searchStim = ismember(alphabet, stimName);
     TRIGGER = STIM(searchStim);
     data.stims(thisTrial) = STIM(searchStim);
@@ -492,7 +492,7 @@ for thisTrial = 1:experiment.nTrials
        percentLastTrialsCorrect = (sum(responsesLastTrials)/length(responsesLastTrials))*100;
        if percentLastTrialsCorrect < 74
           feedbackLastTrials = ['Your accuracy has declined!'...
-                                '\n\n Of the last 10 trials only ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
+                                '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
                                 '\n\n You can earn more if you perform better.' ...
                                 '\n\n Please keep focused on the task!'];
         disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %.']);
@@ -506,7 +506,7 @@ for thisTrial = 1:experiment.nTrials
        percentLastTrialsCorrect = (sum(responsesLastTrials)/length(responsesLastTrials))*100;
        if percentLastTrialsCorrect < 74
           feedbackLastTrials = ['Your accuracy has declined!'...
-                                '\n\n Of the last 10 trials only ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
+                                '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
                                 '\n\n You can earn more if you perform better.' ...
                                 '\n\n Please keep focused on the task!'];
         disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %.']);
@@ -517,12 +517,10 @@ for thisTrial = 1:experiment.nTrials
     end
 
     % Check if subject fixate at center, give warning if not
+    checkFixation;
     if noFixation > 2
-        PsychPortAudio('FillBuffer', pahandle,wavedata_probe1);
-        PsychPortAudio('Start', pahandle, 1, 0, 1);
         disp('NO FIXATION. PLAYING AUDIO INSTRUCTION...')
         noFixation = 0; % reset
-        WaitSecs(6); % wait for audio instruction to end
     end
 end
 

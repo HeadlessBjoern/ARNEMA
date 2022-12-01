@@ -42,19 +42,15 @@ ins.resting=struct();
 ins.resting.inst = [...
     'Experiment: Resting EEG' ...
     '\n\n\nYou will see a cross in the middle of the screen. '...
-    '\n\nFocus your gaze on this cross. \nOpen and close your eyes when prompted.'...
+    '\n\nFocus your gaze on this cross. \n'...
     ];
 ins.resting.end = [...
     'Nun folgen weitere Aufgaben. '...
     ];
 %% Trials
-NrOfTrials = 7;  % How many Cycles to run (8 if  you want to run 6 cycles)
 eyeO = 3:60:303; % Audio cues
 eyeC = 23:60:323;
 
-% Setting the Audiofiles
-wavfilename_probe1 = '/home/methlab/Desktop/ARNEMA/open_eyes.wav'; %Open Eyes
-wavfilename_probe2 = '/home/methlab/Desktop/ARNEMA/close_eyes.wav';%Close Eyes
 
 % Setting the Trigger codes
 par.CD_START = 10;
@@ -74,35 +70,6 @@ load gammafnCRT;   % load the gamma function parameters for this monitor - or so
 maxLum = GrayLevel2Lum(255,Cg,gam,b0);
 par.BGcolor = Lum2GrayLevel(maxLum/2,Cg,gam,b0);
 
-%% Sound Stuff
-%dev = PsychPortAudio('GetDevices')
-%count = PsychPortAudio('GetOpenDeviceCount')
-try
-    PsychPortAudio('Close');
-catch
-end
-try
-    [y_probe1, freq1] = audioread(wavfilename_probe1);
-    [y_probe2, freq2] = audioread(wavfilename_probe2);
-    wavedata_probe1 = y_probe1';
-    wavedata_probe2 = y_probe2';
-    nrchannels = size(wavedata_probe1,1); % Number of rows == number of channels.
-    % Add 15 msecs latency on ptbWindows, to protect against shoddy drivers:
-    sugLat = [];
-    if IsWin
-        sugLat = 0.015;
-    end
-    try
-        InitializePsychSound;
-        pahandle = PsychPortAudio('Open', [2], [], 0, freq1, nrchannels, [], sugLat); % DAWID - look for devices - here 2
-        duration_probe1 = size(wavedata_probe1,2)/freq1;
-        duration_probe2 = size(wavedata_probe2,2)/freq1;
-    catch
-        error('Sound Initialisation Error');
-    end
-catch
-    error('Sound Error');
-end
 
 i = 1;
 t = 1;
@@ -135,14 +102,8 @@ time = GetSecs;
 EThndl.sendMessage(par.CD_START);
 sendtrigger(par.CD_START,port,SITE,stayup)
 
-%while ~KbCheck
-if testmode == 1
-    trials = 4; % Test Mode
-else
-    trials = NrOfTrials;
-end
 fprintf('Running Trials\n');
-while t < trials
+while t < 8
     Screen('DrawLine', ptbWindow,[0 0 0],center(1)-7,center(2), center(1)+7,center(2));
     Screen('DrawLine', ptbWindow,[0 0 0],center(1),center(2)-7, center(1),center(2)+7);
     vbl = Screen('Flip',ptbWindow); % clc
@@ -154,8 +115,7 @@ while t < trials
 
         disp('Eyes Open');
         
-        PsychPortAudio('FillBuffer', pahandle,wavedata_probe1);
-        PsychPortAudio('Start', pahandle, 1, 0, 1);
+
         t = t+1;
     end
     
@@ -166,8 +126,7 @@ while t < trials
         sendtrigger(par.CD_eyeC,port,SITE,stayup)
 
         disp('Eyes Closed');
-        PsychPortAudio('FillBuffer', pahandle,wavedata_probe2);
-        PsychPortAudio('Start', pahandle, 1, 0, 1);
+
         tt = tt+1;
     end
 end
@@ -196,8 +155,4 @@ disp('SAVING DATA...');
 closeEEGandET;
 
 sca; %If Eyetracker wasn't used, close the Screens now
-try
-    PsychPortAudio('Close');
-catch
-end
 
