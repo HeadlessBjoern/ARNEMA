@@ -53,11 +53,3 @@ end
 
 %% Allow keyboard input into Matlab code
 ListenChar(0);
-
-%% Check and Display Participant Stats Overview
-
-% NEWFILE
-
-endTimeOverall = str2num(datestr(now, 'HHMMSS'));
-saves.startTimeOverall = startTimeOverall;
-saves.endTimeOverall = endTimeOverall;

@@ -102,7 +102,7 @@ equipment.gammaVals = [1 1 1];          % The gamma values for color calibration
 % Set up stimulus parameters Fixation
 stimulus.fixationOn = 1;                % Toggle fixation on (1) or off (0)
 stimulus.fixationSize_dva = .50;        % Size of fixation cross in degress of visual angle
-stimulus.fixationColor = 1;             % Color of fixation cross (1 = white)
+stimulus.fixationColor = 0;             % Color of fixation cross (1 = white)
 stimulus.fixationLineWidth = 3;         % Line width of fixation cross
 stimulus.regionHeight_dva = 7.3;
 stimulus.regionWidth_dva = 4;
@@ -110,6 +110,7 @@ stimulus.regionEccentricity_dva = 3;
 
 % Set up color parameters
 color.textVal = 0;                  % Color of text
+color.targetVal = 1;
 
 % Set up text parameters
 text.color = 0;                     % Color of text (0 = black)
@@ -119,8 +120,8 @@ if TRAINING == 1
     startExperimentText = ['Training task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
     'Try to memorize these digit sequences. \n\n' ...
     'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
-    'Afterwards, you will be presented with a digit. \n\n' ...
-    'Your task is to determine if this digit was included in the previous digit sequence. \n\n' ...
+    'Afterwards, you will be presented with a white digit. \n\n' ...
+    'Your task is to determine if this white digit was included in the previous digit sequence. \n\n' ...
     'Feedback will be provided after each trial. \n\n' ...
     'Press any key to continue.'];
 else
@@ -129,8 +130,8 @@ else
         startExperimentText = ['Actual task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
     'Try to memorize these digit sequences. \n\n' ...
     'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
-    'Afterwards, you will be presented with a digit. \n\n' ...
-    'Your task is to determine if this digit was included in the previous digit sequence. \n\n' ...
+    'Afterwards, you will be presented with a white digit. \n\n' ...
+    'Your task is to determine if this white digit was included in the previous digit sequence. \n\n' ...
     'Feedback will be provided after each trial. \n\n' ...
     'Press any key to continue.'];
     else
@@ -375,7 +376,7 @@ for thisTrial = 1:experiment.nTrials
         shuffledSequence = Shuffle(thisTrialSequenceDigits);
         thisTrialProbeDigit = shuffledSequence(1);
         % Pick random matching probe stimulus from digitSequence
-        DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',text.color);        % Draw probe stimulus
+        DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
         Screen('Flip', ptbWindow);
         thisTrialMatch = 1;
         TRIGGER = MATCH;
@@ -383,7 +384,7 @@ for thisTrial = 1:experiment.nTrials
         shuffledSequence = Shuffle(setdiff(digits, thisTrialSequenceDigits));
         thisTrialProbeDigit = shuffledSequence(1);
         % Pick random NOT matching probe stimulus from digits (excluding numbers from digitSequence)
-        DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',text.color);        % Draw probe stimulus
+        DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
         Screen('Flip', ptbWindow);
         thisTrialMatch = 0;
         TRIGGER = NO_MATCH;
@@ -482,7 +483,7 @@ for thisTrial = 1:experiment.nTrials
     disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
     DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
     Screen('Flip',ptbWindow);
-    WaitSecs(0.5);
+    WaitSecs(3);
 
     % Dynamically compute accuracy for past 10 trials and remind participant if accuracy drops below threshhold of 74%
     responsesLastTrials = 0;

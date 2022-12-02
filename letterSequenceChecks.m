@@ -10,7 +10,7 @@
 letterSequenceRandomisationPRMPCheck;
 
 % Check for probe letter grouping; only allow grouping of up 3 probe letters after each other in letterSequence
-checkProbeLetterGrouping;
+% checkProbeLetterGrouping; % Deactivated check for grouping since around 66% of letterSequence are probe stimuli
 
 % Check if at least two probeLetters are in the first 10 stimuli (for training)
 checkFirst10;

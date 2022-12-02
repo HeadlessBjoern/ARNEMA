@@ -84,7 +84,7 @@ equipment.gammaVals = [1 1 1];          % The gamma values for color calibration
 % Set up stimulus parameters Fixation
 stimulus.fixationOn = 1;                % Toggle fixation on (1) or off (0)
 stimulus.fixationSize_dva = .5;        % Size of fixation cross in degress of visual angle
-stimulus.fixationColor = 1;             % Color of fixation cross (1 = white)
+stimulus.fixationColor = 0;             % Color of fixation cross (1 = white)
 stimulus.fixationLineWidth = 3;         % Line width of fixation cross
 
 % Location
@@ -97,7 +97,6 @@ stimulus.nColors = 2;                   % Number of colors used in the experimen
 color.white = [255, 255, 255];
 color.grey = [128, 128, 128];
 color.textVal = 0;                      % Color of text
-
 % Set up text parameters
 text.instructionFont = 'Menlo';         % Font of instruction text
 text.instructionPoints = 12;            % Size of instruction text (This if overwritten by )
@@ -140,8 +139,8 @@ startBlockText = 'Press any key to begin the next block.';
 
 % Define clarificationText
 clarificationText = ['Q        A         T   \n\n' ...
-                     '                   ^ as you see this letter \n\n' ...
-                     '^ react to this letter' ...
+                     '                       ^ as you see this letter \n\n' ...
+                     '    ^ react to this letter' ...
                      '\n\n' ...
                      'Press any key to continue.'];
 
@@ -421,13 +420,13 @@ for thisTrial = 1:experiment.nTrials
     
     % Save match/no match 
     if BLOCK == 1 && thisTrial > 1
-        if letterSequence(thisTrial-1) == probeLetter
+        if letterSequence(thisTrial-1) == probeLetter && letterSequence(thisTrial) == probeLetter
             thisTrialMatch = 1;
         else 
             thisTrialMatch = 0;
         end
     data.trialMatch(thisTrial) = thisTrialMatch;
-    elseif BLOCK == 2 && thisTrial > 2
+    elseif BLOCK == 2 && thisTrial > 2 && letterSequence(thisTrial) == probeLetter
         if letterSequence(thisTrial-2) == probeLetter
             thisTrialMatch = 1;
         else 
@@ -472,7 +471,7 @@ for thisTrial = 1:experiment.nTrials
         feedbackText = 'Wrong button! Use only SPACE.';
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
-        WaitSecs(1);
+        WaitSecs(3);
     elseif thisTrial == 1
         disp('No Response to Trial 1 in N-Back Task');
     elseif BLOCK == 2 && thisTrial == 2
