@@ -222,17 +222,9 @@ end
 
 % Create stimuli (letterSequences); generated once in 'createLetterSequences.m' for all participants
 letterSequenceT = 'AQAQQTQQSQQE';
-letterSequence1 = 'AAFMWAACAASAAARKAAAGSAAITMRAAAKELAATSAAAKAAIAAQAAAMAANAAASVEDZHJAALAASAAOAAUAAEAAHAAJAALAAPAAARAAGAAZZ';
-letterSequence2 = 'XXFXWXXCXXSXXXRXXXXGSXXITURXXKXLXXTSXXKXXIXXQXXXMXXXNXXXSXEXZXJXXLXXXSXXOIMXXUXXXEXHXXJXXLOPXXXRXXGXXZ';
-
-% Define letterSequence
-if TRAINING == 1
-    letterSequence = letterSequenceT;
-elseif BLOCK == 1 && TRAINING == 0
-    letterSequence = letterSequence1;
-elseif BLOCK == 2
-    letterSequence = letterSequence2;
-end
+letterSequence1 =  'AAFMWAACAASAAARKAAAGSAAITMRAAAKELAATSAAAKAAIAAQAAAMAANAAASVEDZHJAALAASAAOAAUAAEAAHAAJAALAAPAAARAAGAAZZ'
+% Randomly generated, but the same for every participant; 1-back task
+letterSequence2 = % Randomly generated, but the same for every participant; 2-back taskss
 
 % Save sequence of letters of this block in data
 if BLOCK == 1
