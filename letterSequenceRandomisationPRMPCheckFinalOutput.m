@@ -44,16 +44,15 @@ if pseudoRandomMatchProbability == 33
 % If pseudoRandomMatchProbability is not between 32%-34%, redo letterSequence
 else
     while pseudoRandomMatchProbability <= 32 || pseudoRandomMatchProbability >= 34
-        % Pick probe stimulus from letters 
+        % Define probe stimulus
         if TRAINING == 1
             probeLetter = 'Q';
-        else
-            % Randomize letter sequence
-            digitsProbe = randperm(length(alphabet));
-            % Pick first 'length(alphabet)' digit and get the corresponding letter from alphabet
-            probeLetter = alphabet(digitsProbe(1, 1));
-            % Save stimulus (probeLetter) in data
-            data.probeLetter = probeLetter;
+        elseif BLOCK == 1 && TRAINING == 0
+            probeLetter = 'A';
+            data.probeLetter = probeLetter; % Save stimulus (probeLetter) in data
+        elseif BLOCK == 2
+            probeLetter = 'X';
+            data.probeLetter = probeLetter; % Save stimulus (probeLetter) in data
         end
         
         % Randomize letter sequence

@@ -209,9 +209,28 @@ data.allResponses(1:experiment.nTrials) = NaN;
 data.allCorrect(1:experiment.nTrials) = NaN;
 data.stims(1:experiment.nTrials) = NaN;
 
-% Create stimuli
-alphabet = 'A' : 'Z';
-alphabet102 = [alphabet alphabet alphabet alphabet(1:end-2)]; % Create vector of repeating alphabet up to 100 letters
+% Define probe stimulus
+if TRAINING == 1
+    probeLetter = 'Q';
+elseif BLOCK == 1 && TRAINING == 0
+    probeLetter = 'A';
+    data.probeLetter = probeLetter; % Save stimulus (probeLetter) in data
+elseif BLOCK == 2
+    probeLetter = 'X';
+    data.probeLetter = probeLetter; % Save stimulus (probeLetter) in data
+end
+
+% Create stimuli (letterSequences); generated once in createLetterSequence for all participants
+letterSequenceT = 'AQAQQTQQSQQE';
+letterSequence1 = XXXXXXX% Randomly generated, but the same for every participant; 1-back task
+letterSequence2 = XXXXXXX% Randomly generated, but the same for every participant; 2-back task
+
+% Save sequence of letters of this block in data
+if BLOCK == 1
+    data.letterSequence = letterSequence1;
+elseif BLOCK == 2
+    data.letterSequence = letterSequence2;
+end
 
 % Define triggers for every letter as stimulus
 STIM  = [];
@@ -219,28 +238,6 @@ c = 1;
 for i = 60:86
     STIM(c) = i;
     c = c + 1;
-end
-
-% Pick probe stimulus from letters 
-if TRAINING == 1
-    probeLetter = 'Q';
-else
-    % Randomize letter sequence
-    digitsProbe = randperm(length(alphabet));
-    % Pick first 'length(alphabet)' digit and get the corresponding letter from alphabet
-    probeLetter = alphabet(digitsProbe(1, 1));
-    % Save stimulus (probeLetter) in data
-    data.probeLetter = probeLetter;
-end
-
-% Check pseudorandom match probability
-% Check probe letter grouping
-% Check probeLetters in the first 10 stimuli (min 2)
-letterSequenceChecks;
-
-% Save sequence of letters of this block in data
-if BLOCK >= 1
-    data.letterSequence = letterSequence;
 end
 
 % Show task instruction text
