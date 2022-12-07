@@ -30,6 +30,21 @@ for BLOCK = 1 : 2
     OCC_NBack; 
 end
 
+%% Break screen between tasks
+
+waitText = ['Take a break!' ...
+                ' \n\n ' ...
+                ' \n\n The next task will start afterwards.'];
+
+DrawFormattedText(ptbWindow,waitText,'center','center',color.textVal);
+disp('Displaying break screen');
+Screen('Flip',ptbWindow);
+waitResponse = 1;
+while waitResponse
+    [time, keyCode] = KbWait(-1,2);
+    waitResponse = 0;
+end
+
 %% Sternberg Task: Training
 % Do training and check, if the subject understood the task. 
 % If not (score below predefined threshold), repeat the training.
