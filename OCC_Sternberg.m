@@ -87,7 +87,7 @@ TASK_END = 90; % trigger for ET cutting
 if TRAINING == 1
     experiment.nTrials = 4;
 else
-    experiment.nTrials = 25; % 6 blocks x 25 trials = 150 trials               
+    experiment.nTrials = 4; % 6 blocks x 25 trials = 150 trials               
 end
 experiment.setSizes = [1,4,7];          % Number of items presented on the screen
 
@@ -490,8 +490,9 @@ for thisTrial = 1:experiment.nTrials
     if thisTrial >= 10
        responsesLastTrials = data.allCorrect(thisTrial-9 : thisTrial);
        percentLastTrialsCorrect = sum(responsesLastTrials)*10;
-       if percentLastTrialsCorrect < 74
-          feedbackLastTrials = ['Your accuracy has declined!'...
+       if percentLastTrialsCorrect < 74 && count5trials <= thisTrial-5
+        count5trials = thisTrial;
+        feedbackLastTrials = ['Your accuracy has declined!'...
                                 '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
                                 '\n\n ' ...
                                 '\n\n Please stay focused on the task!'];

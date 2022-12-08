@@ -70,7 +70,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;             
 else
-    experiment.nTrials = 102;           % 2 blocks x 100 trials = 200 trials               
+    experiment.nTrials = 22;           % 2 blocks x 100 trials = 200 trials               
 end
         
 % Set up equipment parameters
@@ -495,8 +495,9 @@ for thisTrial = 1:experiment.nTrials
        % Get 10 last trials, but ignore last data point
        responsesLastTrials = data.allCorrect(end-10 : end-1);
        percentLastTrialsCorrect = (sum(responsesLastTrials)/length(responsesLastTrials))*100;
-       if percentLastTrialsCorrect < 74
-          feedbackLastTrials = ['Your accuracy has declined!'...
+       if percentLastTrialsCorrect < 74 && count5trials <= thisTrial-5
+        count5trials = thisTrial;
+        feedbackLastTrials = ['Your accuracy has declined!'...
                                 '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
                                 '\n\n You can earn more if you perform better.' ...
                                 '\n\n Please keep focused on the task!'];
