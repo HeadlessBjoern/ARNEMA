@@ -333,6 +333,8 @@ else
     disp(['Start of Block ' num2str(BLOCK)]);
 end
 
+count5trials = 0;
+
 %% Experiment Loop
 noFixation = 0;
 
@@ -510,8 +512,9 @@ for thisTrial = 1:experiment.nTrials
        % Get 10 last trials, but ignore first two and last data point
        responsesLastTrials = data.allCorrect(end-9 : end-1);
        percentLastTrialsCorrect = (sum(responsesLastTrials)/length(responsesLastTrials))*100;
-       if percentLastTrialsCorrect < 74
-          feedbackLastTrials = ['Your accuracy has declined!'...
+       if percentLastTrialsCorrect < 74 && count5trials <= thisTrial-5
+        count5trials = thisTrial;
+        feedbackLastTrials = ['Your accuracy has declined!'...
                                 '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
                                 '\n\n You can earn more if you perform better.' ...
                                 '\n\n Please keep focused on the task!'];
