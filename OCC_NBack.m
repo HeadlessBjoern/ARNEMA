@@ -70,7 +70,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;             
 else
-    experiment.nTrials = 14;           % 2 blocks x 100 trials = 200 trials               
+    experiment.nTrials = 100;           % 2 blocks x 100 trials = 200 trials               
 end
         
 % Set up equipment parameters
@@ -221,6 +221,7 @@ elseif BLOCK == 2
 end
 
 % Define stimuli (letterSequences); generated once in 'createLetterSequences.m' for all participants
+alphabet = 'A':'Z';
 letterSequenceT = 'AQAQQTQQSQQE';
 letterSequence1 = 'AAFMWAACAASAAARKAAAGSAAITMRAAAKELAATSAAAKAAIAAQAAAMAANAAASVEDZHJAALAASAAOAAUAAEAAHAAJAALAAPAAARAAGAAZZ';
 letterSequence2 = 'XXFXWXXCXXSXXXRXXXXGSXXITURXXKXLXXTSXXKXXIXXQXXXMXXXNXXXSXEXZXJXXLXXXSXXOIMXXUXXXEXHXXJXXLOPXXXRXXGXXZ';

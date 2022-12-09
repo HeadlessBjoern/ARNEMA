@@ -48,6 +48,7 @@ ins.resting.end = [...
     'Nun folgen weitere Aufgaben. '...
     ];
 %% Trials
+NrOfTrials = 7;   % How many Cycles to run (8 if  you want to run 6 cycles)
 eyeO = 3:60:303; % Audio cues
 eyeC = 23:60:323;
 
@@ -103,7 +104,7 @@ EThndl.sendMessage(par.CD_START);
 sendtrigger(par.CD_START,port,SITE,stayup)
 
 fprintf('Running Trials\n');
-while t < 8
+while t < NrOfTrials
     Screen('DrawLine', ptbWindow,[0 0 0],center(1)-7,center(2), center(1)+7,center(2));
     Screen('DrawLine', ptbWindow,[0 0 0],center(1),center(2)-7, center(1),center(2)+7);
     vbl = Screen('Flip',ptbWindow); % clc
