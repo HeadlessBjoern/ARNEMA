@@ -229,6 +229,9 @@ data.trialMatch(1, experiment.nTrials) = NaN;
 data.allResponses(1, experiment.nTrials) = 0;
 data.allCorrect(1, experiment.nTrials) = NaN;
 
+% Preallocate dynamic accuracy computation variable
+count5trials = 0;
+
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
 startExperimentTime = Screen('Flip',ptbWindow);

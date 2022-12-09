@@ -29,9 +29,6 @@ addpath(FUNS_PATH)
 % manage screens
 screenSettings
 
-%% Get start time
-startTimeOverall = str2num(datestr(now, 'HHMMSS'));
-
 %% Collect ID and Age  
 dialogID;
 

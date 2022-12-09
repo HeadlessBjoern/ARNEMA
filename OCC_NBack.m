@@ -70,7 +70,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;             
 else
-    experiment.nTrials = 22;           % 2 blocks x 100 trials = 200 trials               
+    experiment.nTrials = 14;           % 2 blocks x 100 trials = 200 trials               
 end
         
 % Set up equipment parameters
@@ -249,6 +249,9 @@ for i = 60:86
     c = c + 1;
 end
 
+% Preallocate dynamic accuracy computation variable
+count5trials = 0;
+
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
 startExperimentTime = Screen('Flip',ptbWindow);
@@ -332,8 +335,6 @@ if TRAINING == 1
 else
     disp(['Start of Block ' num2str(BLOCK)]);
 end
-
-count5trials = 0;
 
 %% Experiment Loop
 noFixation = 0;
