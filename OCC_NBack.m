@@ -45,8 +45,8 @@ HideCursor(whichScreen);
 
 % define triggers
 TASK_START = 10;
-MATCH = 4; % trigger for probe stimulus
-NO_MATCH = 5; % trigger for probe stimulus
+MATCH = 4; % trigger for matching condition
+NO_MATCH = 5; % trigger for non-matching condition
 FIXATION = 15; % trigger for fixation cross
 PRESENTATION0 = 29; % trigger for digit presentation (training task; 1-back)
 PRESENTATION1 = 21; % trigger for digit presentation (1-back)
@@ -58,7 +58,6 @@ BLOCK2 = 32; % trigger for start of block 2 (2-back)
 ENDBLOCK0 = 49; % trigger for end of training block
 ENDBLOCK1 = 41; % trigger for end of block 1 (1-back)
 ENDBLOCK2 = 42; % trigger for end of block 2 (2-back)
-MEMORIZATION = 55; % trigger for probe letter memorization
 % 60-86 TRIGGERS for STIMULI (after definition of alphabet)
 RESP_YES = 87; % trigger for response yes (spacebar)
 RESP_NO = 88; % trigger for response no (no input)
@@ -108,28 +107,26 @@ text.color = 0;                         % Color of text (0 = black)
 if TRAINING == 1
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n' ...
-    'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
-    'Afterwards, a series of random letters will be shown to you. \n\n' ...
-    'Your task is to press SPACE if this is the same letter as the previous letter you were shown. \n\n' ...
-    'Otherwise, you can just not press any button. \n\n' ...
+    'You will see a series of random letters. \n\n' ...
+    'Your task is to press SPACE if you see the same letter twice in a row. \n\n' ...
+    'Otherwise, do not press any button. \n\n' ...
     '\n\n Don''t worry, you can do a training sequence in the beginning. \n\n' ...
     '\n\n Press any key to continue.'];
 else
     if BLOCK == 1
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
-    'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
-    'Afterwards, a series of random letters will be shown to you. \n\n' ...
-    'Your task is to press SPACE if this is the same letter as the previous letter you were shown. \n\n' ...
-     'Otherwise, you can just not press any button. \n\n' ...
+    'You will see a series of random letters. \n\n' ...
+    'Your task is to press SPACE if you see the same letter twice in a row. \n\n' ...
+    'Otherwise, do not press any button. \n\n' ...
     '\n\n Press any key to continue.'];
     elseif BLOCK == 2
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
-    'In the beginning, you will be shown a single letter. Memorize this letter! \n\n' ...
-    'Afterwards, a series of random letters will be shown to you. \n\n' ...
-    'Your task is to press SPACE if you see the same letter as the letter you were shown before the last one. \n\n' ...
-    'Otherwise, you can just not press any button. \n\n' ...
+    'You will see a series of random letters. \n\n' ...
+    'Your task is to press SPACE if the letter you see is the same letter you saw before the last letter. \n\n' ...
+    'Example: A  -  Q  -  A \n\n' ...
+    'Otherwise, do not press any button. \n\n' ...
     '\n\n Press any key to continue.'];
     end
 end
@@ -137,17 +134,8 @@ end
 % Define startBlockText
 startBlockText = 'Press any key to begin the next block.';
 
-% Define clarificationText
-clarificationText = ['Q        A         T   \n\n' ...
-                     '                       ^ as you see this letter \n\n' ...
-                     '    ^ react to this letter' ...
-                     '\n\n' ...
-                     'Press any key to continue.'];
-
 % Set up temporal parameters (all in seconds)
 timing.blank = 1;                               % Duration of blank screen
-timing.retentionInterval = 3;                   % Duration of blank retention interval
-timing.probeStimulus = 5;                       % Duration of probe stimulus
 
 % Shuffle rng for random elements
 rng('default');             
@@ -203,30 +191,18 @@ fixCoords = [fixHorizontal; fixVertical];
 % Create data structure for preallocating data 
 data = struct;
 data.letterSequence = strings;
-data.probeLetter = strings;
 data.trialMatch(1:experiment.nTrials) = NaN;
 data.allResponses(1:experiment.nTrials) = NaN;
 data.allCorrect(1:experiment.nTrials) = NaN;
 data.stims(1:experiment.nTrials) = NaN;
 
-% Define probe stimulus
-if TRAINING == 1
-    probeLetter = 'Q';
-elseif BLOCK == 1 && TRAINING == 0
-    probeLetter = 'A';
-    data.probeLetter = probeLetter; % Save stimulus (probeLetter) in data
-elseif BLOCK == 2
-    probeLetter = 'X';
-    data.probeLetter = probeLetter; % Save stimulus (probeLetter) in data
-end
-
-% Define stimuli (letterSequences); generated once in 'createLetterSequences.m' for all participants
+% Define stimuli (letterSequences); generated in 'createLetterSequence1.m' and 'createLetterSequence2.m' for all participants
 alphabet = 'A':'Z';
-letterSequenceT = 'AQAQQTQQSQQE';
-letterSequence1 = 'AAFMWAACAASAAARKAAAGSAAITMRAAAKELAATSAAAKAAIAAQAAAMAANAAASVEDZHJAALAASAAOAAUAAEAAHAAJAALAAPAAARAAGAAZZ';
-letterSequence2 = 'XXFXWXXCXXSXXXRXXXXGSXXITURXXKXLXXTSXXKXXIXXQXXXMXXXNXXXSXEXZXJXXLXXXSXXOIMXXUXXXEXHXXJXXLOPXXXRXXGXXZ';
+letterSequenceT = 'AQQSSTRBDDSTTI';
+letterSequence1 = 'ZZAAAKEEJDWZZUUUDSTTTJFFAOKKKUUBPPJLIILUDDEDDWYCMJZZMNIDMGGVVVDWSUUWMXXNNNSYCMSSBMLLZOOAZCCIRRYOOGXXXB';
+letterSequence2 = 'TPTLTZRTRVYVTDZDUKHMHHBVLVTVTBOBXBWGQFVXVEREXECEEWNWNWSYULRPRGKWOILILILFMVNJNHHKZNTNTGTGXGXGVSVSCJMEWT';
 
-% Define letterSequence
+% Define letterSequence depending on block iteration
 if TRAINING == 1
     letterSequence = letterSequenceT;
 elseif BLOCK == 1 && TRAINING == 0
@@ -262,50 +238,6 @@ while waitResponse
     [time, keyCode] = KbWait(-1,2);
     waitResponse = 0;
 end
-
-% Show clarification text for BLOCK = 2
-if BLOCK == 2
-    DrawFormattedText(ptbWindow,clarificationText,'center','center',color.textVal);
-    Screen('Flip',ptbWindow);
-    disp('Participant is reading the clarification text.');
-
-    waitResponse = 1;
-    while waitResponse
-        [time, keyCode] = KbWait(-1,2);
-        waitResponse = 0;
-    end
-
-end
-
-% Show probeLetter for memorization
-% Increase size of stimuli
-Screen('TextSize', ptbWindow, 60); 
-probeLetterText = ['Memorize this letter! \n\n' ...
-                   '\n\n '...
-                   '\n\n Your letter is: ' probeLetter '.'...
-                   '\n\n '...
-                   '\n\n '...
-                   '\n\n Press any key to continue.'];
-
-DrawFormattedText(ptbWindow,probeLetterText,'center','center',color.textVal);
-Screen('Flip',ptbWindow);
-
-if TRAINING == 1
-    EThndl.sendMessage(MEMORIZATION); % ET
-else
-    EThndl.sendMessage(MEMORIZATION); % ET
-    sendtrigger(MEMORIZATION,port,SITE,stayup); % EEG
-end
-disp('Participant is memorizing the probe letter.');
-
-waitResponse = 1;
-while waitResponse
-    [time, keyCode] = KbWait(-1,2);
-    waitResponse = 0;
-end
-% Return size of text to default
-Screen('TextSize', ptbWindow, 40);
-Screen('Flip',ptbWindow);
 
 % Send triggers: task starts. If training, send only ET triggers
 if TRAINING == 1
@@ -430,20 +362,19 @@ for thisTrial = 1:experiment.nTrials
     
     % Save match/no match 
     if BLOCK == 1 && thisTrial > 1
-        if letterSequence(thisTrial-1) == probeLetter && letterSequence(thisTrial) == probeLetter
+        if letterSequence(thisTrial-1) == letterSequence(thisTrial)
             thisTrialMatch = 1;
         else 
             thisTrialMatch = 0;
         end
-    data.trialMatch(thisTrial) = thisTrialMatch;
-    elseif BLOCK == 2 && thisTrial > 2 && letterSequence(thisTrial) == probeLetter
-        if letterSequence(thisTrial-2) == probeLetter
+    elseif BLOCK == 2 && thisTrial > 2
+        if letterSequence(thisTrial-2) == letterSequence(thisTrial)
             thisTrialMatch = 1;
         else 
             thisTrialMatch = 0;
         end
-    data.trialMatch(thisTrial) = thisTrialMatch;
     end
+    data.trialMatch(thisTrial) = thisTrialMatch;
 
     % Check if response was correct
     if BLOCK == 1 && thisTrial > 1
@@ -671,7 +602,6 @@ trigger.BLOCK2 = BLOCK2;
 trigger.ENDBLOCK0 = ENDBLOCK0;
 trigger.ENDBLOCK1 = ENDBLOCK1;
 trigger.ENDBLOCK2 = ENDBLOCK2;
-trigger.MEMORIZATION = MEMORIZATION;
 trigger.RESP_YES = RESP_YES;
 trigger.RESP_NO = RESP_NO;
 trigger.RESP_WRONG = RESP_WRONG;
