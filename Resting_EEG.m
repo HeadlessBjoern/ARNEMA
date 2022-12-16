@@ -36,7 +36,7 @@ ins.misc.mouse = [...
     'Press any key to start the task'...
     ];
 ins.misc.finished = [...
-    'Fertig!'...
+    'Finished!'...
     ];
 ins.resting=struct();
 ins.resting.inst = [...
@@ -105,8 +105,8 @@ sendtrigger(par.CD_START,port,SITE,stayup)
 
 fprintf('Running Trials\n');
 while t < NrOfTrials
-    Screen('DrawLine', ptbWindow,[0 0 0],center(1)-7,center(2), center(1)+7,center(2));
-    Screen('DrawLine', ptbWindow,[0 0 0],center(1),center(2)-7, center(1),center(2)+7);
+    Screen('DrawLine', ptbWindow,[0 0 0],center(1)-12,center(2), center(1)+12,center(2));
+    Screen('DrawLine', ptbWindow,[0 0 0],center(1),center(2)-12, center(1),center(2)+12);
     vbl = Screen('Flip',ptbWindow); % clc
     if vbl >=time+eyeO(t) %Tests if a second has passed
         
@@ -136,7 +136,7 @@ end
 EThndl.sendMessage(par.CD_END);
 sendtrigger(par.CD_END,port,SITE,stayup)
 
-disp('Resting EEG done');
+disp('Resting EEG finished');
 Screen('TextSize', ptbWindow, tSize3);
 DrawFormattedText(ptbWindow, ins.misc.finished,'center', 0.4*scresh, colorText);
 Screen('TextSize', ptbWindow, tSize2);

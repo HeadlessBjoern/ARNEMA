@@ -530,7 +530,7 @@ for thisTrial = 1:experiment.nTrials
     % Check if subject fixate at center, give warning if not
     checkFixation;
     if noFixation > 2
-        disp('NO FIXATION. PLAYING AUDIO INSTRUCTION...')
+        disp('Insufficient fixation!')
         noFixation = 0; % reset
     end
 end
@@ -722,7 +722,7 @@ if BLOCK == 1 && TRAINING == 1
     timePassed = 0;
     printTime = 30;
     
-    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds.' ...
                     ' \n\n ' ...
                     ' \n\n Block 1 of the N-back task will start afterwards.'];
     
@@ -733,7 +733,7 @@ if BLOCK == 1 && TRAINING == 1
         pause(intervalTime);
         timePassed = timePassed + intervalTime;
         printTime = waitTime - timePassed;
-        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds.' ...
                         ' \n\n ' ...
                         ' \n\n Block 1 of the N-back task will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
@@ -745,7 +745,7 @@ elseif BLOCK == 1 && TRAINING == 0
     timePassed = 0;
     printTime = 30;
     
-    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds.' ...
                     ' \n\n ' ...
                     ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
     
@@ -756,7 +756,7 @@ elseif BLOCK == 1 && TRAINING == 0
         pause(intervalTime);
         timePassed = timePassed + intervalTime;
         printTime = waitTime - timePassed;
-        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds.' ...
                         ' \n\n ' ...
                         ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);

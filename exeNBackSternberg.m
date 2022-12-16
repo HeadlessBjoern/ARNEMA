@@ -45,6 +45,12 @@ while waitResponse
     waitResponse = 0;
 end
 
+%% Mandatory Break of at least 15 seconds
+% This gives the ANT EEG system enmough time to shut down and initialize
+% again for the next task
+
+WaitSecs(15);
+
 %% Sternberg Task: Training
 % Do training and check, if the subject understood the task. 
 % If not (score below predefined threshold), repeat the training.
