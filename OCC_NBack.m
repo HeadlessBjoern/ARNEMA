@@ -15,30 +15,30 @@ disp('CALIBRATING ET...');
 calibrateET
 
 %% Audio file
-wavfilename_probe1 = '/home/methlab/Desktop/ARNEMA/InstructionFixation.wav'; 
-try
-    PsychPortAudio('Close');
-catch
-end
-try
-    [y_probe1, freq1] = audioread(wavfilename_probe1);
-    wavedata_probe1 = y_probe1';
-    nrchannels = size(wavedata_probe1,1); % Number of rows == number of channels.
-    % Add 15 msecs latency on ptbWindows, to protect against shoddy drivers:
-    sugLat = [];
-    if IsWin
-        sugLat = 0.015;
-    end
-    try
-        InitializePsychSound;
-        pahandle = PsychPortAudio('Open', 2, [], 0, freq1, nrchannels, [], sugLat); % DAWID - look for devices - here 2
-        duration_probe1 = size(wavedata_probe1,2)/freq1;
-    catch
-        error('Sound Initialisation Error');
-    end
-catch
-    error('Sound Error');
-end
+% wavfilename_probe1 = '/home/methlab/Desktop/ARNEMA/InstructionFixation.wav'; 
+% try
+%     PsychPortAudio('Close');
+% catch
+% end
+% try
+%     [y_probe1, freq1] = audioread(wavfilename_probe1);
+%     wavedata_probe1 = y_probe1';
+%     nrchannels = size(wavedata_probe1,1); % Number of rows == number of channels.
+%     % Add 15 msecs latency on ptbWindows, to protect against shoddy drivers:
+%     sugLat = [];
+%     if IsWin
+%         sugLat = 0.015;
+%     end
+%     try
+%         InitializePsychSound;
+%         pahandle = PsychPortAudio('Open', 2, [], 0, freq1, nrchannels, [], sugLat); % DAWID - look for devices - here 2
+%         duration_probe1 = size(wavedata_probe1,2)/freq1;
+%     catch
+%         error('Sound Initialisation Error');
+%     end
+% catch
+%     error('Sound Error');
+% end
 
 %% Task
 HideCursor(whichScreen);
@@ -367,14 +367,16 @@ for thisTrial = 1:experiment.nTrials
         else 
             thisTrialMatch = 0;
         end
+    data.trialMatch(thisTrial) = thisTrialMatch;
     elseif BLOCK == 2 && thisTrial > 2
         if letterSequence(thisTrial-2) == letterSequence(thisTrial)
             thisTrialMatch = 1;
         else 
             thisTrialMatch = 0;
         end
-    end
     data.trialMatch(thisTrial) = thisTrialMatch;
+    end
+   
 
     % Check if response was correct
     if BLOCK == 1 && thisTrial > 1

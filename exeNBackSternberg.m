@@ -30,21 +30,6 @@ for BLOCK = 1 : 2
     OCC_NBack; 
 end
 
-%% Break screen between tasks
-
-waitText = ['Take a break!' ...
-                ' \n\n ' ...
-                ' \n\n The next task will start afterwards.'];
-
-DrawFormattedText(ptbWindow,waitText,'center','center',color.textVal);
-disp('Displaying break screen');
-Screen('Flip',ptbWindow);
-waitResponse = 1;
-while waitResponse
-    [time, keyCode] = KbWait(-1,2);
-    waitResponse = 0;
-end
-
 %% Mandatory Break of at least 15 seconds
 % This gives the ANT EEG system enmough time to shut down and initialize
 % again for the next task
