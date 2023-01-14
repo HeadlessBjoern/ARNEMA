@@ -18,12 +18,12 @@ if TRAINING == 0
     initEEG;
 end
 
-% Calibrate ET (Tobii Pro Fusion) 
+% Calibrate ET (Tobii Pro Fusion)
 disp('CALIBRATING ET...');
-calibrateET
+calibrateET;
 
 %% Audio file
-wavfilename_probe1 = '/home/methlab/Desktop/ARNEMA/InstructionFixation.wav'; 
+wavfilename_probe1 = '/home/methlab/Desktop/ARNEMA/InstructionFixation.wav';
 try
     PsychPortAudio('Close');
 catch
@@ -87,7 +87,7 @@ TASK_END = 90; % trigger for ET cutting
 if TRAINING == 1
     experiment.nTrials = 4;
 else
-    experiment.nTrials = 25; % 6 blocks x 25 trials = 150 trials               
+    experiment.nTrials = 25; % 6 blocks x 25 trials = 150 trials
 end
 experiment.setSizes = [1,4,7];          % Number of items presented on the screen
 
@@ -95,7 +95,7 @@ experiment.setSizes = [1,4,7];          % Number of items presented on the scree
 equipment.viewDist = 800;               % Viewing distance in millimetres
 equipment.ppm = 3.6;                    % Pixels per millimetre !! NEEDS TO BE SET. USE THE MeasureDpi FUNCTION !!
 equipment.greyVal = .5;
-equipment.blackVal = 0; 
+equipment.blackVal = 0;
 equipment.whiteVal = 1;
 equipment.gammaVals = [1 1 1];          % The gamma values for color calibration of the monitor
 
@@ -118,26 +118,26 @@ text.color = 0;                     % Color of text (0 = black)
 if TRAINING == 1
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
-    'Try to memorize these digit sequences. \n\n' ...
-    'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
-    'Afterwards, you will be presented with a white digit. \n\n' ...
-    'Your task is to determine if this white digit was included in the previous digit sequence. \n\n' ...
-    'Feedback will be provided after each trial. \n\n' ...
-    'Press any key to continue.'];
+        'Try to memorize these digit sequences. \n\n' ...
+        'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
+        'Afterwards, you will be presented with a white digit. \n\n' ...
+        'Your task is to determine if this white digit was included in the previous digit sequence. \n\n' ...
+        'Feedback will be provided after each trial. \n\n' ...
+        'Press any key to continue.'];
 else
     if BLOCK == 1
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
-    'Try to memorize these digit sequences. \n\n' ...
-    'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
-    'Afterwards, you will be presented with a white digit. \n\n' ...
-    'Your task is to determine if this white digit was included in the previous digit sequence. \n\n' ...
-    'Feedback will be provided after each trial. \n\n' ...
-    'Press any key to continue.'];
+            'Try to memorize these digit sequences. \n\n' ...
+            'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
+            'Afterwards, you will be presented with a white digit. \n\n' ...
+            'Your task is to determine if this white digit was included in the previous digit sequence. \n\n' ...
+            'Feedback will be provided after each trial. \n\n' ...
+            'Press any key to continue.'];
     else
         loadingText = 'Loading actual task...';
         startExperimentText = ['Block ' num2str(BLOCK) ' / 6 \n\n' ...
-                               'Press any key to continue.'];
+            'Press any key to continue.'];
     end
 end
 
@@ -148,17 +148,17 @@ timing.cfi = 2;                    % Duration of central fixation interval
 timing.digitPresentation = 1.2;     % Duration of digit presentation
 timing.blank = 1;                   % Duration of blank screen
 timing.retentionInterval = 3;       % Duration of blank retention interval
-timing.probeStimulus = 5;           % Duration of probe stimulus               
+timing.probeStimulus = 5;           % Duration of probe stimulus
 
 % Shuffle rng for random elements
-rng('default');             
+rng('default');
 rng('shuffle');                     % Use MATLAB twister for rng
 
 % Set up Psychtoolbox Pipeline
 AssertOpenGL;
 
 % Imaging set up
-screenID = whichScreen; 
+screenID = whichScreen;
 PsychImaging('PrepareConfiguration');
 PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamma');
 PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
@@ -182,13 +182,13 @@ Screen('TextSize', ptbWindow, 40);
 global psych_default_colormode;                     % Sets colormode to be unclamped 0-1 range.
 psych_default_colormode = 1;
 
-global ptb_drawformattedtext_disableClipping;       % Disable clipping of text 
+global ptb_drawformattedtext_disableClipping;       % Disable clipping of text
 ptb_drawformattedtext_disableClipping = 1;
 
 % Show loading text
 DrawFormattedText(ptbWindow,loadingText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
-  
+
 % Retrieve response keys
 KeyCodeA = KbName('A');         % Retrieve key code for the 1 button
 KeyCodeL = KbName('L');% KbName('/?');    % Retrieve key code for the 3 button (/? is the PTB code for the keyboard rather than numpad slash button)
@@ -220,7 +220,7 @@ fixHorizontal = [round(-stimulus.fixationSize_pix/2) round(stimulus.fixationSize
 fixVertical = [0 0 round(-stimulus.fixationSize_pix/2) round(stimulus.fixationSize_pix/2)];
 fixCoords = [fixHorizontal; fixVertical];
 
-% Create data structure for preallocating data 
+% Create data structure for preallocating data
 data = struct;
 data.sequenceDigits{1, experiment.nTrials} = 0;
 data.trialSetSize(1, experiment.nTrials) = 0;
@@ -256,9 +256,13 @@ endTime = Screen('Flip',ptbWindow);
 
 % Send triggers for start of task (ET cutting)
 if TRAINING == 1
-    EThndl.sendMessage(TASK_START);
+    %     EThndl.sendMessage(TASK_START);
+    Eyelink('Message', num2str(TASK_START));
+    Eyelink('command', 'record_status_message "START"');
 else
-    EThndl.sendMessage(TASK_START);
+    %     EThndl.sendMessage(TASK_START);
+    Eyelink('Message', num2str(TASK_START));
+    Eyelink('command', 'record_status_message "START"');
     sendtrigger(TASK_START,port,SITE,stayup);
 end
 
@@ -275,7 +279,7 @@ elseif BLOCK == 5
     TRIGGER = BLOCK5;
 elseif BLOCK == 6
     TRIGGER = BLOCK6;
-else 
+else
     TRIGGER = BLOCK0;
 end
 
@@ -286,9 +290,13 @@ else
 end
 
 if TRAINING == 1
-    EThndl.sendMessage(TRIGGER);
+    %     EThndl.sendMessage(TRIGGER);
+    Eyelink('Message', num2str(TRIGGER));
+    Eyelink('command', 'record_status_message "START BLOCK"');
 else
-    EThndl.sendMessage(TRIGGER);
+    %     EThndl.sendMessage(TRIGGER);
+    Eyelink('Message', num2str(TRIGGER));
+    Eyelink('command', 'record_status_message "START BLOCK"');
     sendtrigger(TRIGGER,port,SITE,stayup);
 end
 
@@ -305,22 +313,26 @@ for thisTrial = 1:experiment.nTrials
     % Pick # of random digits (# up to length of trialSetSize)
     % Save sequence of digits of this trial in data
     data.sequenceDigits{thisTrial} = thisTrialSequenceDigits;
-    
+
     % Central fixation interval (500ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
     Screen('Flip', ptbWindow);
     if TRAINING == 1
-        EThndl.sendMessage(FIXATION);
+        %         EThndl.sendMessage(FIXATION);
+        Eyelink('Message', num2str(FIXATION));
+        Eyelink('command', 'record_status_message "FIXATION"');
     else
-        EThndl.sendMessage(FIXATION);
+        %         EThndl.sendMessage(FIXATION);
+        Eyelink('Message', num2str(FIXATION));
+        Eyelink('command', 'record_status_message "FIXATION"');
         sendtrigger(FIXATION,port,SITE,stayup);
     end
     WaitSecs(timing.cfi);
 
     % Present stimuli from digitSequence one after another
-    for iters = 1:data.trialSetSize(thisTrial) 
+    for iters = 1:data.trialSetSize(thisTrial)
         % Increase size of stimuli
-        Screen('TextSize', ptbWindow, 60); 
+        Screen('TextSize', ptbWindow, 60);
         % Serial presentation of each digit from digitSequence (1200ms)
         DrawFormattedText(ptbWindow,[num2str(thisTrialSequenceDigits(iters))],'center','center',text.color);
         Screen('Flip', ptbWindow);
@@ -336,18 +348,26 @@ for thisTrial = 1:experiment.nTrials
         end
 
         if TRAINING == 1
-            EThndl.sendMessage(TRIGGER);
+            %             EThndl.sendMessage(TRIGGER);
+            Eyelink('Message', num2str(TRIGGER));
+            Eyelink('command', 'record_status_message "STIMULUS"');
         else
-            EThndl.sendMessage(TRIGGER);
+            %             EThndl.sendMessage(TRIGGER);
+            Eyelink('Message', num2str(TRIGGER));
+            Eyelink('command', 'record_status_message "STIMULUS"');
             sendtrigger(TRIGGER,port,SITE,stayup);
         end
         WaitSecs(timing.digitPresentation);
         % Blank screen before presentation of next digit (1000ms)
         Screen('Flip', ptbWindow);
         if TRAINING == 1
-            EThndl.sendMessage(DIGITOFF);
+            %             EThndl.sendMessage(DIGITOFF);
+            Eyelink('Message', num2str(DIGITOFF));
+            Eyelink('command', 'record_status_message "DIGITOFF"');
         else
-            EThndl.sendMessage(DIGITOFF);
+            %             EThndl.sendMessage(DIGITOFF);
+            Eyelink('Message', num2str(DIGITOFF));
+            Eyelink('command', 'record_status_message "DIGITOFF"');
             sendtrigger(DIGITOFF,port,SITE,stayup);
         end
         WaitSecs(timing.blank);
@@ -356,17 +376,21 @@ for thisTrial = 1:experiment.nTrials
     % Retention interval
     Screen('Flip', ptbWindow);
     if data.trialSetSize(thisTrial) == 1
-            TRIGGER = RETENTION1;
+        TRIGGER = RETENTION1;
     elseif data.trialSetSize(thisTrial) == 4
-            TRIGGER = RETENTION4;
+        TRIGGER = RETENTION4;
     elseif data.trialSetSize(thisTrial) == 7
-            TRIGGER = RETENTION7;
+        TRIGGER = RETENTION7;
     end
 
     if TRAINING == 1
-        EThndl.sendMessage(TRIGGER);
+        %         EThndl.sendMessage(TRIGGER);
+        Eyelink('Message', num2str(TRIGGER));
+        Eyelink('command', 'record_status_message "RETENTION"');
     else
-        EThndl.sendMessage(TRIGGER);
+        %         EThndl.sendMessage(TRIGGER);
+        Eyelink('Message', num2str(TRIGGER));
+        Eyelink('command', 'record_status_message "RETENTION"');
         sendtrigger(TRIGGER,port,SITE,stayup);
     end
     WaitSecs(timing.retentionInterval);
@@ -383,7 +407,7 @@ for thisTrial = 1:experiment.nTrials
         Screen('Flip', ptbWindow);
         thisTrialMatch = 1;
         TRIGGER = MATCH;
-    else 
+    else
         shuffledSequence = Shuffle(setdiff(digits, thisTrialSequenceDigits));
         thisTrialProbeDigit = shuffledSequence(1);
         % Pick random NOT matching probe stimulus from digits (excluding numbers from digitSequence)
@@ -394,9 +418,13 @@ for thisTrial = 1:experiment.nTrials
     end
 
     if TRAINING == 1
-        EThndl.sendMessage(TRIGGER);
+        %         EThndl.sendMessage(TRIGGER);
+        Eyelink('Message', num2str(TRIGGER));
+        Eyelink('command', 'record_status_message "PROBE STIMULUS"');
     else
-        EThndl.sendMessage(TRIGGER);
+        %         EThndl.sendMessage(TRIGGER);
+        Eyelink('Message', num2str(TRIGGER));
+        Eyelink('command', 'record_status_message "PROBE STIMULUS"');
         sendtrigger(TRIGGER,port,SITE,stayup);
     end
 
@@ -433,9 +461,13 @@ for thisTrial = 1:experiment.nTrials
                 end
 
                 if TRAINING == 1
-                    EThndl.sendMessage(TRIGGER,time);
+                    %                     EThndl.sendMessage(TRIGGER,time);
+                    Eyelink('Message', num2str(TRIGGER));
+                    Eyelink('command', 'record_status_message "RESPONSE"');
                 else
-                    EThndl.sendMessage(TRIGGER,time);
+                    %                     EThndl.sendMessage(TRIGGER,time);
+                    Eyelink('Message', num2str(TRIGGER));
+                    Eyelink('command', 'record_status_message "RESPONSE"');
                     sendtrigger(TRIGGER,port,SITE,stayup)
                 end
 
@@ -444,9 +476,13 @@ for thisTrial = 1:experiment.nTrials
                 TRIGGER = badResponse;
 
                 if TRAINING == 1
-                    EThndl.sendMessage(TRIGGER,time);
+                    %                     EThndl.sendMessage(TRIGGER,time);
+                    Eyelink('Message', num2str(TRIGGER));
+                    Eyelink('command', 'record_status_message "BAD RESPONSE"');
                 else
-                    EThndl.sendMessage(TRIGGER,time);
+                    %                     EThndl.sendMessage(TRIGGER,time);
+                    Eyelink('Message', num2str(TRIGGER));
+                    Eyelink('command', 'record_status_message "BAD RESPONSE"');
                     sendtrigger(TRIGGER,port,SITE,stayup)
                 end
 
@@ -458,7 +494,7 @@ for thisTrial = 1:experiment.nTrials
             getResponse = false;
         end
     end
-    
+
     % Check if response was correct
     if YesIsL == 1       % L is YES, A is NO
         if thisTrialMatch == 1     % Matched trial
@@ -491,19 +527,19 @@ for thisTrial = 1:experiment.nTrials
     % Dynamically compute accuracy for past 10 trials and remind participant if accuracy drops below threshhold of 74%
     responsesLastTrials = 0;
     if thisTrial >= 10
-       responsesLastTrials = data.allCorrect(thisTrial-9 : thisTrial);
-       percentLastTrialsCorrect = sum(responsesLastTrials)*10;
-       if percentLastTrialsCorrect < 74 && count5trials <= thisTrial-5
-        count5trials = thisTrial;
-        feedbackLastTrials = ['Your accuracy has declined!'...
-                                '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
-                                '\n\n ' ...
-                                '\n\n Please stay focused on the task!'];
-        disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %. [' num2str(responsesLastTrials) ']']);
-        DrawFormattedText(ptbWindow,feedbackLastTrials,'center','center',color.textVal);
-        Screen('Flip',ptbWindow);
-        WaitSecs(5);
-       end
+        responsesLastTrials = data.allCorrect(thisTrial-9 : thisTrial);
+        percentLastTrialsCorrect = sum(responsesLastTrials)*10;
+        if percentLastTrialsCorrect < 74 && count5trials <= thisTrial-5
+            count5trials = thisTrial;
+            feedbackLastTrials = ['Your accuracy has declined!'...
+                '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
+                '\n\n ' ...
+                '\n\n Please stay focused on the task!'];
+            disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %. [' num2str(responsesLastTrials) ']']);
+            DrawFormattedText(ptbWindow,feedbackLastTrials,'center','center',color.textVal);
+            Screen('Flip',ptbWindow);
+            WaitSecs(5);
+        end
     end
 
     % Blank screen before presentation of next digit (500-1500msa)
@@ -534,24 +570,32 @@ elseif BLOCK == 5
     TRIGGER = ENDBLOCK5;
 elseif BLOCK == 6
     TRIGGER = ENDBLOCK6;
-else 
+else
     TRIGGER = ENDBLOCK0;
 end
 
 disp(['End of Block ' num2str(BLOCK)]);
 
 if TRAINING == 1
-    EThndl.sendMessage(TRIGGER);
+    %     EThndl.sendMessage(TRIGGER);
+    Eyelink('Message', num2str(TRIGGER));
+    Eyelink('command', 'record_status_message "END BLOCK"');
 else
-    EThndl.sendMessage(TRIGGER);
+    %     EThndl.sendMessage(TRIGGER);
+    Eyelink('Message', num2str(TRIGGER));
+    Eyelink('command', 'record_status_message "END BLOCK"');
     sendtrigger(TRIGGER,port,SITE,stayup);
 end
 
 % Send triggers for end of task (ET cutting)
 if TRAINING == 1
-    EThndl.sendMessage(TASK_END);
+    %     EThndl.sendMessage(TASK_END);
+    Eyelink('Message', num2str(TASK_END));
+    Eyelink('command', 'record_status_message "TASK_END"');
 else
-    EThndl.sendMessage(TASK_END);
+    %     EThndl.sendMessage(TASK_END);
+    Eyelink('Message', num2str(TASK_END));
+    Eyelink('command', 'record_status_message "TASK_END"');
     sendtrigger(TASK_END,port,SITE,stayup);
 end
 
@@ -628,7 +672,7 @@ trigger.TASK_END = TASK_END;
 % stop and close EEG and ET recordings
 disp(['BLOCK ' num2str(BLOCK) ' FINISHED...']);
 disp('SAVING DATA...');
-save(fullfile(filePath, fileName), 'saves', 'trigger'); 
+save(fullfile(filePath, fileName), 'saves', 'trigger');
 closeEEGandET;
 
 try
@@ -643,52 +687,52 @@ if BLOCK == 0
     percentTotalCorrect = totalCorrect / totalTrials * 100;
 
     feedbackBlockText = ['Your accuracy in the training task was ' num2str(percentTotalCorrect) ' %. '];
-    
+
     format bank % Change format for display
-    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal); 
+    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' had an accuracy of ' num2str(percentTotalCorrect) ' % in the training task.'])
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
-elseif BLOCK == 6  
+elseif BLOCK == 6
     totalCorrect = sum(data.allCorrect);
     totalTrials = thisTrial;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     if percentTotalCorrect(BLOCK) >= 80
-       amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
-       feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-                             '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.'];
-    else 
-       amountCHFextra(BLOCK) = 0;
-       feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-                            '\n\n Your accuracy was very low in this block.'];
-       disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
+        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
+        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+            '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.'];
+    else
+        amountCHFextra(BLOCK) = 0;
+        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+            '\n\n Your accuracy was very low in this block.'];
+        disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
     end
-    
+
     format bank % Change format for display
-    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal); 
+    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
-elseif BLOCK > 0   
+elseif BLOCK > 0
     totalCorrect = sum(data.allCorrect);
     totalTrials = thisTrial;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     if percentTotalCorrect(BLOCK) >= 80
-       amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
-       feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-                             '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.' ...
-                             '\n\n Keep it up!'];
-    else 
-       amountCHFextra(BLOCK) = 0;
-       feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-                            '\n\n Your accuracy was very low in this block. Please stay focused!'];
-       disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
+        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
+        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+            '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.' ...
+            '\n\n Keep it up!'];
+    else
+        amountCHFextra(BLOCK) = 0;
+        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+            '\n\n Your accuracy was very low in this block. Please stay focused!'];
+        disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
     end
-    
+
     format bank % Change format for display
-    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal); 
+    DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
     format default % Change format back to default
     Screen('Flip',ptbWindow);
@@ -701,14 +745,14 @@ if TRAINING == 1
         breakInstructionText = 'Well done! \n\n Press any key to start the actual task.';
     else
         breakInstructionText = ['Score too low! ' num2str(percentTotalCorrect) ' % correct. ' ...
-                                '\n\n Press any key to repeat the training task.'];
+            '\n\n Press any key to repeat the training task.'];
     end
 elseif BLOCK == 6
     breakInstructionText = ['End of the Task! ' ...
-                            '\n\n Press any key to view your stats.'];
+        '\n\n Press any key to view your stats.'];
 else
     breakInstructionText = ['Break! Rest for a while... ' ...
-                            '\n\n Press any key to start the mandatory break of at least 30 seconds.'];
+        '\n\n Press any key to start the mandatory break of at least 30 seconds.'];
 end
 DrawFormattedText(ptbWindow,breakInstructionText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
@@ -724,21 +768,21 @@ if BLOCK >= 1 && BLOCK < 6
     intervalTime = 1;
     timePassed = 0;
     printTime = 30;
-    
+
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
-                    ' \n\n ' ...
-                    ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
-    
+        ' \n\n ' ...
+        ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
+
     DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
     Screen('Flip',ptbWindow);
-    
+
     while timePassed < waitTime
         pause(intervalTime);
         timePassed = timePassed + intervalTime;
         printTime = waitTime - timePassed;
         waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
-                        ' \n\n ' ...
-                        ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
+            ' \n\n ' ...
+            ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
     end
@@ -749,17 +793,17 @@ if BLOCK == 6
     amountCHFextraTotal = sum(amountCHFextra);
     saves.amountCHFextraTotal = amountCHFextraTotal;
     endTextCash = ['Well done! You have completed the task.' ...
-                   ' \n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextraTotal) ' in total.' ...
-                   ' \n\n ' ...
-                   ' \n\n Block 1: ' num2str(percentTotalCorrect(1)) ' % accuracy earned you ' num2str(amountCHFextra(1)) ' CHF.' ...
-                   ' \n\n Block 2: ' num2str(percentTotalCorrect(2)) ' % accuracy earned you ' num2str(amountCHFextra(2)) ' CHF.' ...
-                   ' \n\n Block 3: ' num2str(percentTotalCorrect(3)) ' % accuracy earned you ' num2str(amountCHFextra(3)) ' CHF.' ...
-                   ' \n\n Block 4: ' num2str(percentTotalCorrect(4)) ' % accuracy earned you ' num2str(amountCHFextra(4)) ' CHF.' ...
-                   ' \n\n Block 5: ' num2str(percentTotalCorrect(5)) ' % accuracy earned you ' num2str(amountCHFextra(5)) ' CHF.' ...
-                   ' \n\n Block 6: ' num2str(percentTotalCorrect(6)) ' % accuracy earned you ' num2str(amountCHFextra(6)) ' CHF.' ...
-                   ' \n\n ' ...
-                   ' \n\n ' ...
-                   'Press any key to end the task.'];
+        ' \n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextraTotal) ' in total.' ...
+        ' \n\n ' ...
+        ' \n\n Block 1: ' num2str(percentTotalCorrect(1)) ' % accuracy earned you ' num2str(amountCHFextra(1)) ' CHF.' ...
+        ' \n\n Block 2: ' num2str(percentTotalCorrect(2)) ' % accuracy earned you ' num2str(amountCHFextra(2)) ' CHF.' ...
+        ' \n\n Block 3: ' num2str(percentTotalCorrect(3)) ' % accuracy earned you ' num2str(amountCHFextra(3)) ' CHF.' ...
+        ' \n\n Block 4: ' num2str(percentTotalCorrect(4)) ' % accuracy earned you ' num2str(amountCHFextra(4)) ' CHF.' ...
+        ' \n\n Block 5: ' num2str(percentTotalCorrect(5)) ' % accuracy earned you ' num2str(amountCHFextra(5)) ' CHF.' ...
+        ' \n\n Block 6: ' num2str(percentTotalCorrect(6)) ' % accuracy earned you ' num2str(amountCHFextra(6)) ' CHF.' ...
+        ' \n\n ' ...
+        ' \n\n ' ...
+        'Press any key to end the task.'];
     format bank % Change format for display
     disp(['End of Block ' num2str(BLOCK) '. Participant ' num2str(subjectID) ' has earned CHF ' num2str(amountCHFextraTotal) ' extra in total.']);
     DrawFormattedText(ptbWindow,endTextCash,'center','center',color.textVal); % Display output for participant

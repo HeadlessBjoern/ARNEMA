@@ -100,7 +100,9 @@ end
 time = GetSecs;
 
 % send triggers: task starts!
-EThndl.sendMessage(par.CD_START);
+% EThndl.sendMessage(par.CD_START);
+Eyelink('Message', num2str(par.CD_START));
+Eyelink('command', 'record_status_message "START"');
 sendtrigger(par.CD_START,port,SITE,stayup)
 
 fprintf('Running Trials\n');
@@ -109,21 +111,25 @@ while t < NrOfTrials
     Screen('DrawLine', ptbWindow,[0 0 0],center(1),center(2)-12, center(1),center(2)+12);
     vbl = Screen('Flip',ptbWindow); % clc
     if vbl >=time+eyeO(t) %Tests if a second has passed
-        
+
         % send triggers
         EThndl.sendMessage(par.CD_eyeO);
+        Eyelink('Message', num2str(par.CD_eyeO));
+        Eyelink('command', 'record_status_message "eyeO"');
         sendtrigger(par.CD_eyeO,port,SITE,stayup)
 
         disp('Eyes Open');
-        
+
 
         t = t+1;
     end
-    
+
     if vbl >=time+eyeC(tt) %Tests if a second has passed
 
         % send triggers
-        EThndl.sendMessage(par.CD_eyeC);
+        %       EThndl.sendMessage(par.CD_eyeC);
+        Eyelink('Message', num2str(par.CD_eyeC));
+        Eyelink('command', 'record_status_message "eyeC"');
         sendtrigger(par.CD_eyeC,port,SITE,stayup)
 
         disp('Eyes Closed');
@@ -133,7 +139,9 @@ while t < NrOfTrials
 end
 
 % send triggers
-EThndl.sendMessage(par.CD_END);
+% EThndl.sendMessage(par.CD_END);
+Eyelink('Message', num2str(par.CD_END));
+Eyelink('command', 'record_status_message "END"');
 sendtrigger(par.CD_END,port,SITE,stayup)
 
 disp('Resting EEG finished');

@@ -16,6 +16,7 @@ whichScreen = 1;
 % set resolution and refresh rate
 screenWidth = 1920;
 screenHeight = 1080;
-refreshRate = 100;
+refreshRate = 60;
+SetResolution(whichScreen, screenWidth, screenHeight, []);
 Screen('ConfigureDisplay', 'Scanout', whichScreen, 0, [], [], refreshRate); % refresh rate of 100hz (only for Linux)
 
