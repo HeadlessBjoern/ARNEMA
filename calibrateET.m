@@ -1,4 +1,6 @@
 %% Connect Eyetracker & Calibrate
+SetResolution(whichScreen, 800, 600, []);
+
 bgClr                   = 127;
 Screen('Preference', 'SyncTestSettings', 0.002);    % the systems are a little noisy, give the test a little more leeway
 [ptbWindow,winRect] = PsychImaging('OpenWindow', whichScreen, bgClr, [], [], [], [], 4);
@@ -44,3 +46,6 @@ catch
     %window=Screen('OpenWindow', whichScreen, par.BGcolor);
     disp('No Eyetracker');
 end
+
+Screen('CloseAll')
+SetResolution(whichScreen, screenWidth, screenHeight, []);

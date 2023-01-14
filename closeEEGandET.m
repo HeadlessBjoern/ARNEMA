@@ -8,8 +8,8 @@ if TRAINING == 0
 end
 
 fprintf('Stop Recording Track\n');
-EyeLink('StopRecording');
-EyeLink('CloseFile');
+Eyelink('StopRecording');
+Eyelink('CloseFile');
 fprintf('Downloading File\n');
 EL_DownloadDataFile;
 EL_Cleanup;

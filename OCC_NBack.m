@@ -69,7 +69,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;
 else
-    experiment.nTrials = 100;           % 2 blocks x 100 trials = 200 trials
+    experiment.nTrials = 13;           % 2 blocks x 100 trials = 200 trials
 end
 
 % Set up equipment parameters
@@ -484,12 +484,12 @@ for thisTrial = 1:experiment.nTrials
         end
     end
 
-    % Check if subject fixate at center, give warning if not
-    checkFixation;
-    if noFixation > 2
-        disp('Insufficient fixation!')
-        noFixation = 0; % reset
-    end
+%     % Check if subject fixate at center, give warning if not
+%     checkFixation;
+%     if noFixation > 2
+%         disp('Insufficient fixation!')
+%         noFixation = 0; % reset
+%     end
 end
 
 %% End task, save data and inform participant about accuracy and extra cash

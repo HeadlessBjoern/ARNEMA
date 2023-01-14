@@ -5,18 +5,18 @@
 % If not (score below predefined threshold), repeat the training.
 
 % Set TRAINING flag (1 - do Training task, 0 - do actual task (see below))
-TASK = 'OCC_Sternberg';
-TRAINING = 1;
-
-BLOCK = 0;
-percentTotalCorrect = 0;
-THRESH = 74;
-while percentTotalCorrect < THRESH
-    % Start the training (4 trials) - only recording of ET data, no EEG!
-    disp('Sternberg Training TASK...');
-    OCC_Sternberg;
-    BLOCK = BLOCK + 1; 
-end
+% TASK = 'OCC_Sternberg';
+% TRAINING = 1;
+% 
+% BLOCK = 0;
+% percentTotalCorrect = 0;
+% THRESH = 74;
+% while percentTotalCorrect < THRESH
+%     % Start the training (4 trials) - only recording of ET data, no EEG!
+%     disp('Sternberg Training TASK...');
+%     OCC_Sternberg;
+%     BLOCK = BLOCK + 1; 
+% end
 
 %% Sterberg Task: Actual task
 
@@ -42,17 +42,17 @@ WaitSecs(15);
 % If not (score below predefined threshold), repeat the training.
 
 % Set TRAINING flag (1 - do Training task, 0 - do actual task (see below))
-TASK = 'OCC_NBack';
-TRAINING = 1;
-
-BLOCK = 1;
-percentTotalCorrect = 0;
-THRESH = 74;
-while percentTotalCorrect < THRESH
-    % Start the training (4 trials) - only recording of ET data, no EEG!
-    disp('N-Back Training Task...');
-    OCC_NBack;
-end
+% TASK = 'OCC_NBack';
+% TRAINING = 1;
+% 
+% BLOCK = 1;
+% percentTotalCorrect = 0;
+% THRESH = 74;
+% while percentTotalCorrect < THRESH
+%     % Start the training (4 trials) - only recording of ET data, no EEG!
+%     disp('N-Back Training Task...');
+%     OCC_NBack;
+% end
 
 %% N-back Task: Actual Task
 

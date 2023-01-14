@@ -23,30 +23,30 @@ disp('CALIBRATING ET...');
 calibrateET;
 
 %% Audio file
-wavfilename_probe1 = '/home/methlab/Desktop/ARNEMA/InstructionFixation.wav';
-try
-    PsychPortAudio('Close');
-catch
-end
-try
-    [y_probe1, freq1] = audioread(wavfilename_probe1);
-    wavedata_probe1 = y_probe1';
-    nrchannels = size(wavedata_probe1,1); % Number of rows == number of channels.
-    % Add 15 msecs latency on ptbWindows, to protect against shoddy drivers:
-    sugLat = [];
-    if IsWin
-        sugLat = 0.015;
-    end
-    try
-        InitializePsychSound;
-        pahandle = PsychPortAudio('Open', 2, [], 0, freq1, nrchannels, [], sugLat); % DAWID - look for devices - here 2
-        duration_probe1 = size(wavedata_probe1,2)/freq1;
-    catch
-        error('Sound Initialisation Error');
-    end
-catch
-    error('Sound Error');
-end
+% wavfilename_probe1 = '/home/methlab/Desktop/ARNEMA/InstructionFixation.wav';
+% try
+%     PsychPortAudio('Close');
+% catch
+% end
+% try
+%     [y_probe1, freq1] = audioread(wavfilename_probe1);
+%     wavedata_probe1 = y_probe1';
+%     nrchannels = size(wavedata_probe1,1); % Number of rows == number of channels.
+%     % Add 15 msecs latency on ptbWindows, to protect against shoddy drivers:
+%     sugLat = [];
+%     if IsWin
+%         sugLat = 0.015;
+%     end
+%     try
+%         InitializePsychSound;
+%         pahandle = PsychPortAudio('Open', 2, [], 0, freq1, nrchannels, [], sugLat); % DAWID - look for devices - here 2
+%         duration_probe1 = size(wavedata_probe1,2)/freq1;
+%     catch
+%         error('Sound Initialisation Error');
+%     end
+% catch
+%     error('Sound Error');
+% end
 
 %% Task
 HideCursor(whichScreen);
@@ -87,7 +87,7 @@ TASK_END = 90; % trigger for ET cutting
 if TRAINING == 1
     experiment.nTrials = 4;
 else
-    experiment.nTrials = 25; % 6 blocks x 25 trials = 150 trials
+    experiment.nTrials = 12; % 6 blocks x 25 trials = 150 trials
 end
 experiment.setSizes = [1,4,7];          % Number of items presented on the screen
 
@@ -547,12 +547,12 @@ for thisTrial = 1:experiment.nTrials
     blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
     WaitSecs(blankJitter(thisTrial));
 
-    % Check if subject fixate at center, give warning if not
-    checkFixation;
-    if noFixation > 2
-        disp('No fixation. Playing audio instruction for fixation.');
-        noFixation = 0; % reset
-    end
+%     % Check if subject fixate at center, give warning if not
+%     checkFixation;
+%     if noFixation > 2
+%         disp('No fixation. Playing audio instruction for fixation.');
+%         noFixation = 0; % reset
+%     end
 end
 
 %% End task, save data and inform participant about accuracy and extra cash
