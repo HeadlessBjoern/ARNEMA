@@ -763,7 +763,30 @@ while waitResponse
 end
 
 % Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 6)
-if BLOCK >= 1 && BLOCK < 6
+if TRAINING == 1 && percentTotalCorrect < THRESH
+    waitTime = 30;
+    intervalTime = 1;
+    timePassed = 0;
+    printTime = 30;
+
+    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+        ' \n\n ' ...
+        ' \n\n You can repeat the training task afterwards.'];
+
+    DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+    Screen('Flip',ptbWindow);
+
+    while timePassed < waitTime
+        pause(intervalTime);
+        timePassed = timePassed + intervalTime;
+        printTime = waitTime - timePassed;
+        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds. ...' ...
+            ' \n\n ' ...
+            ' \n\n You can repeat the training task afterwards.'];
+        DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+        Screen('Flip',ptbWindow);
+    end
+elseif BLOCK >= 1 && BLOCK < 6
     waitTime = 30;
     intervalTime = 1;
     timePassed = 0;

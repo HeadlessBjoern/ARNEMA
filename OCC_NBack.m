@@ -110,6 +110,7 @@ if TRAINING == 1
         'You will see a series of random letters. \n\n' ...
         'Your task is to press SPACE if you see the same letter twice in a row. \n\n' ...
         'Otherwise, do not press any button. \n\n' ...
+        'Please always use your right hand.' ...
         '\n\n Don''t worry, you can do a training sequence in the beginning. \n\n' ...
         '\n\n Press any key to continue.'];
 else
@@ -119,20 +120,19 @@ else
             'You will see a series of random letters. \n\n' ...
             'Your task is to press SPACE if you see the same letter twice in a row. \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
+            'Please always use your right hand.' ...
             '\n\n Press any key to continue.'];
     elseif BLOCK == 2
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
             'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see is the same letter you saw before the last letter. \n\n' ...
+            'Your task is to press SPACE if the letter you see is the same letter as the one two letter before. \n\n' ...
             'Example: A  -  Q  -  A \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
+            'Please always use your right hand.' ...
             '\n\n Press any key to continue.'];
     end
 end
-
-% Define startBlockText
-startBlockText = 'Press any key to begin the next block.';
 
 % Set up temporal parameters (all in seconds)
 timing.blank = 1;                               % Duration of blank screen
@@ -484,12 +484,12 @@ for thisTrial = 1:experiment.nTrials
         end
     end
 
-%     % Check if subject fixate at center, give warning if not
-%     checkFixation;
-%     if noFixation > 2
-%         disp('Insufficient fixation!')
-%         noFixation = 0; % reset
-%     end
+    %     % Check if subject fixate at center, give warning if not
+    %     checkFixation;
+    %     if noFixation > 2
+    %         disp('Insufficient fixation!')
+    %         noFixation = 0; % reset
+    %     end
 end
 
 %% End task, save data and inform participant about accuracy and extra cash
@@ -611,7 +611,6 @@ saves.screenWidth = screenWidth;
 saves.screenHeight = screenHeight;
 saves.screenCentreX = screenCentreX;
 saves.screenCentreY = screenCentreY;
-saves.startBlockText = startBlockText;
 saves.startExperimentTime = startExperimentTime;
 saves.startExperimentText = startExperimentText;
 saves.stimulus = stimulus;
@@ -680,7 +679,30 @@ while waitResponse
 end
 
 % Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 2)
-if BLOCK == 1 && TRAINING == 1
+if TRAINING == 1 && percentTotalCorrect < THRESH
+    waitTime = 30;
+    intervalTime = 1;
+    timePassed = 0;
+    printTime = 30;
+
+    waitTimeText = ['Please wait for ' num2str(printTime) ' seconds.' ...
+        ' \n\n ' ...
+        ' \n\n You can repeat the training task afterwards.'];
+
+    DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+    Screen('Flip',ptbWindow);
+
+    while timePassed < waitTime
+        pause(intervalTime);
+        timePassed = timePassed + intervalTime;
+        printTime = waitTime - timePassed;
+        waitTimeText = ['Please wait for ' num2str(printTime) ' seconds.' ...
+            ' \n\n ' ...
+            ' \n\n You can repeat the training task afterwards.'];
+        DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
+        Screen('Flip',ptbWindow);
+    end
+elseif BLOCK == 1 && TRAINING == 1
     waitTime = 30;
     intervalTime = 1;
     timePassed = 0;
