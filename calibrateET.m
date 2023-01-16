@@ -1,5 +1,6 @@
 %% Connect Eyetracker & Calibrate
 SetResolution(whichScreen, 800, 600, []);
+pause(2);
 
 bgClr                   = 127;
 Screen('Preference', 'SyncTestSettings', 0.002);    % the systems are a little noisy, give the test a little more leeway
@@ -22,10 +23,14 @@ filePath = fullfile(DATA_PATH, subjectID);
 if strcmp(TASK, 'Resting')
     edfFile = [subjectID, 'Res.edf'];
 else
-    if TRAINING == 1
-        edfFile = [subjectID,'_', num2str(BLOCK), '.edf']; % training
-    else
-        edfFile = [subjectID,'_', num2str(BLOCK), 'task.edf']; % actual task
+    if TRAINING == 1 && strcmp(TASK, 'OCC_Sternberg')
+        edfFile = [subjectID,'_', num2str(BLOCK), 'SternbergTraining.edf']; % training
+    elseif TRAINING == 1 && strcmp(TASK, 'OCC_NBack')
+        edfFile = [subjectID,'_', num2str(BLOCK), 'NBackTraining.edf']; % training
+    elseif strcmp(TASK, 'OCC_Sternberg')
+        edfFile = [subjectID,'_', num2str(BLOCK), 'SternbergTask.edf']; % actual task (6 Blocks of Sternberg)
+    elseif strcmp(TASK, 'OCC_NBack')
+        edfFile = [subjectID,'_', num2str(BLOCK), 'NBackTask.edf']; % actual task (2 Blocks of NBack)
     end
 end
 
@@ -38,7 +43,7 @@ try
     catch
         disp('Error creating the file on Tracker');
     end
-    
+
     EL_Calibrate
 
     Eyelink('command', ['record_status_message "OCC' num2str(BLOCK) ' EEG"']);
@@ -49,3 +54,4 @@ end
 
 Screen('CloseAll')
 SetResolution(whichScreen, screenWidth, screenHeight, []);
+pause(2);

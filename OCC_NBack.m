@@ -69,7 +69,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;
 else
-    experiment.nTrials = 13;           % 2 blocks x 100 trials = 200 trials
+    experiment.nTrials = 100;           % 2 blocks x 100 trials = 200 trials
 end
 
 % Set up equipment parameters
