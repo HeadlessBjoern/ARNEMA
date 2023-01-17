@@ -13,3 +13,7 @@ Eyelink('CloseFile');
 fprintf('Downloading File\n');
 EL_DownloadDataFile;
 EL_Cleanup;
+
+pathEdf2Asc = '/usr/bin/edf2asc';  
+disp("CONVERTING EDF to ASCII...")
+system([pathEdf2Asc ' "' fullfile(filePath, edfFile) '" -y']);

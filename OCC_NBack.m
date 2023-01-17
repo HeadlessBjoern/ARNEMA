@@ -349,8 +349,11 @@ for thisTrial = 1:experiment.nTrials
     badResponseFlag = false;
     maxResponseTime = GetSecs + 2;
     while getResponse
+        
         [time,keyCode] = KbWait(-1, 2, maxResponseTime); % Wait 2 seconds for response, continue afterwards if there is no input.
+
         whichKey = find(keyCode);
+
         if ~isempty(whichKey)
             if whichKey == spaceKeyCode
                 getResponse = false;
@@ -377,6 +380,12 @@ for thisTrial = 1:experiment.nTrials
             Eyelink('Message', num2str(TRIGGER));
             Eyelink('command', 'record_status_message "PRESENTATION"');
             sendtrigger(TRIGGER,port,SITE,stayup)
+        end
+
+        if ~isempty(whichKey)
+            if time < maxResponseTime
+                WaitSecs(maxResponseTime - time);
+            end
         end
 
         if time > 1

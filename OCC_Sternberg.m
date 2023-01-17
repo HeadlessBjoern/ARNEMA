@@ -440,10 +440,12 @@ for thisTrial = 1:experiment.nTrials
     % Get response
     getResponse = true;
     badResponseFlag = false;
-    maxResponseTime = GetSecs + 5;
+    maxResponseTime = GetSecs + 2;
     while getResponse
-        [time,keyCode] = KbWait(-1, 2, maxResponseTime); % Wait 5 seconds for response, continue afterwards if there is no input.
+        [time,keyCode] = KbWait(-1, 2, maxResponseTime); % Wait 2 seconds for response, continue afterwards if there is no input.
+
         whichKey = find(keyCode);
+
         if ~isempty(whichKey)
             if whichKey == KeyCodeA || whichKey == KeyCodeL
                 getResponse = false;
@@ -490,6 +492,13 @@ for thisTrial = 1:experiment.nTrials
 
             end
         end
+
+        if ~isempty(whichKey)
+            if time < maxResponseTime
+                WaitSecs(maxResponseTime - time);
+            end
+        end
+
         if time > 1
             getResponse = false;
         end
@@ -547,12 +556,12 @@ for thisTrial = 1:experiment.nTrials
     blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
     WaitSecs(blankJitter(thisTrial));
 
-%     % Check if subject fixate at center, give warning if not
-%     checkFixation;
-%     if noFixation > 2
-%         disp('No fixation. Playing audio instruction for fixation.');
-%         noFixation = 0; % reset
-%     end
+    %     % Check if subject fixate at center, give warning if not
+    %     checkFixation;
+    %     if noFixation > 2
+    %         disp('No fixation. Playing audio instruction for fixation.');
+    %         noFixation = 0; % reset
+    %     end
 end
 
 %% End task, save data and inform participant about accuracy and extra cash

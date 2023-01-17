@@ -21,16 +21,16 @@ subjectID = num2str(subject.ID);
 filePath = fullfile(DATA_PATH, subjectID);
 
 if strcmp(TASK, 'Resting')
-    edfFile = [subjectID, 'Res.edf'];
+    edfFile = [subjectID, '_Res.edf'];
 else
     if TRAINING == 1 && strcmp(TASK, 'OCC_Sternberg')
-        edfFile = [subjectID,'_', num2str(BLOCK), 'SternbergTraining.edf']; % training
+        edfFile = [subjectID,'_', 'STr.edf']; % training
     elseif TRAINING == 1 && strcmp(TASK, 'OCC_NBack')
-        edfFile = [subjectID,'_', num2str(BLOCK), 'NBackTraining.edf']; % training
+        edfFile = [subjectID,'_', 'NTr.edf']; % training
     elseif strcmp(TASK, 'OCC_Sternberg')
-        edfFile = [subjectID,'_', num2str(BLOCK), 'SternbergTask.edf']; % actual task (6 Blocks of Sternberg)
+        edfFile = [subjectID,'_', num2str(BLOCK), 'STsk.edf']; % actual task (6 Blocks of Sternberg)
     elseif strcmp(TASK, 'OCC_NBack')
-        edfFile = [subjectID,'_', num2str(BLOCK), 'NBackTask.edf']; % actual task (2 Blocks of NBack)
+        edfFile = [subjectID,'_', num2str(BLOCK), 'NTsk.edf']; % actual task (2 Blocks of NBack)
     end
 end
 
@@ -55,3 +55,6 @@ end
 Screen('CloseAll')
 SetResolution(whichScreen, screenWidth, screenHeight, []);
 pause(2);
+
+Eyelink('StartRecording');
+WaitSecs(0.1)
