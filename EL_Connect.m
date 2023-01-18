@@ -72,7 +72,7 @@ try
     Eyelink('command', 'sample_rate = %d',500);
     Eyelink('Command', 'clear_screen 0');
     Eyelink('Command', 'set_idle_mode');
-    Eyelink('Command', 'pixel_screen_resolution = %d, %d, %d, %d', 0, 0, screenWidth-1, screenHeight-1)
+    Eyelink('Command', 'screen_pixel_coords = %d %d %d %d',0,0,screenWidth-1,screenHeight-1);
     disp('Setup Sucessful');
 catch
     error('Error Connecting to the Eyetracker');

@@ -276,7 +276,7 @@ if TRAINING == 1
 else
     disp(['Start of Block ' num2str(BLOCK)]);
 end
-
+HideCursor(whichScreen);
 %% Experiment Loop
 noFixation = 0;
 
