@@ -1,6 +1,4 @@
 %% Connect Eyetracker & Calibrate
-SetResolution(whichScreen, 800, 600, []);
-pause(2);
 
 bgClr                   = 127;
 Screen('Preference', 'SyncTestSettings', 0.002);    % the systems are a little noisy, give the test a little more leeway
@@ -53,8 +51,6 @@ catch
 end
 
 Screen('CloseAll')
-SetResolution(whichScreen, screenWidth, screenHeight, []);
-pause(2);
 
 Eyelink('StartRecording');
 WaitSecs(0.1)
