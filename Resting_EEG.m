@@ -118,7 +118,7 @@ while t < NrOfTrials
         Eyelink('command', 'record_status_message "eyeO"');
         sendtrigger(par.CD_eyeO,port,SITE,stayup)
 
-        disp('Eyes Open');
+        disp(['Resting EEG: ' num2str(t) ' of ' num2str(NrOfTrials) ' trials']);
 
 
         t = t+1;
@@ -132,7 +132,7 @@ while t < NrOfTrials
         Eyelink('command', 'record_status_message "eyeC"');
         sendtrigger(par.CD_eyeC,port,SITE,stayup)
 
-        disp('Eyes Closed');
+        disp(['Resting EEG: ' num2str(tt) ' of ' num2str(NrOfTrials) ' trials']);
 
         tt = tt+1;
     end
