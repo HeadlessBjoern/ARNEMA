@@ -78,7 +78,7 @@ text.instructionWrap = 80;              % Number of characters at which to wrap 
 text.color = 0;                         % Color of text (0 = black)
 
 % Define startExperimentText
-if TRAINING == 1
+if TRAINING == 1 && BLOCK == 1
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n' ...
         'You will see a series of random numbers. \n\n' ...
@@ -86,6 +86,15 @@ if TRAINING == 1
         'Otherwise, do not press any button. \n\n' ...
         'Please always use your right hand.' ...
         '\n\n Don''t worry, you can do a training sequence in the beginning. \n\n' ...
+        '\n\n Press any key to continue.'];
+elseif TRAINING == 1 && BLOCK == 2
+    loadingText = 'Loading training task...';
+    startExperimentText = ['Training task. \n\n' ...
+        'You will see a series of random numbers. \n\n' ...
+        'Your task is to press SPACE if the number you see is the same number as the one two numbers before. \n\n' ...
+        'Example: A  -  Q  -  A \n\n' ...
+        'Otherwise, do not press any button. \n\n' ...
+        'Please always use your right hand.' ...
         '\n\n Press any key to continue.'];
 else
     if BLOCK == 1
@@ -177,8 +186,10 @@ count5trials = 0;
 reactionTime(1:experiment.nTrials) = 0;
 
 % Define digitSequence depending on block iteration
-if TRAINING == 1
+if TRAINING == 1 && BLOCK == 1
     digitSequence = '3144655098834';
+elseif TRAINING == 1  && BLOCK == 2
+    digitSequence = '131456578738821';
 else
     createDigitSequences;
     checkDigitGrouping;
