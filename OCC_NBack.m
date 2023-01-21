@@ -32,7 +32,6 @@ BLOCK2 = 32; % trigger for start of block 2 (2-back)
 ENDBLOCK0 = 49; % trigger for end of training block
 ENDBLOCK1 = 41; % trigger for end of block 1 (1-back)
 ENDBLOCK2 = 42; % trigger for end of block 2 (2-back)
-% 60-86 TRIGGERS for STIMULI (after definition of alphabet)
 RESP_YES = 87; % trigger for response yes (spacebar)
 RESP_NO = 88; % trigger for response no (no input)
 RESP_WRONG = 89;% trigger for wrong keyboard input response
@@ -70,6 +69,7 @@ stimulus.nColors = 2;                   % Number of colors used in the experimen
 color.white = [255, 255, 255];
 color.grey = [128, 128, 128];
 color.textVal = 0;                      % Color of text
+
 % Set up text parameters
 text.instructionFont = 'Menlo';         % Font of instruction text
 text.instructionPoints = 12;            % Size of instruction text (This if overwritten by )
@@ -81,8 +81,8 @@ text.color = 0;                         % Color of text (0 = black)
 if TRAINING == 1
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n' ...
-        'You will see a series of random letters. \n\n' ...
-        'Your task is to press SPACE if you see the same letter twice in a row. \n\n' ...
+        'You will see a series of random numbers. \n\n' ...
+        'Your task is to press SPACE if you see the same number twice in a row. \n\n' ...
         'Otherwise, do not press any button. \n\n' ...
         'Please always use your right hand.' ...
         '\n\n Don''t worry, you can do a training sequence in the beginning. \n\n' ...
@@ -91,16 +91,16 @@ else
     if BLOCK == 1
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
-            'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if you see the same letter twice in a row. \n\n' ...
+            'You will see a series of random numbers. \n\n' ...
+            'Your task is to press SPACE if you see the same number twice in a row. \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
             'Please always use your right hand.' ...
             '\n\n Press any key to continue.'];
     elseif BLOCK == 2
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
-            'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see is the same letter as the one two letter before. \n\n' ...
+            'You will see a series of random numbers. \n\n' ...
+            'Your task is to press SPACE if the number you see is the same number as the one two numbers before. \n\n' ...
             'Example: A  -  Q  -  A \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
             'Please always use your right hand.' ...
@@ -164,7 +164,7 @@ fixCoords = [fixHorizontal; fixVertical];
 
 % Create data structure for preallocating data
 data = struct;
-data.letterSequence = strings;
+data.digitSequence = 0;
 data.trialMatch(1:experiment.nTrials) = NaN;
 data.allResponses(1:experiment.nTrials) = NaN;
 data.allCorrect(1:experiment.nTrials) = NaN;
@@ -176,35 +176,16 @@ count5trials = 0;
 % Preallocate reaction time varible
 reactionTime(1:experiment.nTrials) = 0;
 
-% Define stimuli (letterSequences); generated in 'createLetterSequence1.m' and 'createLetterSequence2.m' for all participants
-alphabet = 'A':'Z';
-letterSequenceT = 'AQQSSTRBDDSTTI';
-letterSequence1 = 'ZZAAAKEEJDWZZUUUDSTTTJFFAOKKKUUBPPJLIILUDDEDDWYCMJZZMNIDMGGVVVDWSUUWMXXNNNSYCMSSBMLLZOOAZCCIRRYOOGXXXB';
-letterSequence2 = 'TPTLTZRTRVYVTDZDUKHMHHBVLVTVTBOBXBWGQFVXVEREXECEEWNWNWSYULRPRGKWOILILILFMVNJNHHKZNTNTGTGXGXGVSVSCJMEWT';
-
-% Define letterSequence depending on block iteration
+% Define digitSequence depending on block iteration
 if TRAINING == 1
-    letterSequence = letterSequenceT;
-elseif BLOCK == 1 && TRAINING == 0
-    letterSequence = letterSequence1;
-elseif BLOCK == 2
-    letterSequence = letterSequence2;
+    digitSequence = '3144655098834';
+else
+    createDigitSequences;
+    checkDigitGrouping;
 end
 
-% Save sequence of letters of this block in data
-if BLOCK == 1
-    data.letterSequence = letterSequence1;
-elseif BLOCK == 2
-    data.letterSequence = letterSequence2;
-end
-
-% Define triggers for every letter as stimulus
-STIM  = [];
-c = 1;
-for i = 60:86
-    STIM(c) = i;
-    c = c + 1;
-end
+% Save digitSequence
+data.digitSequence = digitSequence; % 1x102 double
 
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
@@ -259,9 +240,9 @@ noFixation = 0;
 
 for thisTrial = 1:experiment.nTrials
 
-    disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial #
+    disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial iteration
 
-    % Jittered CFI before presentation of letter (3000ms +/- 1000ms)
+    % Jittered CFI before presentation of digit (3000ms +/- 1000ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
     Screen('Flip', ptbWindow);
     TRIGGER = FIXATION;
@@ -280,8 +261,8 @@ for thisTrial = 1:experiment.nTrials
 
     % Increase size of stimuli
     Screen('TextSize', ptbWindow, 60);
-    % Present stimulus from letter sequence (2000ms)
-    DrawFormattedText(ptbWindow,[num2str(letterSequence(thisTrial))],'center','center',text.color);
+    % Present stimulus from digitSequence (2000ms)
+    DrawFormattedText(ptbWindow,[num2str(digitSequence(thisTrial))],'center','center',text.color);
     Screen('Flip', ptbWindow);
     % Return size of text to default
     Screen('TextSize', ptbWindow, 40);
@@ -302,22 +283,6 @@ for thisTrial = 1:experiment.nTrials
         %         EThndl.sendMessage(TRIGGER);
         Eyelink('Message', num2str(TRIGGER));
         Eyelink('command', 'record_status_message "PRESENTATION"');
-        sendtrigger(TRIGGER,port,SITE,stayup);
-    end
-
-    % Send triggers for stimulus identification
-    stimName = letterSequence(thisTrial);
-    searchStim = ismember(alphabet, stimName);
-    TRIGGER = STIM(searchStim);
-    data.stims(thisTrial) = STIM(searchStim);
-    if TRAINING == 1
-        %         EThndl.sendMessage(TRIGGER);
-        Eyelink('Message', num2str(TRIGGER));
-        Eyelink('command', 'record_status_message "STIM IDENTIFICATION"');
-    else
-        %         EThndl.sendMessage(TRIGGER);
-        Eyelink('Message', num2str(TRIGGER));
-        Eyelink('command', 'record_status_message "STIM IDENTIFICATION"');
         sendtrigger(TRIGGER,port,SITE,stayup);
     end
 
@@ -375,14 +340,14 @@ for thisTrial = 1:experiment.nTrials
 
     % Save match/no match
     if BLOCK == 1 && thisTrial > 1
-        if letterSequence(thisTrial-1) == letterSequence(thisTrial)
+        if digitSequence(thisTrial-1) == digitSequence(thisTrial)
             thisTrialMatch = 1;
         else
             thisTrialMatch = 0;
         end
         data.trialMatch(thisTrial) = thisTrialMatch;
     elseif BLOCK == 2 && thisTrial > 2
-        if letterSequence(thisTrial-2) == letterSequence(thisTrial)
+        if digitSequence(thisTrial-2) == digitSequence(thisTrial)
             thisTrialMatch = 1;
         else
             thisTrialMatch = 0;
