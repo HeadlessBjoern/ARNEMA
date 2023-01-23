@@ -120,7 +120,6 @@ while t < NrOfTrials
 
         disp(['Resting EEG: ' num2str(t) ' of ' num2str(NrOfTrials) ' trials']);
 
-
         t = t+1;
     end
 

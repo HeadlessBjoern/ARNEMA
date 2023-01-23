@@ -19,7 +19,7 @@ end
 if grouping == 0
     disp('No grouping in digitSequence > 3. Continuing ... ');
 else
-    disp('Too much grouping in digitSequence. Creating new digitSequence...');
+    disp('Too much grouping in digitSequence. Adjusting digitSequence...');
     createDigitSequences;
     checkDigitGrouping;
 end
