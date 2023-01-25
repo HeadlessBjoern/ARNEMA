@@ -22,8 +22,8 @@ try
     Eyelink('StartSetup',1);
     disp('Calibration done');
     
-    ShowCursor(whichScreen);
-    SetMouse(400,300,1);
+%     ShowCursor(whichScreen);
+%     SetMouse(400,300,1);
     disp('Calibration done');
     try
         Snd('Close');

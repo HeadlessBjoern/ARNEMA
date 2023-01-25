@@ -95,7 +95,6 @@ if TRAINING == 1
         'Try to memorize these digit sequences. \n\n' ...
         'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
         'Please look at the center of the screen during these three seconds. \n\n' ...
-
         'Afterwards, you will be presented with a white digit. \n\n' ...
         'Your task is to determine if this white digit was included in the previous digit sequence. \n\n' ...
         'Feedback will be provided after each trial. \n\n' ...
@@ -279,6 +278,10 @@ else
     sendtrigger(TRIGGER,port,SITE,stayup);
 end
 HideCursor(whichScreen);
+
+baseRect = [0 0 20 20];
+Rec2plot = CenterRectOnPointd(baseRect, 30, screenHeight - 30);
+
 %% Experiment Loop
 noFixation = 0;
 for thisTrial = 1:experiment.nTrials
@@ -295,6 +298,7 @@ for thisTrial = 1:experiment.nTrials
 
     % Central fixation interval (500ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
+    Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
     Screen('Flip', ptbWindow);
     if TRAINING == 1
         %         EThndl.sendMessage(FIXATION);
@@ -314,6 +318,7 @@ for thisTrial = 1:experiment.nTrials
         Screen('TextSize', ptbWindow, 60);
         % Serial presentation of each digit from digitSequence (1200ms)
         DrawFormattedText(ptbWindow,[num2str(thisTrialSequenceDigits(iters))],'center','center',text.color);
+        Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
         Screen('Flip', ptbWindow);
         % Return size of text to default
         Screen('TextSize', ptbWindow, 40);
@@ -383,6 +388,7 @@ for thisTrial = 1:experiment.nTrials
         thisTrialProbeDigit = shuffledSequence(1);
         % Pick random matching probe stimulus from digitSequence
         DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
+        Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
         Screen('Flip', ptbWindow);
         thisTrialMatch = 1;
         TRIGGER = MATCH;
@@ -391,6 +397,7 @@ for thisTrial = 1:experiment.nTrials
         thisTrialProbeDigit = shuffledSequence(1);
         % Pick random NOT matching probe stimulus from digits (excluding numbers from digitSequence)
         DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
+        Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
         Screen('Flip', ptbWindow);
         thisTrialMatch = 0;
         TRIGGER = NO_MATCH;

@@ -246,6 +246,10 @@ else
     disp(['Start of Block ' num2str(BLOCK)]);
 end
 HideCursor(whichScreen);
+
+baseRect = [0 0 20 20];
+Rec2plot = CenterRectOnPointd(baseRect, 30, screenHeight - 30);
+
 %% Experiment Loop
 noFixation = 0;
 
@@ -255,6 +259,7 @@ for thisTrial = 1:experiment.nTrials
 
     % Jittered CFI before presentation of digit (3000ms +/- 1000ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
+    Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
     Screen('Flip', ptbWindow);
     TRIGGER = FIXATION;
     timing.cfi = (randsample(2000:4000, 1))/1000;    % Randomize the jittered central fixation interval on trial
@@ -274,6 +279,7 @@ for thisTrial = 1:experiment.nTrials
     Screen('TextSize', ptbWindow, 60);
     % Present stimulus from digitSequence (2000ms)
     DrawFormattedText(ptbWindow,[num2str(digitSequence(thisTrial))],'center','center',text.color);
+    Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
     Screen('Flip', ptbWindow);
     % Return size of text to default
     Screen('TextSize', ptbWindow, 40);
