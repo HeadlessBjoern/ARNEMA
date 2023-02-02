@@ -106,6 +106,7 @@ Eyelink('command', 'record_status_message "START"');
 sendtrigger(par.CD_START,port,SITE,stayup)
 
 fprintf('Running Trials\n');
+countTrials = 0;
 while t < NrOfTrials
     Screen('DrawLine', ptbWindow,[0 0 0],center(1)-12,center(2), center(1)+12,center(2));
     Screen('DrawLine', ptbWindow,[0 0 0],center(1),center(2)-12, center(1),center(2)+12);
@@ -113,12 +114,10 @@ while t < NrOfTrials
     if vbl >=time+eyeO(t) %Tests if a second has passed
 
         % send triggers
-%         EThndl.sendMessage(par.CD_eyeO);
+        %         EThndl.sendMessage(par.CD_eyeO);
         Eyelink('Message', num2str(par.CD_eyeO));
         Eyelink('command', 'record_status_message "eyeO"');
         sendtrigger(par.CD_eyeO,port,SITE,stayup)
-
-        disp(['Resting EEG: ' num2str(t) ' of ' num2str(NrOfTrials) ' trials']);
 
         t = t+1;
     end
@@ -131,10 +130,11 @@ while t < NrOfTrials
         Eyelink('command', 'record_status_message "eyeC"');
         sendtrigger(par.CD_eyeC,port,SITE,stayup)
 
-        disp(['Resting EEG: ' num2str(tt) ' of ' num2str(NrOfTrials) ' trials']);
-
         tt = tt+1;
     end
+    countTrials = countTrials+1;
+    disp(['Resting EEG: ' num2str(countTrials) ' of ' num2str(NrOfTrials) ' trials']);
+
 end
 
 % send triggers

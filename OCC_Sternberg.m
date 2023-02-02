@@ -772,6 +772,7 @@ if TRAINING == 1 && percentTotalCorrect < THRESH
 
     DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
     Screen('Flip',ptbWindow);
+    disp('Participant has initiated the waiting sequence...');
 
     while timePassed < waitTime
         pause(intervalTime);
@@ -795,6 +796,7 @@ elseif BLOCK >= 1 && BLOCK < 6
 
     DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
     Screen('Flip',ptbWindow);
+    disp('Participant has initiated the waiting sequence...');
 
     while timePassed < waitTime
         pause(intervalTime);
