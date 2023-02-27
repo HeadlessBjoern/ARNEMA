@@ -146,7 +146,7 @@ Screen('BlendFunction', ptbWindow, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 experiment.runPriority = MaxPriority(ptbWindow);
 
 % Set font size for instructions and stimuli
-Screen('TextSize', ptbWindow, 40);
+Screen('TextSize', ptbWindow, 20);
 
 global psych_default_colormode;                     % Sets colormode to be unclamped 0-1 range.
 psych_default_colormode = 1;
@@ -200,6 +200,7 @@ data.digitSequence = digitSequence; % 1x102 double
 
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
+Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
 startExperimentTime = Screen('Flip',ptbWindow);
 disp('Participant is reading the instructions.');
 waitResponse = 1;
@@ -247,8 +248,6 @@ else
 end
 HideCursor(whichScreen);
 
-baseRect = [0 0 20 20];
-Rec2plot = CenterRectOnPointd(baseRect, 30, screenHeight - 30);
 
 %% Experiment Loop
 noFixation = 0;
@@ -259,7 +258,7 @@ for thisTrial = 1:experiment.nTrials
 
     % Jittered CFI before presentation of digit (3000ms +/- 1000ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
-    Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     TRIGGER = FIXATION;
     timing.cfi = (randsample(2000:4000, 1))/1000;    % Randomize the jittered central fixation interval on trial
@@ -279,10 +278,11 @@ for thisTrial = 1:experiment.nTrials
     Screen('TextSize', ptbWindow, 60);
     % Present stimulus from digitSequence (2000ms)
     DrawFormattedText(ptbWindow,[num2str(digitSequence(thisTrial))],'center','center',text.color);
-    Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+    Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
     Screen('Flip', ptbWindow);
     % Return size of text to default
-    Screen('TextSize', ptbWindow, 40);
+    Screen('TextSize', ptbWindow, 20);
     % Send triggers for Presentation
     if TRAINING == 1
         TRIGGER = PRESENTATION0;
@@ -408,6 +408,7 @@ for thisTrial = 1:experiment.nTrials
     elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true && thisTrial > 1
         feedbackText = 'Wrong button! Use only SPACE.';
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
+        Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
         WaitSecs(3);
     elseif thisTrial == 1
@@ -435,6 +436,7 @@ for thisTrial = 1:experiment.nTrials
                 '\n\n Please keep focused on the task!'];
             disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %.']);
             DrawFormattedText(ptbWindow,feedbackLastTrials,'center','center',color.textVal);
+            Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
             Screen('Flip',ptbWindow);
             WaitSecs(5);
         end
@@ -450,6 +452,7 @@ for thisTrial = 1:experiment.nTrials
                 '\n\n Please keep focused on the task!'];
             disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %.']);
             DrawFormattedText(ptbWindow,feedbackLastTrials,'center','center',color.textVal);
+            Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
             Screen('Flip',ptbWindow);
             WaitSecs(5);
         end
@@ -639,6 +642,7 @@ else
         '\n\n Press any key to start the mandatory break of at least 30 seconds.'];
 end
 DrawFormattedText(ptbWindow,breakInstructionText,'center','center',color.textVal);
+disp('Break started');
 Screen('Flip',ptbWindow);
 waitResponse = 1;
 while waitResponse

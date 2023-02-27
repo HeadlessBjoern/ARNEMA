@@ -153,7 +153,7 @@ Screen('BlendFunction', ptbWindow, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 experiment.runPriority = MaxPriority(ptbWindow);
 
 % Set font size for instructions and stimuli
-Screen('TextSize', ptbWindow, 40);
+Screen('TextSize', ptbWindow, 20);
 
 global psych_default_colormode;                     % Sets colormode to be unclamped 0-1 range.
 psych_default_colormode = 1;
@@ -230,6 +230,7 @@ while waitResponse
     waitResponse = 0;
 end
 
+Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
 endTime = Screen('Flip',ptbWindow);
 
 % Send triggers for start of task (ET cutting)
@@ -279,8 +280,7 @@ else
 end
 HideCursor(whichScreen);
 
-baseRect = [0 0 20 20];
-Rec2plot = CenterRectOnPointd(baseRect, 30, screenHeight - 30);
+
 
 %% Experiment Loop
 noFixation = 0;
@@ -298,7 +298,7 @@ for thisTrial = 1:experiment.nTrials
 
     % Central fixation interval (500ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
-    Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     if TRAINING == 1
         %         EThndl.sendMessage(FIXATION);
@@ -318,10 +318,11 @@ for thisTrial = 1:experiment.nTrials
         Screen('TextSize', ptbWindow, 60);
         % Serial presentation of each digit from digitSequence (1200ms)
         DrawFormattedText(ptbWindow,[num2str(thisTrialSequenceDigits(iters))],'center','center',text.color);
-        Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
+        Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+        Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
         % Return size of text to default
-        Screen('TextSize', ptbWindow, 40);
+        Screen('TextSize', ptbWindow, 20);
         % Send triggers for Presentation
         if data.trialSetSize(thisTrial) == 1
             TRIGGER = PRESENTATION1;
@@ -343,6 +344,7 @@ for thisTrial = 1:experiment.nTrials
         end
         WaitSecs(timing.digitPresentation);
         % Blank screen before presentation of next digit (1000ms)
+        Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip', ptbWindow);
         if TRAINING == 1
             %             EThndl.sendMessage(DIGITOFF);
@@ -358,6 +360,7 @@ for thisTrial = 1:experiment.nTrials
     end
 
     % Retention interval
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     if data.trialSetSize(thisTrial) == 1
         TRIGGER = RETENTION1;
@@ -388,7 +391,8 @@ for thisTrial = 1:experiment.nTrials
         thisTrialProbeDigit = shuffledSequence(1);
         % Pick random matching probe stimulus from digitSequence
         DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
-        Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
+        Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+        Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
         thisTrialMatch = 1;
         TRIGGER = MATCH;
@@ -397,7 +401,8 @@ for thisTrial = 1:experiment.nTrials
         thisTrialProbeDigit = shuffledSequence(1);
         % Pick random NOT matching probe stimulus from digits (excluding numbers from digitSequence)
         DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
-        Screen('FillRect',ptbWindow,[1, 1, 1], Rec2plot);
+        Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+        Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
         thisTrialMatch = 0;
         TRIGGER = NO_MATCH;
@@ -414,8 +419,8 @@ for thisTrial = 1:experiment.nTrials
         sendtrigger(TRIGGER,port,SITE,stayup);
     end
 
-    % Return size of text to 40 pts
-    Screen('TextSize', ptbWindow, 40);
+    % Return size of text to 20 pts
+    Screen('TextSize', ptbWindow, 20);
 
     % Save probe digit
     data.probeDigit(thisTrial) = thisTrialProbeDigit;
@@ -517,6 +522,7 @@ for thisTrial = 1:experiment.nTrials
 
     disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
     DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip',ptbWindow);
     WaitSecs(3);
 
@@ -533,12 +539,14 @@ for thisTrial = 1:experiment.nTrials
                 '\n\n Please stay focused on the task!'];
             disp(['Participant was made aware of low accuracy in the last 10 trials: ' num2str(percentLastTrialsCorrect) ' %. [' num2str(responsesLastTrials) ']']);
             DrawFormattedText(ptbWindow,feedbackLastTrials,'center','center',color.textVal);
+            Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
             Screen('Flip',ptbWindow);
             WaitSecs(5);
         end
     end
 
     % Blank screen before presentation of next digit (500-1500msa)
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
     WaitSecs(blankJitter(thisTrial));
@@ -752,6 +760,7 @@ else
         '\n\n Press any key to start the mandatory break of at least 30 seconds.'];
 end
 DrawFormattedText(ptbWindow,breakInstructionText,'center','center',color.textVal);
+disp('Break started');
 Screen('Flip',ptbWindow);
 waitResponse = 1;
 while waitResponse
