@@ -22,10 +22,10 @@ TASK_START = 10;
 MATCH = 4; % trigger for matching condition
 NO_MATCH = 5; % trigger for non-matching condition
 FIXATION = 15; % trigger for fixation cross
-PRESENTATION0 = 29; % trigger for digit presentation (training task; 1-back)
-PRESENTATION1 = 21; % trigger for digit presentation (1-back)
-PRESENTATION2 = 22; % trigger for digit presentation (2-back)
-DIGITOFF = 28; % trigger for change of digit to cfi
+PRESENTATION0 = 29; % trigger for letter presentation (training task; 1-back)
+PRESENTATION1 = 21; % trigger for letter presentation (1-back)
+PRESENTATION2 = 22; % trigger for letter presentation (2-back)
+STIMOFF = 28; % trigger for change of letter to cfi
 BLOCK0 = 39; % trigger for start of training block
 BLOCK1 = 31; % trigger for start of block 1 (1-back)
 BLOCK2 = 32; % trigger for start of block 2 (2-back)
@@ -55,7 +55,7 @@ equipment.gammaVals = [1 1 1];          % The gamma values for color calibration
 
 % Set up stimulus parameters Fixation
 stimulus.fixationOn = 1;                % Toggle fixation on (1) or off (0)
-stimulus.fixationSize_dva = .5;        % Size of fixation cross in degress of visual angle
+stimulus.fixationSize_dva = .5;         % Size of fixation cross in degress of visual angle
 stimulus.fixationColor = 0;             % Color of fixation cross (1 = white)
 stimulus.fixationLineWidth = 3;         % Line width of fixation cross
 
@@ -118,7 +118,7 @@ else
 end
 
 % Set up temporal parameters (all in seconds)
-timing.blank = 1;                               % Duration of blank screen
+timing.blank = 1;                   % Duration of blank screen
 
 % Shuffle rng for random elements
 rng('default');
@@ -173,7 +173,7 @@ fixCoords = [fixHorizontal; fixVertical];
 
 % Create data structure for preallocating data
 data = struct;
-data.digitSequence = 0;
+data.letterSequence = 0;
 data.trialMatch(1:experiment.nTrials) = NaN;
 data.allResponses(1:experiment.nTrials) = NaN;
 data.allCorrect(1:experiment.nTrials) = NaN;
@@ -185,18 +185,27 @@ count5trials = 0;
 % Preallocate reaction time varible
 reactionTime(1:experiment.nTrials) = 0;
 
-% Define digitSequence depending on block iteration
-if TRAINING == 1 && BLOCK == 1
-    digitSequence = '3144655098834';
-elseif TRAINING == 1  && BLOCK == 2
-    digitSequence = '131456578738821';
-else
-    createDigitSequences;
-    checkDigitGrouping;
-end
+% Define alphabet (stimulus pool)
+alphabet = 'A' : 'Z';
 
-% Save digitSequence
-data.digitSequence = digitSequence; % 1x102 double
+% Define letterSequence depending on block iteration
+if TRAINING == 1 && BLOCK == 1
+    letterSequence = 'METTHLLAABBUZH';
+elseif TRAINING == 1  && BLOCK == 2
+    letterSequence = 'SKLKNUNNTRTSPSSKNKKT';
+elseif TRAINING == 0 && BLOCK == 1
+    createLetterSequence1;
+    letterSequence1
+    letterSequence = letterSequence1;
+elseif TRAINING == 0 && BLOCK == 2
+    createLetterSequence2;
+    letterSequence2
+    letterSequence = letterSequence2;
+end
+checkLetterGrouping;
+
+% Save letterSequence
+data.letterSequence = letterSequence; % 1x102 double
 
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
@@ -248,7 +257,6 @@ else
 end
 HideCursor(whichScreen);
 
-
 %% Experiment Loop
 noFixation = 0;
 
@@ -256,7 +264,7 @@ for thisTrial = 1:experiment.nTrials
 
     disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial iteration
 
-    % Jittered CFI before presentation of digit (3000ms +/- 1000ms)
+    % Jittered CFI before presentation of letter (3000ms +/- 1000ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
@@ -276,8 +284,8 @@ for thisTrial = 1:experiment.nTrials
 
     % Increase size of stimuli
     Screen('TextSize', ptbWindow, 60);
-    % Present stimulus from digitSequence (2000ms)
-    DrawFormattedText(ptbWindow,[num2str(digitSequence(thisTrial))],'center','center',text.color);
+    % Present stimulus from letterSequence (2000ms)
+    DrawFormattedText(ptbWindow,[letterSequence(thisTrial)],'center','center',text.color);
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
     Screen('Flip', ptbWindow);
@@ -357,14 +365,14 @@ for thisTrial = 1:experiment.nTrials
 
     % Save match/no match
     if BLOCK == 1 && thisTrial > 1
-        if digitSequence(thisTrial-1) == digitSequence(thisTrial)
+        if letterSequence(thisTrial-1) == letterSequence(thisTrial)
             thisTrialMatch = 1;
         else
             thisTrialMatch = 0;
         end
         data.trialMatch(thisTrial) = thisTrialMatch;
     elseif BLOCK == 2 && thisTrial > 2
-        if digitSequence(thisTrial-2) == digitSequence(thisTrial)
+        if letterSequence(thisTrial-2) == letterSequence(thisTrial)
             thisTrialMatch = 1;
         else
             thisTrialMatch = 0;
@@ -599,7 +607,7 @@ trigger.FIXATION = FIXATION;
 trigger.PRESENTATION0 = PRESENTATION0;
 trigger.PRESENTATION1 = PRESENTATION1;
 trigger.PRESENTATION2 = PRESENTATION2;
-trigger.DIGITOFF = DIGITOFF;
+trigger.STIMOFF = STIMOFF;
 trigger.BLOCK0 = BLOCK0;
 trigger.BLOCK1 = BLOCK1;
 trigger.BLOCK2 = BLOCK2;

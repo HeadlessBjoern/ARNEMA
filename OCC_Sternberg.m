@@ -91,7 +91,7 @@ text.color = 0;                     % Color of text (0 = black)
 
 if TRAINING == 1
     loadingText = 'Loading training task...';
-    startExperimentText = ['Training task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
+    startExperimentText = ['Training task. \n\n On each trial, you will be shown 1, 4 or 7 letters in a row. \n\n' ...
         'Try to memorize these digit sequences. \n\n' ...
         'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
         'Please look at the center of the screen during these three seconds. \n\n' ...
@@ -102,7 +102,7 @@ if TRAINING == 1
 else
     if BLOCK == 1
         loadingText = 'Loading actual task...';
-        startExperimentText = ['Actual task. \n\n On each trial, you will be shown 1, 4 or 7 digits in a row. \n\n' ...
+        startExperimentText = ['Actual task. \n\n On each trial, you will be shown 1, 4 or 7 letters in a row. \n\n' ...
             'Try to memorize these digit sequences. \n\n' ...
             'After each digit sequence there will be a blank screen for three seconds. \n\n' ...
             'Please look at the center of the screen during these three seconds. \n\n' ...
@@ -119,7 +119,7 @@ end
 
 startBlockText = 'Press any key to begin the next block.';
 
-% Set up temporal parameters (all in seconds)
+% Set up temporal parameters (in seconds)
 timing.cfi = 2;                     % Duration of central fixation interval
 timing.digitPresentation = 1.2;     % Duration of digit presentation
 timing.blank = 1;                   % Duration of blank screen
@@ -183,7 +183,6 @@ elseif mod(subject.ID,2) == 1
         'If you think the digit was not included in the previous sequence, press L. \n\n'...
         'Use your left hand to press A and right hand to press L \n\n' ...
         'Press any key to continue.'];
-
 end
 
 % Calculate equipment parameters
@@ -196,11 +195,14 @@ fixHorizontal = [round(-stimulus.fixationSize_pix/2) round(stimulus.fixationSize
 fixVertical = [0 0 round(-stimulus.fixationSize_pix/2) round(stimulus.fixationSize_pix/2)];
 fixCoords = [fixHorizontal; fixVertical];
 
+% Define alphabet (stimulus pool)
+alphabet = 'A' : 'Z';
+
 % Create data structure for preallocating data
 data = struct;
-data.sequenceDigits{1, experiment.nTrials} = 0;
+data.sequenceLetters{1, experiment.nTrials} = 0;
 data.trialSetSize(1, experiment.nTrials) = 0;
-data.probeDigit(1, experiment.nTrials) = NaN;
+data.probeLetter(1, experiment.nTrials) = NaN;
 data.trialMatch(1, experiment.nTrials) = NaN;
 data.allResponses(1, experiment.nTrials) = 0;
 data.allCorrect(1, experiment.nTrials) = NaN;
@@ -280,8 +282,6 @@ else
 end
 HideCursor(whichScreen);
 
-
-
 %% Experiment Loop
 noFixation = 0;
 for thisTrial = 1:experiment.nTrials
@@ -289,12 +289,14 @@ for thisTrial = 1:experiment.nTrials
     disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial #
     data.trialSetSize(thisTrial) = randsample(experiment.setSizes, 1);  % Determine set size on trial
 
-    % Randomize digit sequence
-    digits = randperm(10)-1;
-    thisTrialSequenceDigits = digits(1, 1:data.trialSetSize(thisTrial));
-    % Pick # of random digits (# up to length of trialSetSize)
-    % Save sequence of digits of this trial in data
-    data.sequenceDigits{thisTrial} = thisTrialSequenceDigits;
+    % Randomize letterSequence
+    lettersRand = randperm(26);
+    thisTrialSequenceIdx = lettersRand(1:data.trialSetSize(thisTrial)); % Pick # of letters (# up to length of trialSetSize)
+    for numLoc = 1:data.trialSetSize(thisTrial)
+        thisTrialSequenceLetters(numLoc) = alphabet(thisTrialSequenceIdx(numLoc));
+    end
+    % Save sequence of letters of this trial in data
+    data.sequenceLetters{thisTrial} = thisTrialSequenceLetters;
 
     % Central fixation interval (500ms)
     Screen('DrawLines',ptbWindow,fixCoords,stimulus.fixationLineWidth,stimulus.fixationColor,[screenCentreX screenCentreY],2); % Draw fixation cross
@@ -312,12 +314,12 @@ for thisTrial = 1:experiment.nTrials
     end
     WaitSecs(timing.cfi);
 
-    % Present stimuli from digitSequence one after another
+    % Present stimuli from letterSequence one after another
     for iters = 1:data.trialSetSize(thisTrial)
         % Increase size of stimuli
         Screen('TextSize', ptbWindow, 60);
-        % Serial presentation of each digit from digitSequence (1200ms)
-        DrawFormattedText(ptbWindow,[num2str(thisTrialSequenceDigits(iters))],'center','center',text.color);
+        % Serial presentation of each digit from letterSequence (1200ms)
+        DrawFormattedText(ptbWindow,[thisTrialSequenceLetters(iters)],'center','center',text.color);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
@@ -382,25 +384,30 @@ for thisTrial = 1:experiment.nTrials
     end
     WaitSecs(timing.retentionInterval);
 
-    % Randomize matching between digits in sequence, present probe stimulus and draw (probeDigit)
+    % Randomize matching between letters in sequence, present probe stimulus and draw (probeLetter)
     chance = randsample(1:2, 1);
     % Increase size of stimuli
     Screen('TextSize', ptbWindow, 60);
     if chance == 1
-        shuffledSequence = Shuffle(thisTrialSequenceDigits);
-        thisTrialProbeDigit = shuffledSequence(1);
-        % Pick random matching probe stimulus from digitSequence
-        DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
+        % Pick random matching probe stimulus from letterSequence
+        thisTrialprobeLetter = randsample(thisTrialSequenceLetters, 1);
+        % Draw probe stimulus
+        DrawFormattedText(ptbWindow,[num2str(thisTrialprobeLetter)],'center','center',color.targetVal);        
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
         thisTrialMatch = 1;
         TRIGGER = MATCH;
     else
-        shuffledSequence = Shuffle(setdiff(digits, thisTrialSequenceDigits));
-        thisTrialProbeDigit = shuffledSequence(1);
-        % Pick random NOT matching probe stimulus from digits (excluding numbers from digitSequence)
-        DrawFormattedText(ptbWindow,[num2str(thisTrialProbeDigit)],'center','center',color.targetVal);        % Draw probe stimulus
+        % Pick random NON-matching probe stimulus from letters
+        tmpAlphabet = alphabet;
+        for removeIdx = 1:data.trialSetSize(thisTrial)
+            tmpAlphabet = erase(tmpAlphabet, thisTrialSequenceLetters(removeIdx));
+        end
+        thisTrialNONSequenceLetters = tmpAlphabet;
+        thisTrialprobeLetter = randsample(thisTrialNONSequenceLetters, 1);
+        % Draw probe stimulus
+        DrawFormattedText(ptbWindow,[num2str(thisTrialprobeLetter)],'center','center',color.targetVal);        
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
@@ -423,7 +430,7 @@ for thisTrial = 1:experiment.nTrials
     Screen('TextSize', ptbWindow, 20);
 
     % Save probe digit
-    data.probeDigit(thisTrial) = thisTrialProbeDigit;
+    data.probeLetter(thisTrial) = thisTrialprobeLetter;
 
     % Save match/no match
     data.trialMatch(thisTrial) = thisTrialMatch;
@@ -520,7 +527,7 @@ for thisTrial = 1:experiment.nTrials
         feedbackText = 'Wrong button! Use only A or L.';
     end
 
-    disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
+    disp(['Response to Trial ' num2str(thisTrial) ' in Block ' num2str(BLOCK) ' is ' feedbackText]);
     DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip',ptbWindow);
