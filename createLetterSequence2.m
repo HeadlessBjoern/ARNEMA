@@ -13,8 +13,8 @@ for rando = 1:length(alphabet102)
 end
 letterSequence2 = randAlphabet;
 
-% Make around 66% matching pairs
-for pairs = 3:length(alphabet102)
+% Make around 33% matching pairs
+for pairs = 3:length(letterSequence2)
     chance = randsample(1:3, 1);
     if chance == 1
         letterSequence2(pairs) = letterSequence2(pairs-2);

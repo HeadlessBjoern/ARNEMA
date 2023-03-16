@@ -4,7 +4,7 @@
 % up to 4 letters after each other in letterSequence in OCC_NBack.
 
 grouping = 0;
-for groups = 4:length(alphabet102)-3
+for groups = 4:length(letterSequence2)-3
     if letterSequence2(groups) == letterSequence2(groups-1) && letterSequence2(groups) == letterSequence2(groups-2) && letterSequence2(groups) == letterSequence2(groups+1) && letterSequence2(groups) == letterSequence2(groups+2)
         grouping = grouping + 1;
     elseif letterSequence2(groups) == letterSequence2(groups-1) && letterSequence2(groups) == letterSequence2(groups+1) && letterSequence2(groups) == letterSequence2(groups+2) && letterSequence2(groups) == letterSequence2(groups+3)

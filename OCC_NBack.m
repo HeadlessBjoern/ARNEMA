@@ -200,7 +200,7 @@ elseif TRAINING == 0 && BLOCK == 2
     createLetterSequence2;
     letterSequence = letterSequence2;
 end
-% checkLetterGrouping;
+checkLetterGrouping;
 
 % Save letterSequence
 data.letterSequence = letterSequence; % 1x102 double

@@ -14,7 +14,7 @@ end
 letterSequence1 = randAlphabet;
 
 % Make around 33% matching pairs
-for pairs = 2:length(alphabet102)
+for pairs = 2:length(letterSequence1)
     chance = randsample(1:3, 1);
     if chance == 1
         letterSequence1(pairs) = letterSequence1(pairs-1);
