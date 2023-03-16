@@ -177,7 +177,6 @@ data.letterSequence = 0;
 data.trialMatch(1:experiment.nTrials) = NaN;
 data.allResponses(1:experiment.nTrials) = NaN;
 data.allCorrect(1:experiment.nTrials) = NaN;
-data.stims(1:experiment.nTrials) = NaN;
 
 % Preallocate dynamic accuracy computation variable
 count5trials = 0;

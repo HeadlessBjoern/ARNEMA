@@ -10,7 +10,7 @@ TRAINING = 1;
 
 BLOCK = 0;
 percentTotalCorrect = 0;
-THRESH = 74;
+THRESH = 60;
 while percentTotalCorrect < THRESH
     % Start the training (4 trials) - only recording of ET data, no EEG!
     disp('Sternberg Training TASK...');
@@ -47,7 +47,7 @@ TRAINING = 1;
 
 BLOCK = 1;
 percentTotalCorrect = 0;
-THRESH = 74;
+THRESH = 60;
 while percentTotalCorrect < THRESH
     % Start the training (4 trials) - only recording of ET data, no EEG!
     disp('N-Back Training Task...');

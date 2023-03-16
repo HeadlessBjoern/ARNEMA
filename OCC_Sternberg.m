@@ -511,9 +511,9 @@ for thisTrial = 1:experiment.nTrials
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
         end
     elseif YesIsL == 0   % L is NO, A is YES
-        if thisTrialMatch == 1     % Unmatched trial
+        if thisTrialMatch == 1     % Matched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
-        elseif thisTrialMatch == 0 % Matched trial
+        elseif thisTrialMatch == 0 % Unmatched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
         end
     end
@@ -533,12 +533,12 @@ for thisTrial = 1:experiment.nTrials
     Screen('Flip',ptbWindow);
     WaitSecs(3);
 
-    % Dynamically compute accuracy for past 10 trials and remind participant if accuracy drops below threshhold of 74%
+    % Dynamically compute accuracy for past 10 trials and remind participant if accuracy drops below threshhold of 60%
     responsesLastTrials = 0;
     if thisTrial >= 10
         responsesLastTrials = data.allCorrect(thisTrial-9 : thisTrial);
         percentLastTrialsCorrect = sum(responsesLastTrials)*10;
-        if percentLastTrialsCorrect < 74 && count5trials <= thisTrial-5
+        if percentLastTrialsCorrect < 60 && count5trials <= thisTrial-5
             count5trials = thisTrial;
             feedbackLastTrials = ['Your accuracy has declined!'...
                 '\n\n Of the last 10 trials ' num2str(percentLastTrialsCorrect) ' % were correct.' ...
