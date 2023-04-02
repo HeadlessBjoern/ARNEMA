@@ -61,8 +61,8 @@ TRAINING = 0;
 
 % Run 2 blocks of 100 trials each
 TASK = 'OCC_NBack';
-BLOCK = 2;
-for BLOCK = 1 : 2
+BLOCK = 1;
+for BLOCK = 1 : 3
     % Start the actual task (EEG recording will start here, if TRAINING = 0)
     disp('NBACK TASK...');
     OCC_NBack; 
