@@ -207,14 +207,16 @@ elseif TRAINING == 1  && BLOCK == 2
 elseif TRAINING == 0 && BLOCK == 1
     createLetterSequence1;
     letterSequence = letterSequence1;
+    checkLetterGrouping;
 elseif TRAINING == 0 && BLOCK == 2
     createLetterSequence2;
     letterSequence = letterSequence2;
-    elseif TRAINING == 0 && BLOCK == 3
+    checkLetterGrouping2;
+elseif TRAINING == 0 && BLOCK == 3
     createLetterSequence3;
     letterSequence = letterSequence3;
+    checkLetterGrouping3;
 end
-checkLetterGrouping;
 
 % Save letterSequence
 data.letterSequence = letterSequence; % 1x102 double
