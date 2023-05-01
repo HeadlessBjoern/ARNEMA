@@ -48,7 +48,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;
 else
-    experiment.nTrials = 100;           % 3 blocks x 100 trials = 300 trials
+    experiment.nTrials = 20;           % 3 blocks x 100 trials = 300 trials
 end
 
 % Set up equipment parameters
@@ -97,7 +97,8 @@ elseif TRAINING == 1 && BLOCK == 2
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n' ...
         'You will see a series of random letters. \n\n' ...
-        'Your task is to press SPACE if the letter you see is the same letter as the one two letters before. \n\n' ...
+        'Your task is to press SPACE if the letter you see \n\n' ...
+        'is the same letter as the one two letters before. \n\n' ...
         'Example: A  -  Q  -  A \n\n' ...
         'Otherwise, do not press any button. \n\n' ...
         'Please always use your right hand.' ...
@@ -115,7 +116,7 @@ else
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
             'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see' ...
+            'Your task is to press SPACE if the letter you see \n\n' ...
             'is the same letter as the one two letters before. \n\n' ...
             'Example: A  -  Q  -  A \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
@@ -125,7 +126,7 @@ else
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
             'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see' ...
+            'Your task is to press SPACE if the letter you see \n\n' ...
             'is the same letter as the one three letters before. \n\n' ...
             'Example: A - Q - P - A \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
@@ -135,7 +136,7 @@ else
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
             'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see' ...
+            'Your task is to press SPACE if the letter you see \n\n' ...
             'is the same letter as the one four letters before. \n\n' ...
             'Example: A - Q - P - B - A \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
@@ -426,6 +427,13 @@ for thisTrial = 1:experiment.nTrials
             thisTrialMatch = 0;
         end
         data.trialMatch(thisTrial) = thisTrialMatch;
+    elseif BLOCK == 4 && thisTrial > 4
+        if letterSequence(thisTrial-3) == letterSequence(thisTrial)
+            thisTrialMatch = 1;
+        else
+            thisTrialMatch = 0;
+        end
+        data.trialMatch(thisTrial) = thisTrialMatch;
     end
 
 
@@ -466,6 +474,18 @@ for thisTrial = 1:experiment.nTrials
         elseif data.allResponses(thisTrial) ~= spaceKeyCode
             data.allCorrect(thisTrial) = 0;
         end
+    elseif BLOCK == 4 && thisTrial > 4
+        if thisTrialMatch == 1 && data.allResponses(thisTrial) == spaceKeyCode  % Correct matched trial
+            data.allCorrect(thisTrial) = 1;
+        elseif thisTrialMatch == 1 && data.allResponses(thisTrial) == 0  % Incorrect matched trial
+            data.allCorrect(thisTrial) = 0;
+        elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == 0  % Correct unmatched trial
+            data.allCorrect(thisTrial) = 1;
+        elseif thisTrialMatch == 0 && data.allResponses(thisTrial) == spaceKeyCode  % Incorrect unmatched trial
+            data.allCorrect(thisTrial) = 0;
+        elseif data.allResponses(thisTrial) ~= spaceKeyCode
+            data.allCorrect(thisTrial) = 0;
+        end
     end
 
     % Display (in-)correct response in CW
@@ -487,6 +507,10 @@ for thisTrial = 1:experiment.nTrials
         disp('No Response to Trial 2 in Block 3 of N-Back Task');
     elseif BLOCK == 3 && thisTrial == 3
         disp('No Response to Trial 3 in Block 3 of N-Back Task');
+    elseif BLOCK == 4 && thisTrial == 2
+        disp('No Response to Trial 2 in Block 4 of N-Back Task');
+    elseif BLOCK == 4 && thisTrial == 3
+        disp('No Response to Trial 3 in Block 4 of N-Back Task');
     elseif BLOCK == 4 && thisTrial == 4
         disp('No Response to Trial 4 in Block 4 of N-Back Task');
     end
@@ -631,16 +655,16 @@ elseif BLOCK == 1
     Screen('Flip',ptbWindow);
     WaitSecs(5);
 elseif BLOCK == 2 || BLOCK == 3 || BLOCK == 4
-    % Get sum of correct responses, but ignore first four and last data point
+    % Get sum of correct responses, but ignore first 2/3/4 and last data point
     if BLOCK == 2
-        totalCorrect = sum(data.allCorrect(1, 2:end-1));
-        totalTrials = thisTrial-2;
-    elseif BLOCK == 3
         totalCorrect = sum(data.allCorrect(1, 3:end-1));
         totalTrials = thisTrial-3;
-    elseif BLOCK == 4
+    elseif BLOCK == 3
         totalCorrect = sum(data.allCorrect(1, 4:end-1));
         totalTrials = thisTrial-4;
+    elseif BLOCK == 4
+        totalCorrect = sum(data.allCorrect(1, 5:end-1));
+        totalTrials = thisTrial-5;
     end
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     format bank % Change format for display
