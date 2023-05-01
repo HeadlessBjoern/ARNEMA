@@ -22,9 +22,10 @@ end
 % set TRAINING flag to 0 for initialization of actual NBack task
 TRAINING = 0;
 
-% Run 2 blocks of 100 trials each
+% Run 4 blocks of 100 trials each
 TASK = 'OCC_NBack';
-for BLOCK = 1 : 3
+BLOCK = 1;
+for BLOCK = 1 : 4
     % Start the actual task (EEG recording will start here, if TRAINING = 0)
     disp('NBACK TASK...');
     OCC_NBack; 
@@ -61,6 +62,7 @@ TRAINING = 0;
 
 % Run 6 blocks of 25 trials each
 TASK = 'OCC_Sternberg';
+BLOCK = 1;
 for BLOCK = 1 : 6
     % Start the actual task (EEG recording will start here, if TRAINING = 0)
     disp('STERNBERG TASK...');

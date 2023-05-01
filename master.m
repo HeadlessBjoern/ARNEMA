@@ -4,7 +4,7 @@
 % - Sternberg training (4 trials)
 % - Sternberg actual task (6 blocks x 25 trials)
 % - N-back training (10 trials)
-% - N-back task (2 blocks x 102 trials)
+% - N-back task (4 blocks x 102 trials)
 
 %% General settings, screens and paths
 
@@ -36,7 +36,7 @@ dialogID;
 ListenChar(2);
 
 %% Resting state EEG
-% Resting_EEG;
+Resting_EEG;
 
 %% Randomize order of Sternberg Task and NBack Task
 % Use subject ID for assignment of pseudorandom task Order (Sternberg & N-back)

@@ -25,16 +25,19 @@ FIXATION = 15; % trigger for fixation cross
 PRESENTATION0 = 29; % trigger for letter presentation (training task; 1-back)
 PRESENTATION1 = 21; % trigger for letter presentation (1-back)
 PRESENTATION2 = 22; % trigger for letter presentation (2-back)
-PRESENTATION3 = 23; % trigger for letter presentation (2-back)
+PRESENTATION3 = 23; % trigger for letter presentation (3-back)
+PRESENTATION4 = 24; % trigger for letter presentation (4-back)
 STIMOFF = 28; % trigger for change of letter to cfi
 BLOCK0 = 39; % trigger for start of training block
 BLOCK1 = 31; % trigger for start of block 1 (1-back)
 BLOCK2 = 32; % trigger for start of block 2 (2-back)
-BLOCK3 = 33; % trigger for start of block 2 (2-back)
+BLOCK3 = 33; % trigger for start of block 3 (3-back)
+BLOCK4 = 34; % trigger for start of block 4 (4-back)
 ENDBLOCK0 = 49; % trigger for end of training block
 ENDBLOCK1 = 41; % trigger for end of block 1 (1-back)
 ENDBLOCK2 = 42; % trigger for end of block 2 (2-back)
-ENDBLOCK3 = 43; % trigger for end of block 2 (2-back)
+ENDBLOCK3 = 43; % trigger for end of block 3 (3-back)
+ENDBLOCK4 = 44; % trigger for end of block 4 (4-back)
 RESP_YES = 87; % trigger for response yes (spacebar)
 RESP_NO = 88; % trigger for response no (no input)
 RESP_WRONG = 89;% trigger for wrong keyboard input response
@@ -112,17 +115,29 @@ else
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
             'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see is the same letter as the one two letters before. \n\n' ...
+            'Your task is to press SPACE if the letter you see' ...
+            'is the same letter as the one two letters before. \n\n' ...
             'Example: A  -  Q  -  A \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
             'Please always use your right hand.' ...
             '\n\n Press any key to continue.'];
-         elseif BLOCK == 3
+    elseif BLOCK == 3
         loadingText = 'Loading actual task...';
         startExperimentText = ['Actual task. \n\n' ...
             'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see is the same letter as the one three letters before. \n\n' ...
+            'Your task is to press SPACE if the letter you see' ...
+            'is the same letter as the one three letters before. \n\n' ...
             'Example: A - Q - P - A \n\n' ...
+            'Otherwise, do not press any button. \n\n' ...
+            'Please always use your right hand.' ...
+            '\n\n Press any key to continue.'];
+    elseif BLOCK == 4
+        loadingText = 'Loading actual task...';
+        startExperimentText = ['Actual task. \n\n' ...
+            'You will see a series of random letters. \n\n' ...
+            'Your task is to press SPACE if the letter you see' ...
+            'is the same letter as the one four letters before. \n\n' ...
+            'Example: A - Q - P - B - A \n\n' ...
             'Otherwise, do not press any button. \n\n' ...
             'Please always use your right hand.' ...
             '\n\n Press any key to continue.'];
@@ -216,6 +231,10 @@ elseif TRAINING == 0 && BLOCK == 3
     createLetterSequence3;
     letterSequence = letterSequence3;
     checkLetterGrouping3;
+elseif TRAINING == 0 && BLOCK == 4
+    createLetterSequence4;
+    letterSequence = letterSequence4;
+    checkLetterGrouping4;
 end
 
 % Save letterSequence
@@ -249,8 +268,10 @@ if BLOCK == 1
     TRIGGER = BLOCK1;
 elseif BLOCK == 2
     TRIGGER = BLOCK2;
-    elseif BLOCK == 3
+elseif BLOCK == 3
     TRIGGER = BLOCK3;
+elseif BLOCK == 4
+    TRIGGER = BLOCK4;
 else
     TRIGGER = BLOCK0;
 end
@@ -314,6 +335,10 @@ for thisTrial = 1:experiment.nTrials
         TRIGGER = PRESENTATION1;
     elseif BLOCK == 2
         TRIGGER = PRESENTATION2;
+    elseif BLOCK == 3
+        TRIGGER = PRESENTATION3;
+    elseif BLOCK == 4
+        TRIGGER = PRESENTATION4;
     end
 
     if TRAINING == 1
@@ -394,7 +419,7 @@ for thisTrial = 1:experiment.nTrials
             thisTrialMatch = 0;
         end
         data.trialMatch(thisTrial) = thisTrialMatch;
-        elseif BLOCK == 3 && thisTrial > 3
+    elseif BLOCK == 3 && thisTrial > 3
         if letterSequence(thisTrial-3) == letterSequence(thisTrial)
             thisTrialMatch = 1;
         else
@@ -429,7 +454,7 @@ for thisTrial = 1:experiment.nTrials
         elseif data.allResponses(thisTrial) ~= spaceKeyCode
             data.allCorrect(thisTrial) = 0;
         end
-         elseif BLOCK == 3 && thisTrial > 3
+    elseif BLOCK == 3 && thisTrial > 3
         if thisTrialMatch == 1 && data.allResponses(thisTrial) == spaceKeyCode  % Correct matched trial
             data.allCorrect(thisTrial) = 1;
         elseif thisTrialMatch == 1 && data.allResponses(thisTrial) == 0  % Incorrect matched trial
@@ -458,16 +483,20 @@ for thisTrial = 1:experiment.nTrials
         disp('No Response to Trial 1 in N-Back Task');
     elseif BLOCK == 2 && thisTrial == 2
         disp('No Response to Trial 2 in Block 2 of N-Back Task');
-         elseif BLOCK == 3 && thisTrial == 2
+    elseif BLOCK == 3 && thisTrial == 2
         disp('No Response to Trial 2 in Block 3 of N-Back Task');
-        elseif BLOCK == 3 && thisTrial == 3
+    elseif BLOCK == 3 && thisTrial == 3
         disp('No Response to Trial 3 in Block 3 of N-Back Task');
+    elseif BLOCK == 4 && thisTrial == 4
+        disp('No Response to Trial 4 in Block 4 of N-Back Task');
     end
     if BLOCK == 2 && thisTrial > 2
         disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
     elseif BLOCK == 1 && thisTrial > 1
         disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
-        elseif BLOCK == 3 && thisTrial > 3
+    elseif BLOCK == 3 && thisTrial > 3
+        disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
+    elseif BLOCK == 4 && thisTrial > 4
         disp(['Response to Trial ' num2str(thisTrial) ' is ' feedbackText]);
     end
 
@@ -535,8 +564,10 @@ if BLOCK == 1
     TRIGGER = ENDBLOCK1;
 elseif BLOCK == 2
     TRIGGER = ENDBLOCK2;
-    elseif BLOCK == 3
+elseif BLOCK == 3
     TRIGGER = ENDBLOCK3;
+elseif BLOCK == 4
+    TRIGGER = ENDBLOCK4;
 else
     TRIGGER = ENDBLOCK0;
 end
@@ -584,11 +615,11 @@ elseif BLOCK == 1
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     format bank % Change format for display
     if percentTotalCorrect(BLOCK) > 80
-        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
+        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
         feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
             '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
             '\n\n Keep it up!'];
-    elseif percentTotalCorrect(BLOCK) < 80 && BLOCK == 1
+    elseif percentTotalCorrect(BLOCK) < 80
         amountCHFextra(BLOCK) = 0;
         feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
             '\n\n Your accuracy was very low in this block. Please stay focused!'];
@@ -599,14 +630,22 @@ elseif BLOCK == 1
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
-elseif BLOCK == 2 || BLOCK == 3
-    % Get sum of correct responses, but ignore first two and last data point
-    totalCorrect = sum(data.allCorrect(1, 3:end-1));
-    totalTrials = thisTrial-3;
+elseif BLOCK == 2 || BLOCK == 3 || BLOCK == 4
+    % Get sum of correct responses, but ignore first four and last data point
+    if BLOCK == 2
+        totalCorrect = sum(data.allCorrect(1, 2:end-1));
+        totalTrials = thisTrial-2;
+    elseif BLOCK == 3
+        totalCorrect = sum(data.allCorrect(1, 3:end-1));
+        totalTrials = thisTrial-3;
+    elseif BLOCK == 4
+        totalCorrect = sum(data.allCorrect(1, 4:end-1));
+        totalTrials = thisTrial-4;
+    end
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     format bank % Change format for display
     if percentTotalCorrect(BLOCK) > 80
-        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
+        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
         feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
             '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
             '\n\n Keep it up!'];
@@ -748,7 +787,7 @@ elseif BLOCK == 1 && TRAINING == 1
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
     end
-elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0
+elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0 || BLOCK == 3 && TRAINING == 0
     waitTime = 30;
     intervalTime = 1;
     timePassed = 0;
@@ -775,7 +814,7 @@ elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0
 end
 
 % Save total amount earned and display
-if BLOCK == 3
+if BLOCK == 4
     amountCHFextraTotal = sum(amountCHFextra);
     saves.amountCHFextraTotal = amountCHFextraTotal;
     format bank % Change format for display
@@ -784,13 +823,17 @@ if BLOCK == 3
         ' \n\n ' ...
         ' \n\n Block 1: ' num2str(percentTotalCorrect(1)) ' % accuracy earned you ' num2str(amountCHFextra(1)) ' CHF.' ...
         ' \n\n Block 2: ' num2str(percentTotalCorrect(2)) ' % accuracy earned you ' num2str(amountCHFextra(2)) ' CHF.' ...
+        ' \n\n Block 3: ' num2str(percentTotalCorrect(3)) ' % accuracy earned you ' num2str(amountCHFextra(3)) ' CHF.' ...
+        ' \n\n Block 4: ' num2str(percentTotalCorrect(4)) ' % accuracy earned you ' num2str(amountCHFextra(4)) ' CHF.' ...
         ' \n\n ' ...
         ' \n\n ' ...
         ' \n\n Press any key to end the task.'];
     DrawFormattedText(ptbWindow,endTextCash,'center','center',color.textVal); % Display output for participant
     disp(['End of Block ' num2str(BLOCK) '. Participant ' num2str(subjectID) ' has earned CHF ' num2str(amountCHFextraTotal) ' extra in total.']);
     statsCW = ['Block 1: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(1)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(1)) '%' ...
-        ' \n\n Block 2: ' num2str(percentTotalCorrect(2)) ' % accuracy earned you ' num2str(amountCHFextra(2)) ' CHF.'];
+        ' \n\n Block 2: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(2)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(2)) '%' ...
+        ' \n\n Block 3: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(3)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(3)) '%' ...
+        ' \n\n Block 4: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(4)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(4)) '%'];
     disp(statsCW)
     format default % Change format back to default
     Screen('Flip',ptbWindow);
