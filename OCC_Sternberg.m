@@ -486,6 +486,10 @@ for thisTrial = 1:experiment.nTrials
                 end
                 badResponseFlag = true;
             end
+        % No input by participant
+        elseif isempty(whichKey)
+            data.allResponses(thisTrial) = 0;
+            disp("NO RESPONSE")
         end
 
         if ~isempty(whichKey)
@@ -505,13 +509,17 @@ for thisTrial = 1:experiment.nTrials
 
     % Check if response was correct
     if YesIsL == 1       % L is YES, A is NO
-        if thisTrialMatch == 1     % Matched trial
+        if data.allResponses(thisTrial) == 0
+            data.allCorrect(thisTrial) = 0;
+        elseif thisTrialMatch == 1     % Matched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
         elseif thisTrialMatch == 0 % Unmatched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
         end
     elseif YesIsL == 0   % L is NO, A is YES
-        if thisTrialMatch == 1     % Matched trial
+        if data.allResponses(thisTrial) == 0
+            data.allCorrect(thisTrial) = 0;
+        elseif thisTrialMatch == 1     % Matched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
         elseif thisTrialMatch == 0 % Unmatched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
@@ -521,6 +529,8 @@ for thisTrial = 1:experiment.nTrials
     % Give feedback for (in-)correct response
     if data.allCorrect(thisTrial) == 1
         feedbackText = 'Correct!';
+    elseif data.allCorrect(thisTrial) == 0 && data.allResponses(thisTrial) == 0
+        feedbackText = 'NO RESPONSE';
     elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == false
         feedbackText = 'Incorrect!';
     elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true
