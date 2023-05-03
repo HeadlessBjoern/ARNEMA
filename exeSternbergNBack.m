@@ -36,7 +36,7 @@ end
 % This gives the ANT EEG system enmough time to shut down and initialize
 % again for the next task
 
-WaitSecs(15);
+WaitSecs(10);
 
 %% N-back Task: Training
 % Do training and check, if the subject understood the task. 
@@ -63,7 +63,7 @@ TRAINING = 0;
 % Run 4 blocks of 100 trials each
 TASK = 'OCC_NBack';
 BLOCK = 1;
-for BLOCK = 1 : 4
+for BLOCK = 1 : 3
     % Start the actual task (EEG recording will start here, if TRAINING = 0)
     disp('NBACK TASK...');
     OCC_NBack; 

@@ -48,7 +48,7 @@ TASK_END = 90;
 if TRAINING == 1
     experiment.nTrials = 12;
 else
-    experiment.nTrials = 20;           % 3 blocks x 100 trials = 300 trials
+    experiment.nTrials = 100;           % 3 blocks x 100 trials = 300 trials
 end
 
 % Set up equipment parameters
@@ -654,7 +654,7 @@ elseif BLOCK == 1
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
-elseif BLOCK == 2 || BLOCK == 3 || BLOCK == 4
+elseif BLOCK == 2 || BLOCK == 3 
     % Get sum of correct responses, but ignore first 2/3/4 and last data point
     if BLOCK == 2
         totalCorrect = sum(data.allCorrect(1, 3:end-1));
@@ -811,7 +811,7 @@ elseif BLOCK == 1 && TRAINING == 1
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
     end
-elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0 || BLOCK == 3 && TRAINING == 0
+elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0
     waitTime = 30;
     intervalTime = 1;
     timePassed = 0;
@@ -838,7 +838,7 @@ elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0 || BLOCK == 3 
 end
 
 % Save total amount earned and display
-if BLOCK == 4
+if BLOCK == 3
     amountCHFextraTotal = sum(amountCHFextra);
     saves.amountCHFextraTotal = amountCHFextraTotal;
     format bank % Change format for display
@@ -848,7 +848,6 @@ if BLOCK == 4
         ' \n\n Block 1: ' num2str(percentTotalCorrect(1)) ' % accuracy earned you ' num2str(amountCHFextra(1)) ' CHF.' ...
         ' \n\n Block 2: ' num2str(percentTotalCorrect(2)) ' % accuracy earned you ' num2str(amountCHFextra(2)) ' CHF.' ...
         ' \n\n Block 3: ' num2str(percentTotalCorrect(3)) ' % accuracy earned you ' num2str(amountCHFextra(3)) ' CHF.' ...
-        ' \n\n Block 4: ' num2str(percentTotalCorrect(4)) ' % accuracy earned you ' num2str(amountCHFextra(4)) ' CHF.' ...
         ' \n\n ' ...
         ' \n\n ' ...
         ' \n\n Press any key to end the task.'];
@@ -856,8 +855,7 @@ if BLOCK == 4
     disp(['End of Block ' num2str(BLOCK) '. Participant ' num2str(subjectID) ' has earned CHF ' num2str(amountCHFextraTotal) ' extra in total.']);
     statsCW = ['Block 1: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(1)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(1)) '%' ...
         ' \n\n Block 2: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(2)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(2)) '%' ...
-        ' \n\n Block 3: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(3)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(3)) '%' ...
-        ' \n\n Block 4: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(4)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(4)) '%'];
+        ' \n\n Block 3: Participant' num2str(subjectID) ' earned ' num2str(amountCHFextra(3)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(3)) '%'];
     disp(statsCW)
     format default % Change format back to default
     Screen('Flip',ptbWindow);

@@ -59,9 +59,9 @@ TASK_END = 90; % trigger for ET cutting
 % Set up experiment parameters
 % Number of trials for the experiment
 if TRAINING == 1
-    experiment.nTrials = 4;
+    experiment.nTrials = 5;
 else
-    experiment.nTrials = 12; % 6 blocks x 25 trials = 150 trials
+    experiment.nTrials = 25; % 6 blocks x 25 trials = 150 trials
 end
 experiment.setSizes = [1,4,7];          % Number of items presented on the screen
 
