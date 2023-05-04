@@ -30,6 +30,7 @@ try
         PsychPortAudio('Close');
     catch
     end
+    Screen('CloseAll');
 catch
     disp('Error running the calibration');
 end
