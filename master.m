@@ -4,7 +4,7 @@
 % - Sternberg training (4 trials)
 % - Sternberg actual task (6 blocks x 25 trials)
 % - N-back training (10 trials)
-% - N-back task (4 blocks x 102 trials)
+% - N-back task (3 blocks x 100 trials)
 
 %% General settings, screens and paths
 

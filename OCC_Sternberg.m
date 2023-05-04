@@ -59,9 +59,9 @@ TASK_END = 90; % trigger for ET cutting
 % Set up experiment parameters
 % Number of trials for the experiment
 if TRAINING == 1
-    experiment.nTrials = 5;
+    experiment.nTrials = 4;
 else
-    experiment.nTrials = 25; % 6 blocks x 25 trials = 150 trials
+    experiment.nTrials = 25;            % 6 blocks x 25 trials = 150 trials
 end
 experiment.setSizes = [1,4,7];          % Number of items presented on the screen
 
@@ -292,6 +292,7 @@ for thisTrial = 1:experiment.nTrials
     % Randomize letterSequence
     lettersRand = randperm(26);
     thisTrialSequenceIdx = lettersRand(1:data.trialSetSize(thisTrial)); % Pick # of letters (# up to length of trialSetSize)
+    clear thisTrialSequenceLetters
     for numLoc = 1:data.trialSetSize(thisTrial)
         thisTrialSequenceLetters(numLoc) = alphabet(thisTrialSequenceIdx(numLoc));
     end
@@ -500,8 +501,6 @@ for thisTrial = 1:experiment.nTrials
 
         if time > 1
             getResponse = false;
-            data.allResponses(thisTrial) = 0;
-            disp("NO RESPONSE")
         end
 
         % Get and save reaction time for each trial
@@ -569,13 +568,6 @@ for thisTrial = 1:experiment.nTrials
     Screen('Flip', ptbWindow);
     blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
     WaitSecs(blankJitter(thisTrial));
-
-    %     % Check if subject fixate at center, give warning if not
-    %     checkFixation;
-    %     if noFixation > 2
-    %         disp('No fixation. Playing audio instruction for fixation.');
-    %         noFixation = 0; % reset
-    %     end
 end
 
 %% End task, save data and inform participant about accuracy and extra cash
@@ -722,17 +714,9 @@ elseif BLOCK == 6
     totalCorrect = sum(data.allCorrect);
     totalTrials = thisTrial;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
-    if percentTotalCorrect(BLOCK) >= 80
-        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+    amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
+    feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
             '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.'];
-    else
-        amountCHFextra(BLOCK) = 0;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Your accuracy was very low in this block.'];
-        disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
-    end
-
     format bank % Change format for display
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
@@ -743,18 +727,10 @@ elseif BLOCK > 0
     totalCorrect = sum(data.allCorrect);
     totalTrials = thisTrial;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
-    if percentTotalCorrect(BLOCK) >= 80
-        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+    amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
+    feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
             '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.' ...
             '\n\n Keep it up!'];
-    else
-        amountCHFextra(BLOCK) = 0;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Your accuracy was very low in this block. Please stay focused!'];
-        disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
-    end
-
     format bank % Change format for display
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
@@ -776,7 +752,7 @@ elseif BLOCK == 6
         '\n\n Press any key to view your stats.'];
 else
     breakInstructionText = ['Break! Rest for a while... ' ...
-        '\n\n Press any key to start the mandatory break of at least 30 seconds.'];
+        '\n\n Press any key to start the mandatory break of at least 15 seconds.'];
 end
 DrawFormattedText(ptbWindow,breakInstructionText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
@@ -786,12 +762,12 @@ while waitResponse
     waitResponse = 0;
 end
 
-% Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 6)
+% Wait at least 15 Seconds between Blocks (only after Block 1 has finished, not after Block 6)
 if TRAINING == 1 && percentTotalCorrect < THRESH
-    waitTime = 30;
+    waitTime = 15;
     intervalTime = 1;
     timePassed = 0;
-    printTime = 30;
+    printTime = 15;
     
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds...' ...
         ' \n\n ' ...
@@ -811,10 +787,10 @@ if TRAINING == 1 && percentTotalCorrect < THRESH
         Screen('Flip',ptbWindow);
     end
 elseif BLOCK >= 1 && BLOCK < 6
-    waitTime = 30;
+    waitTime = 15;
     intervalTime = 1;
     timePassed = 0;
-    printTime = 30;
+    printTime = 15;
 
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds...' ...
         ' \n\n ' ...

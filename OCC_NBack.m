@@ -638,17 +638,11 @@ elseif BLOCK == 1
     totalTrials = thisTrial-2;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     format bank % Change format for display
-    if percentTotalCorrect(BLOCK) > 80
-        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+    amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
+    feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
             '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
             '\n\n Keep it up!'];
-    elseif percentTotalCorrect(BLOCK) < 80
-        amountCHFextra(BLOCK) = 0;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Your accuracy was very low in this block. Please stay focused!'];
-        disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
-    end
+
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
     format default % Change format back to default
@@ -668,17 +662,10 @@ elseif BLOCK == 2 || BLOCK == 3
     end
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     format bank % Change format for display
-    if percentTotalCorrect(BLOCK) > 80
-        amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
+    amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
+    feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
             '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
             '\n\n Keep it up!'];
-    elseif percentTotalCorrect(BLOCK) < 80
-        amountCHFextra(BLOCK) = 0;
-        feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Your accuracy was very low in this block. Please stay focused!'];
-        disp(['Low accuracy in Block ' num2str(BLOCK) '.']);
-    end
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
     format default % Change format back to default
@@ -753,7 +740,7 @@ elseif BLOCK == 3
         '\n\n Press any key to view your stats.'];
 else
     breakInstructionText = ['Break! Rest for a while... ' ...
-        '\n\n Press any key to start the mandatory break of at least 30 seconds.'];
+        '\n\n Press any key to start the mandatory break of at least 15 seconds.'];
 end
 DrawFormattedText(ptbWindow,breakInstructionText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
@@ -763,12 +750,12 @@ while waitResponse
     waitResponse = 0;
 end
 
-% Wait at least 30 Seconds between Blocks (only after Block 1 has finished, not after Block 2)
+% Wait at least 15 Seconds between Blocks (only after Block 1 has finished, not after Block 2)
 if TRAINING == 1 && percentTotalCorrect < THRESH
-    waitTime = 30;
+    waitTime = 15;
     intervalTime = 1;
     timePassed = 0;
-    printTime = 30;
+    printTime = 15;
 
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds...' ...
         ' \n\n ' ...
@@ -788,10 +775,10 @@ if TRAINING == 1 && percentTotalCorrect < THRESH
         Screen('Flip',ptbWindow);
     end
 elseif BLOCK == 1 && TRAINING == 1
-    waitTime = 30;
+    waitTime = 15;
     intervalTime = 1;
     timePassed = 0;
-    printTime = 30;
+    printTime = 15;
 
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds...' ...
         ' \n\n ' ...
@@ -812,10 +799,10 @@ elseif BLOCK == 1 && TRAINING == 1
         Screen('Flip',ptbWindow);
     end
 elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0
-    waitTime = 30;
+    waitTime = 15;
     intervalTime = 1;
     timePassed = 0;
-    printTime = 30;
+    printTime = 15;
 
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds...' ...
         ' \n\n ' ...
