@@ -500,6 +500,8 @@ for thisTrial = 1:experiment.nTrials
 
         if time > 1
             getResponse = false;
+            data.allResponses(thisTrial) = 0;
+            disp("NO RESPONSE")
         end
 
         % Get and save reaction time for each trial
@@ -513,7 +515,7 @@ for thisTrial = 1:experiment.nTrials
             data.allCorrect(thisTrial) = 0;
         elseif thisTrialMatch == 1     % Matched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
-        elseif thisTrialMatch == 0 % Unmatched trial
+        elseif thisTrialMatch == 0     % Unmatched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
         end
     elseif YesIsL == 0   % L is NO, A is YES
@@ -521,7 +523,7 @@ for thisTrial = 1:experiment.nTrials
             data.allCorrect(thisTrial) = 0;
         elseif thisTrialMatch == 1     % Matched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeA;
-        elseif thisTrialMatch == 0 % Unmatched trial
+        elseif thisTrialMatch == 0     % Unmatched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
         end
     end
