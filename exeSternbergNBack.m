@@ -31,18 +31,18 @@ TRAINING = 0;
 % Run 6 blocks of 25 trials each
 TASK = 'OCC_Sternberg';
 
-if isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block1_task.mat']])
-    start = 2;
-elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block2_task.mat']])
-    start = 3;
-elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block3_task.mat']])
-    start = 4;
-elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block4_task.mat']])
-    start = 5;
+if isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block6_task.mat']])
+    start = 7;
 elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block5_task.mat']])
     start = 6;
-elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block6_task.mat']])
-    start = 7;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block4_task.mat']])
+    start = 5;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block3_task.mat']])
+    start = 4;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block2_task.mat']])
+    start = 3;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block1_task.mat']])
+    start = 2;
 else
     start = 1;
 end
@@ -57,6 +57,7 @@ end
 % This gives the ANT EEG system enmough time to shut down and initialize
 % again for the next task
 
+disp('Waiting 5 seconds between tasks...');
 WaitSecs(5);
 
 %% N-back Task: Training
@@ -66,8 +67,9 @@ WaitSecs(5);
 % Set TRAINING flag (1 - do Training task, 0 - do actual task (see below))
 TASK = 'OCC_NBack';
 TRAINING = 1;
+BLOCK = 1;
 
-nbackTrainingFile = [num2str(subjectID), '_OCC_Nback_block1_training.mat'];
+nbackTrainingFile = [num2str(subjectID), '_OCC_NBack_block1_training.mat'];
 if isfile([DATA_PATH, '/', num2str(subjectID), '/', nbackTrainingFile])
     percentTotalCorrect = 61;
 else
@@ -85,13 +87,15 @@ end
 % set TRAINING flag to 0 for initialization of actual NBack task
 TRAINING = 0;
 
-% Run 4 blocks of 100 trials each
+% Run 3 blocks of 100 trials each
 TASK = 'OCC_NBack';
 
-if isfile([DATA_PATH, '/', num2str(subjectID), '/', num2str(subjectID), '_OCC_Nback_block1_task.mat'])
-    start = 2;
-elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', num2str(subjectID), '_OCC_Nback_block2_task.mat'])
+if isfile([DATA_PATH, '/', num2str(subjectID), '/', num2str(subjectID), '_OCC_NBack_block3_task.mat'])
+    start = 4;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', num2str(subjectID), '_OCC_NBack_block2_task.mat'])
     start = 3;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', num2str(subjectID), '_OCC_NBack_block1_task.mat'])
+    start = 2;
 else 
     start = 1;
 end

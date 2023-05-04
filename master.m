@@ -36,7 +36,9 @@ dialogID;
 ListenChar(2);
 
 %% Resting state EEG
-Resting_EEG;
+if ~isfile([DATA_PATH, '/', num2str(subjectID), '/', num2str(subjectID), '_Resting.mat'])
+    Resting_EEG;
+end
 
 %% Randomize order of Sternberg Task and NBack Task
 % Use subject ID for assignment of pseudorandom task Order (Sternberg & N-back)

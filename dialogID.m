@@ -16,4 +16,5 @@ end
 
 % Convert subject data to numeric
 subject.ID = str2num(subject.ID);
+subjectID = subject.ID;
 subject.age = str2num(subject.age);
