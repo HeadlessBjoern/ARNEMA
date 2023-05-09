@@ -9,9 +9,9 @@ for idxLP = 3:length(letterSequence2)
 end
 
 if pseudoRandomMatchProbability == 33
-    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letterSequence2 are 1-back letter pairs. Continuing...']);
+    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letterSequence2 are 2-back letter pairs. Continuing...']);
 else 
-    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letterSequence2 are 1-back letter pairs. Creating new letterSequence...']);
+    disp(['Check for pseudorandom match probability: ' num2str(pseudoRandomMatchProbability) ' % of letterSequence2 are 2-back letter pairs. Creating new letterSequence...']);
     createLetterSequence2;
 end
 

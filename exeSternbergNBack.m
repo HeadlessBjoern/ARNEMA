@@ -11,11 +11,11 @@ TRAINING = 1;
 BLOCK = 0;
 sternbergTrainingFile = [num2str(subjectID), '_OCC_Sternberg_block0_training.mat'];
 if isfile([DATA_PATH, '/', num2str(subjectID), '/', sternbergTrainingFile])
-    percentTotalCorrect = 61;
+    percentTotalCorrect = 60;
 else
     percentTotalCorrect = 0;
 end
-THRESH = 60;
+THRESH = 59;
 while percentTotalCorrect < THRESH
     % Start the training (4 trials) - only recording of ET data, no EEG!
     disp('Sternberg Training TASK...');
@@ -71,11 +71,11 @@ BLOCK = 1;
 
 nbackTrainingFile = [num2str(subjectID), '_OCC_NBack_block1_training.mat'];
 if isfile([DATA_PATH, '/', num2str(subjectID), '/', nbackTrainingFile])
-    percentTotalCorrect = 61;
+    percentTotalCorrect = 60;
 else
     percentTotalCorrect = 0;
 end
-THRESH = 60;
+THRESH = 59;
 while percentTotalCorrect < THRESH
     % Start the training (4 trials) - only recording of ET data, no EEG!
     disp('N-Back Training Task...');

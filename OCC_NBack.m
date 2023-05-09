@@ -26,18 +26,15 @@ PRESENTATION0 = 29; % trigger for letter presentation (training task; 1-back)
 PRESENTATION1 = 21; % trigger for letter presentation (1-back)
 PRESENTATION2 = 22; % trigger for letter presentation (2-back)
 PRESENTATION3 = 23; % trigger for letter presentation (3-back)
-PRESENTATION4 = 24; % trigger for letter presentation (4-back)
 STIMOFF = 28; % trigger for change of letter to cfi
 BLOCK0 = 39; % trigger for start of training block
 BLOCK1 = 31; % trigger for start of block 1 (1-back)
 BLOCK2 = 32; % trigger for start of block 2 (2-back)
 BLOCK3 = 33; % trigger for start of block 3 (3-back)
-BLOCK4 = 34; % trigger for start of block 4 (4-back)
 ENDBLOCK0 = 49; % trigger for end of training block
 ENDBLOCK1 = 41; % trigger for end of block 1 (1-back)
 ENDBLOCK2 = 42; % trigger for end of block 2 (2-back)
 ENDBLOCK3 = 43; % trigger for end of block 3 (3-back)
-ENDBLOCK4 = 44; % trigger for end of block 4 (4-back)
 RESP_YES = 87; % trigger for response yes (spacebar)
 RESP_NO = 88; % trigger for response no (no input)
 RESP_WRONG = 89;% trigger for wrong keyboard input response
@@ -209,7 +206,7 @@ data.allCorrect(1:experiment.nTrials) = NaN;
 % Preallocate dynamic accuracy computation variable
 count5trials = 0;
 
-% Preallocate reaction time varible
+% Preallocate reaction time variable
 reactionTime(1:experiment.nTrials) = 0;
 
 % Define alphabet (stimulus pool)
@@ -307,7 +304,7 @@ for thisTrial = 1:experiment.nTrials
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     TRIGGER = FIXATION;
-    timing.cfi = (randsample(2000:4000, 1))/1000;    % Randomize the jittered central fixation interval on trial
+    timing.cfi(thisTrial) = (randsample(2000:4000, 1))/1000;    % Randomize the jittered central fixation interval on trial
     if TRAINING == 1
         %         EThndl.sendMessage(TRIGGER);
         Eyelink('Message', num2str(TRIGGER));
@@ -318,7 +315,7 @@ for thisTrial = 1:experiment.nTrials
         Eyelink('command', 'record_status_message "FIXATION"');
         sendtrigger(TRIGGER,port,SITE,stayup);
     end
-    WaitSecs(timing.cfi);                            % Wait duration of the jittered central fixation interval
+    WaitSecs(timing.cfi(thisTrial));                            % Wait duration of the jittered central fixation interval
 
     % Increase size of stimuli
     Screen('TextSize', ptbWindow, 60);

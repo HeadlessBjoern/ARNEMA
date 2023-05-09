@@ -59,7 +59,7 @@ TASK_END = 90; % trigger for ET cutting
 % Set up experiment parameters
 % Number of trials for the experiment
 if TRAINING == 1
-    experiment.nTrials = 4;
+    experiment.nTrials = 5;
 else
     experiment.nTrials = 25;            % 6 blocks x 25 trials = 150 trials
 end
@@ -393,7 +393,7 @@ for thisTrial = 1:experiment.nTrials
         % Pick random matching probe stimulus from letterSequence
         thisTrialprobeLetter = randsample(thisTrialSequenceLetters, 1);
         % Draw probe stimulus
-        DrawFormattedText(ptbWindow,[num2str(thisTrialprobeLetter)],'center','center',color.targetVal);        
+        DrawFormattedText(ptbWindow,[num2str(thisTrialprobeLetter)],'center','center',color.targetVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
@@ -408,7 +408,7 @@ for thisTrial = 1:experiment.nTrials
         thisTrialNONSequenceLetters = tmpAlphabet;
         thisTrialprobeLetter = randsample(thisTrialNONSequenceLetters, 1);
         % Draw probe stimulus
-        DrawFormattedText(ptbWindow,[num2str(thisTrialprobeLetter)],'center','center',color.targetVal);        
+        DrawFormattedText(ptbWindow,[num2str(thisTrialprobeLetter)],'center','center',color.targetVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
         Screen('Flip', ptbWindow);
@@ -487,10 +487,9 @@ for thisTrial = 1:experiment.nTrials
                 end
                 badResponseFlag = true;
             end
-        % No input by participant
+            % No input by participant
         elseif isempty(whichKey)
             data.allResponses(thisTrial) = 0;
-            disp("NO RESPONSE")
         end
 
         if ~isempty(whichKey)
@@ -566,8 +565,8 @@ for thisTrial = 1:experiment.nTrials
     % Blank screen before presentation of next digit (500-1500msa)
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
-    blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
-    WaitSecs(blankJitter(thisTrial));
+    timing.blankJitter(thisTrial) = (randsample(500:1500, 1))/1000; % Duration of the jittered inter-trial interval
+    WaitSecs(timing.blankJitter(thisTrial));
 end
 
 %% End task, save data and inform participant about accuracy and extra cash
@@ -635,7 +634,6 @@ saves.data = data;
 saves.data.KeyCodeA = KeyCodeA;
 saves.data.KeyCodeL = KeyCodeL;
 saves.data.KeyBindingsYesIsL = YesIsL;
-saves.data.blankJitter = blankJitter;
 saves.experiment = experiment;
 saves.screenWidth = screenWidth;
 saves.screenHeight = screenHeight;
@@ -685,6 +683,11 @@ trigger.RESP_NO = RESP_NO;
 trigger.badResponse = badResponse;
 trigger.TASK_END = TASK_END;
 
+if BLOCK == 6
+    amountCHFextraTotal = sum(amountCHFextra);
+    saves.amountCHFextraTotal = amountCHFextraTotal;
+end
+
 % stop and close EEG and ET recordings
 disp(['BLOCK ' num2str(BLOCK) ' FINISHED...']);
 disp('SAVING DATA...');
@@ -716,7 +719,7 @@ elseif BLOCK == 6
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
     feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.'];
+        '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.'];
     format bank % Change format for display
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
@@ -729,8 +732,8 @@ elseif BLOCK > 0
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.02;
     feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.' ...
-            '\n\n Keep it up!'];
+        '\n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextra(BLOCK)) '.' ...
+        '\n\n Keep it up!'];
     format bank % Change format for display
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
@@ -768,7 +771,7 @@ if TRAINING == 1 && percentTotalCorrect < THRESH
     intervalTime = 1;
     timePassed = 0;
     printTime = 15;
-    
+
     waitTimeText = ['Please wait for ' num2str(printTime) ' seconds...' ...
         ' \n\n ' ...
         ' \n\n You can repeat the training task afterwards.'];
@@ -814,8 +817,6 @@ end
 
 % Save total amount earned and display
 if BLOCK == 6
-    amountCHFextraTotal = sum(amountCHFextra);
-    saves.amountCHFextraTotal = amountCHFextraTotal;
     endTextCash = ['Well done! You have completed the task.' ...
         ' \n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextraTotal) ' in total.' ...
         ' \n\n ' ...

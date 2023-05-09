@@ -55,5 +55,8 @@ else
     exeNBackSternberg;
 end
 
+%% Display total reward
+cash;
+
 %% Allow keyboard input into Matlab code
 ListenChar(0);
