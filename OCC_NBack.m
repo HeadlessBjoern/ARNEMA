@@ -653,9 +653,6 @@ elseif BLOCK == 2 || BLOCK == 3
     elseif BLOCK == 3
         totalCorrect = sum(data.allCorrect(1, 4:end-1));
         totalTrials = thisTrial-4;
-    elseif BLOCK == 4
-        totalCorrect = sum(data.allCorrect(1, 5:end-1));
-        totalTrials = thisTrial-5;
     end
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
     format bank % Change format for display
@@ -708,6 +705,11 @@ trigger.RESP_YES = RESP_YES;
 trigger.RESP_NO = RESP_NO;
 trigger.RESP_WRONG = RESP_WRONG;
 trigger.TASK_END = TASK_END;
+
+if BLOCK == 3
+    amountCHFextraTotal = sum(amountCHFextra);
+    saves.amountCHFextraTotal = amountCHFextraTotal;
+end
 
 % stop and close EEG and ET recordings
 if TRAINING == 1
