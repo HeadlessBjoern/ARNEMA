@@ -583,8 +583,13 @@ for thisTrial = 1:experiment.nTrials
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
         WaitSecs(2);
-    % Give feedback for 
+    % Give feedback for wrong button presses
     elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && badResponseFlag == true
+        DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
+        Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+        Screen('Flip',ptbWindow);
+        WaitSecs(2);
+    elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && badResponseFlag == false
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
