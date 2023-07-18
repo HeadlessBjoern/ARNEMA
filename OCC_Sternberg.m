@@ -40,9 +40,9 @@ ENDBLOCK3 = 43; % trigger for end of block 3
 ENDBLOCK4 = 44; % trigger for end of block 4
 ENDBLOCK5 = 45; % trigger for end of block 5
 ENDBLOCK6 = 46; % trigger for end of block 6
-RETENTION1 = 51; % trigger for retention (setSize = 4)
-RETENTION2 = 52; % trigger for retention (setSize = 8)
-RETENTION3 = 53; % trigger for retention (setSize = 10)
+RETENTION1 = 51; % trigger for retention (setSize = 2)
+RETENTION2 = 52; % trigger for retention (setSize = 6)
+RETENTION3 = 53; % trigger for retention (setSize = 8)
 RESP_YES = 77; % trigger for response yes (depends on changing key bindings)
 RESP_NO = 78; % trigger for response no (depends on changing key bindings)
 badResponse = 79; % trigger for wrong keyboard input (any key apart from 'A', 'L' or 'Space')
@@ -55,7 +55,7 @@ if TRAINING == 1
 else
     experiment.nTrials = 25;            % 6 blocks x 25 trials = 150 trials
 end
-experiment.setSizes = [2,8,10];          % Number of items presented on the screen
+experiment.setSizes = [2,6,8];          % Number of items presented on the screen
 
 % Set up equipment parameters
 equipment.viewDist = 800;               % Viewing distance in millimetres
@@ -85,7 +85,7 @@ if TRAINING == 1
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n On each trial, you will be shown a number letters in a row. \n\n' ...
         'The sides will be filled with ''Xs''. These do not count! \n\n' ...
-        'Example:  X X X S A + R K X X X \n\n' ...
+        'Example:  X X S A + R K X X \n\n' ...
         '\n\n' ...
         'After each presentation there will be a blank screen. \n\n' ...
         'Please look at the center of the screen during this interval. \n\n' ...
@@ -97,7 +97,7 @@ else
         loadingText = 'Loading actual task...';
         startExperimentText = ['On each trial, you will be shown a number letters in a row. \n\n' ...
         'The sides will be filled with ''Xs''. These do not count! \n\n' ...
-        'Example:  X X X S A + R K X X X \n\n' ...
+        'Example:  X X S A + R K X X \n\n' ...
         '\n\n' ...
         'After each presentation there will be a blank screen. \n\n' ...
         'Please look at the center of the screen during this interval. \n\n' ...
@@ -206,9 +206,9 @@ data.allResponses(1, experiment.nTrials) = 0;
 data.allCorrect(1, experiment.nTrials) = NaN;
 
 % Fixate randomized setSizes for each block
-setS4 = ones(1, 8)*experiment.setSizes(1);
-setS8 = ones(1, 8)*experiment.setSizes(2);
-setS10 = ones(1, 8)*experiment.setSizes(3);
+setS2 = ones(1, 8)*experiment.setSizes(1);
+setS6 = ones(1, 8)*experiment.setSizes(2);
+setS8 = ones(1, 8)*experiment.setSizes(3);
 chance = randsample(1:3, 1);
 if chance == 1
     extraNum = experiment.setSizes(1);
@@ -217,7 +217,7 @@ elseif chance == 2
 elseif chance == 3
     extraNum = experiment.setSizes(3);
 end
-setALL = [setS4, setS8, setS10, extraNum];
+setALL = [setS2, setS6, setS8, extraNum];
 for trialSetSizes = 1:experiment.nTrials
     data.trialSetSize(trialSetSizes) = randsample(setALL, 1);
 end
@@ -347,19 +347,17 @@ for thisTrial = 1:experiment.nTrials
     Screen('TextSize', ptbWindow, 50);
     % Define stimulus
     if data.trialSetSize(thisTrial) == experiment.setSizes(1)
-        stimulusText = ['X ', 'X ', 'X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ...
-                        ' + ', num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' X', ' X', ' X'];
+        stimulusText = ['X ', 'X ', 'X ', num2str(thisTrialSequenceLetters(1)), ' + ', ...
+                        num2str(thisTrialSequenceLetters(2)), ' X', ' X', ' X'];
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(2)
         stimulusText = ['X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
-                        num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' + ', ...
-                        num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6)), ' ', ...
-                        num2str(thisTrialSequenceLetters(7)), ' ', num2str(thisTrialSequenceLetters(8)),  ' X'];
+                        num2str(thisTrialSequenceLetters(3)), ' + ', num2str(thisTrialSequenceLetters(4)), ' ', ...
+                        num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6)), ' X'];
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(3)
         stimulusText = [num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
-                        num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' ', ...
-                        num2str(thisTrialSequenceLetters(5)), ' + ', num2str(thisTrialSequenceLetters(6)), ' ', ...
-                        num2str(thisTrialSequenceLetters(7)), ' ', num2str(thisTrialSequenceLetters(8)), ' ', ...
-                        num2str(thisTrialSequenceLetters(9)), ' ', num2str(thisTrialSequenceLetters(10))];
+                        num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' + ', ...
+                        num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6)), ' ', ...
+                        num2str(thisTrialSequenceLetters(7)), ' ', num2str(thisTrialSequenceLetters(8))];
     end
     stimulusLetters(thisTrial) = {thisTrialSequenceLetters(1:data.trialSetSize(thisTrial))};
     data.stimulusText(thisTrial) = {stimulusText};
