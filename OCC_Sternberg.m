@@ -1,13 +1,5 @@
 % #OCC Sternberg Arne
 %
-% This is the base experimental code for a replication of the third
-% experiment from Vogel, E. K.laa, & Machizawa, M. G. (2004). Neural activity
-% predicts individual differences in visual working memory capacity.
-% Nature, 428(6984), 748-751.lll
-%
-% Code written by William Xiang Quan Ngiam, postdoc in the Awh/Vogel Lab.
-% (Email: wngiam@uchicago.edu | Twitter: @will_ngiam | Website:williamngiam.github.io)
-%
 % This code requires PsychToolbox. https://psychtoolbox.org
 % This was tested with PsychToolbox version 3.0.15, and with MATLAB R2019a.
 
@@ -61,7 +53,7 @@ TASK_END = 90; % trigger for ET cutting
 if TRAINING == 1
     experiment.nTrials = 5;
 else
-    experiment.nTrials = 10;            % 6 blocks x 25 trials = 150 trials
+    experiment.nTrials = 25;            % 6 blocks x 25 trials = 150 trials
 end
 experiment.setSizes = [2,4,6];          % Number of items presented on the screen
 
@@ -92,23 +84,22 @@ text.color = 0;                     % Color of text (0 = black)
 if TRAINING == 1
     loadingText = 'Loading training task...';
     startExperimentText = ['Training task. \n\n On each trial, you will be shown 2, 4 or 6 letters in a row. \n\n' ...
-        'Try to memorize these letters. \n\n' ...
+        'The sides will be filled with ''Xs''. These do not count! \n\n' ...
+        'Example:  X S A + R K X \n\n' ...
+        '\n\n' ...
         'After each presentation there will be a blank screen. \n\n' ...
         'Please look at the center of the screen during this interval. \n\n' ...
         'Afterwards, you will be presented with a white letter. \n\n' ...
         'Your task is to determine if this white letter was included previously. \n\n' ...
-        'Feedback will be provided after each trial. \n\n' ...
         'Press any key to continue.'];
 else
     if BLOCK == 1
         loadingText = 'Loading actual task...';
         startExperimentText = ['On each trial, you will be shown 2, 4 or 6 letters in a row. \n\n' ...
-            'Try to memorize these letters. \n\n' ...
             'After each presentation there will be a blank screen. \n\n' ...
             'Please look at the center of the screen during this interval. \n\n' ...
             'Afterwards, you will be presented with a white letter. \n\n' ...
             'Your task is to determine if this white letter was included previously. \n\n' ...
-            'Feedback will be provided after each trial. \n\n' ...
             'Press any key to continue.'];
     else
         loadingText = 'Loading actual task...';
@@ -117,13 +108,17 @@ else
     end
 end
 
+performanceBonusText = ['In the following tasks there is a performance bonus! \n\n' ...
+    'Try to be as accurate as possible. \n\n \n\n' ...
+    'Press any key to continue.'];
+
 startBlockText = 'Press any key to begin the next block.';
 
 % Set up temporal parameters (in seconds)
 timing.digitPresentation = 0.2;     % Duration of digit presentation
-timing.rest = 2;                    % Duration of blank resting interval 
+timing.rest = 2;                    % Duration of blank resting interval
 timing.retentionInterval = 2.8;     % Duration of blank retention interval
-timing.probe = 1;           % Duration of probe stimulus
+timing.probe = 1;                   % Duration of probe stimulus
 
 % Shuffle rng for random elements
 rng('default');
@@ -228,6 +223,16 @@ blankJitter(1:experiment.nTrials) = 0;
 reactionTime(1:experiment.nTrials) = 0;
 count5trials = 0;
 
+% Show performance bonus incentive text
+DrawFormattedText(ptbWindow,performanceBonusText,'center','center',color.textVal);
+Screen('Flip',ptbWindow);
+disp('Participant is reading the performance bonus text');
+waitResponse = 1;
+while waitResponse
+    [time, keyCode] = KbWait(-1,2);
+    waitResponse = 0;
+end
+
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
 startExperimentTime = Screen('Flip',ptbWindow);
@@ -298,8 +303,6 @@ else
 end
 HideCursor(whichScreen);
 
-
-
 %% Experiment Loop
 noFixation = 0;
 for thisTrial = 1:experiment.nTrials
@@ -307,7 +310,7 @@ for thisTrial = 1:experiment.nTrials
     disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial #
 
     % Randomize letterSequence
-    lettersRand = randperm(26);
+    lettersRand = randperm(25);
     thisTrialSequenceIdx = lettersRand(1:data.trialSetSize(thisTrial)); % Pick # of letters (# up to length of trialSetSize)
     clear thisTrialSequenceLetters
     for numLoc = 1:data.trialSetSize(thisTrial)
@@ -335,20 +338,24 @@ for thisTrial = 1:experiment.nTrials
 
     %% Presentation of stimuli (200ms)
     % Increase size of stimuli
-    Screen('TextSize', ptbWindow, 60);
+    Screen('TextSize', ptbWindow, 50);
     % Define stimulus
     if data.trialSetSize(thisTrial) == 2
-        stimulusLetters(thisTrial) = ['X', ' X ', num2str(thisTrialSequenceLetters(1)), ' + ', num2str(thisTrialSequenceLetters(2)), ' X ', 'X'];
+        stimulusText = ['X', ' X ', num2str(thisTrialSequenceLetters(1)), ' + ', num2str(thisTrialSequenceLetters(2)), ' X ', 'X'];
+        stimulusLetters(thisTrial) = {thisTrialSequenceLetters(1:data.trialSetSize(thisTrial))};
     elseif data.trialSetSize(thisTrial) == 4
-        stimulusLetters(thisTrial) = ['X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ...
-                           ' + ', num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' ', 'X'];
+        stimulusText = ['X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ...
+            ' + ', num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' ', 'X'];
+        stimulusLetters(thisTrial) = {thisTrialSequenceLetters(1:data.trialSetSize(thisTrial))};
     elseif data.trialSetSize(thisTrial) == 6
-        stimulusLetters(thisTrial) = [num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
-                           num2str(thisTrialSequenceLetters(3)), ' + ', num2str(thisTrialSequenceLetters(4)), ' ', ...
-                           num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6))];
+        stimulusText = [num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
+            num2str(thisTrialSequenceLetters(3)), ' + ', num2str(thisTrialSequenceLetters(4)), ' ', ...
+            num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6))];
+        stimulusLetters(thisTrial) = {thisTrialSequenceLetters(1:data.trialSetSize(thisTrial))};
     end
+    data.stimulusText(thisTrial) = {stimulusText};
     % Present stimuli (with cross in middle)
-    DrawFormattedText(ptbWindow, stimulusLetters(thisTrial),'center','center',text.color);
+    DrawFormattedText(ptbWindow, stimulusText,'center','center',text.color);
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
     Screen('Flip', ptbWindow);
@@ -411,7 +418,7 @@ for thisTrial = 1:experiment.nTrials
     %% Randomize matching between letters in sequence, present probe stimulus and draw (probeLetter)
     chance = randsample(1:2, 1);
     % Increase size of stimuli
-    Screen('TextSize', ptbWindow, 60);
+    Screen('TextSize', ptbWindow, 50);
     if chance == 1
         % Pick random matching probe stimulus from letterSequence
         thisTrialprobeLetter = randsample(thisTrialSequenceLetters, 1);
@@ -453,7 +460,7 @@ for thisTrial = 1:experiment.nTrials
     % Return size of text to 20 pts
     Screen('TextSize', ptbWindow, 20);
 
-    % Save probe digit
+    % Save probe letter
     data.probeLetter(thisTrial) = thisTrialprobeLetter;
     % Save match/no match
     data.trialMatch(thisTrial) = thisTrialMatch;
@@ -546,6 +553,25 @@ for thisTrial = 1:experiment.nTrials
         elseif thisTrialMatch == 0     % Unmatched trial
             data.allCorrect(thisTrial) = data.allResponses(thisTrial) == KeyCodeL;
         end
+    end
+
+    % CW Feedback
+    if data.allCorrect(thisTrial) == 1
+        feedbackText = 'correct!';
+    elseif data.allCorrect(thisTrial) == 0 && data.allResponses(thisTrial) == 0
+        feedbackText = 'NO RESPONSE';
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == false
+        feedbackText = 'incorrect!';
+    elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true
+        feedbackText = 'wrong button!';
+    end
+    disp(['Response to Trial ' num2str(thisTrial) ' in Block ' num2str(BLOCK) ' is ' feedbackText]);
+    % Give feedback in training block
+    if TRAINING == 1
+        DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
+        Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+        Screen('Flip',ptbWindow);
+        WaitSecs(2);
     end
 
     %% Dynamically compute accuracy for past 10 trials and remind participant if accuracy drops below threshhold of 60%
@@ -821,6 +847,7 @@ elseif BLOCK >= 1 && BLOCK < 6
             ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
+        disp(printTime);
     end
 end
 

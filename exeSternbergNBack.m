@@ -1,27 +1,27 @@
 %% exeSternbergNBack
 
-% %% Sternberg Task: Training
-% % Do training and check, if the subject understood the task.
-% % If not (score below predefined threshold), repeat the training.
-% 
-% % Set TRAINING flag (1 - do Training task, 0 - do actual task (see below))
-% TASK = 'OCC_Sternberg';
-% TRAINING = 1;
-% 
-% BLOCK = 0;
-% sternbergTrainingFile = [num2str(subjectID), '_OCC_Sternberg_block0_training.mat'];
-% if isfile([DATA_PATH, '/', num2str(subjectID), '/', sternbergTrainingFile])
-%     percentTotalCorrect = 60;
-% else
-%     percentTotalCorrect = 0;
-% end
-% THRESH = 59;
-% while percentTotalCorrect < THRESH
-%     % Start the training (4 trials) - only recording of ET data, no EEG!
-%     disp('Sternberg Training TASK...');
-%     OCC_Sternberg;
-%     BLOCK = BLOCK + 1;
-% end
+%% Sternberg Task: Training
+% Do training and check, if the subject understood the task.
+% If not (score below predefined threshold), repeat the training.
+
+% Set TRAINING flag (1 - do Training task, 0 - do actual task (see below))
+TASK = 'OCC_Sternberg';
+TRAINING = 1;
+
+BLOCK = 0;
+sternbergTrainingFile = [num2str(subjectID), '_OCC_Sternberg_block0_training.mat'];
+if isfile([DATA_PATH, '/', num2str(subjectID), '/', sternbergTrainingFile])
+    percentTotalCorrect = 60;
+else
+    percentTotalCorrect = 0;
+end
+THRESH = 59;
+while percentTotalCorrect < THRESH
+    % Start the training (5 trials) - only recording of ET data, no EEG!
+    disp('Sternberg Training TASK...');
+    OCC_Sternberg;
+    BLOCK = BLOCK + 1;
+end
 
 %% Sterberg Task: Actual task
 

@@ -129,18 +129,12 @@ else
             'Otherwise, do not press any button. \n\n' ...
             'Please always use your right hand.' ...
             '\n\n Press any key to continue.'];
-    elseif BLOCK == 4
-        loadingText = 'Loading actual task...';
-        startExperimentText = ['Actual task. \n\n' ...
-            'You will see a series of random letters. \n\n' ...
-            'Your task is to press SPACE if the letter you see \n\n' ...
-            'is the same letter as the one four letters before. \n\n' ...
-            'Example: A - Q - P - B - A \n\n' ...
-            'Otherwise, do not press any button. \n\n' ...
-            'Please always use your right hand.' ...
-            '\n\n Press any key to continue.'];
     end
 end
+
+performanceBonusText = ['In the following tasks there is a performance bonus! \n\n' ...
+    'Try to be as accurate as possible. \n\n \n\n' ...
+    'Press any key to continue.'];
 
 % Set up temporal parameters (all in seconds)
 timing.blank = 1;                   % Duration of blank screen
@@ -237,6 +231,16 @@ end
 
 % Save letterSequence
 data.letterSequence = letterSequence; % 1x102 double
+
+% Show performance bonus incentive text
+DrawFormattedText(ptbWindow,performanceBonusText,'center','center',color.textVal);
+Screen('Flip',ptbWindow);
+disp('Participant is reading the performance bonus text');
+waitResponse = 1;
+while waitResponse
+    [time, keyCode] = KbWait(-1,2);
+    waitResponse = 0;
+end
 
 % Show task instruction text
 DrawFormattedText(ptbWindow,startExperimentText,'center','center',color.textVal);
@@ -637,15 +641,15 @@ elseif BLOCK == 1
     format bank % Change format for display
     amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
     feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
-            '\n\n Keep it up!'];
+        '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
+        '\n\n Keep it up!'];
 
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
-elseif BLOCK == 2 || BLOCK == 3 
+elseif BLOCK == 2 || BLOCK == 3
     % Get sum of correct responses, but ignore first 2/3/4 and last data point
     if BLOCK == 2
         totalCorrect = sum(data.allCorrect(1, 3:end-1));
@@ -658,8 +662,8 @@ elseif BLOCK == 2 || BLOCK == 3
     format bank % Change format for display
     amountCHFextra(BLOCK) = percentTotalCorrect(BLOCK)*0.01;
     feedbackBlockText = ['Your accuracy in Block ' num2str(BLOCK) ' was ' num2str(percentTotalCorrect(BLOCK)) ' %. ' ...
-            '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
-            '\n\n Keep it up!'];
+        '\n\n Because of your accuracy you have been awarded an additional ' num2str(amountCHFextra(BLOCK)) ' CHF.' ...
+        '\n\n Keep it up!'];
     DrawFormattedText(ptbWindow,feedbackBlockText,'center','center',color.textVal);
     disp(['Participant ' subjectID ' was awarded CHF ' num2str(amountCHFextra(BLOCK)) ' for an accuracy of ' num2str(percentTotalCorrect(BLOCK)) ' % in Block ' num2str(BLOCK) '.'])
     format default % Change format back to default
@@ -796,6 +800,7 @@ elseif BLOCK == 1 && TRAINING == 1
             ' \n\n Block 1 of the N-back task will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
+        disp(printTime);
     end
 elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0
     waitTime = 15;
@@ -820,6 +825,7 @@ elseif BLOCK == 1 && TRAINING == 0 || BLOCK == 2 && TRAINING == 0
             ' \n\n Block ' (num2str(BLOCK+1)) ' will start afterwards.'];
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
+        disp(printTime);
     end
 end
 
