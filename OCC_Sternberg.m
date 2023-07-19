@@ -572,22 +572,24 @@ for thisTrial = 1:experiment.nTrials
         feedbackText = 'Incorrect!';
     elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true
         feedbackText = ['Wrong button! \n\n' ...
-                       'Use only A or L.'];
+                        'Use only A or L.'];
     end
     disp(['Response to Trial ' num2str(thisTrial) ' in Block ' num2str(BLOCK) ' is ' feedbackText]);
+
     % Give feedback in training block
     if TRAINING == 1
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
         WaitSecs(2);
-    % Give feedback for wrong button presses
+    % Give feedback for wrong button presses (DOESNT WORK - GetResponse doesnt search for responses other than A & L)
     elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && badResponseFlag == true
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
         WaitSecs(2);
-    elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && badResponseFlag == false
+    % Give feedback for no response (too slow)
+    elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && data.allResponses(thisTrial) == 0
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
