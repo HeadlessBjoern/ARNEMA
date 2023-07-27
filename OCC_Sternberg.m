@@ -17,7 +17,7 @@ calibrateET;
 %% Task
 HideCursor(whichScreen);
 
-% define triggers
+% Define triggers
 MATCH = 4; % trigger for probe stimulus
 NO_MATCH = 5; % trigger for probe stimulus
 TASK_START = 10; % trigger for ET cutting
@@ -51,7 +51,7 @@ TASK_END = 90; % trigger for ET cutting
 % Set up experiment parameters
 % Number of trials for the experiment
 if TRAINING == 1
-    experiment.nTrials = 5;
+    experiment.nTrials = 10;
 else
     experiment.nTrials = 25;            % 6 blocks x 25 trials = 150 trials
 end
@@ -92,6 +92,8 @@ if TRAINING == 1
         'Please look at the center of the screen during this interval as well. \n\n' ...
         'Afterwards, you will be presented with a white letter. \n\n' ...
         'Your task is to determine if this white letter was included previously. \n\n' ...
+        'In this training session you''ll get feedback about the correctness of your responses. \n\n' ...
+        '\n\n' ...
         'Press any key to continue.'];
 else
     if BLOCK == 1
