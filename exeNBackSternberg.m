@@ -81,10 +81,14 @@ end
 % set TRAINING flag to 0 for initialization of actual Sternberg task
 TRAINING = 0;
 
-% Run 6 blocks of 25 trials each
+% Run 8 blocks of 50 trials each
 TASK = 'OCC_Sternberg';
 
-if isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block6_task.mat']])
+if isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block8_task.mat']])
+    start = 9;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block7_task.mat']])
+    start = 8;
+elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block6_task.mat']])
     start = 7;
 elseif isfile([DATA_PATH, '/', num2str(subjectID), '/', [num2str(subjectID), '_OCC_Sternberg_block5_task.mat']])
     start = 6;
@@ -100,7 +104,7 @@ else
     start = 1;
 end
 
-for BLOCK = start : 6
+for BLOCK = start : 8
     % Start the actual task (EEG recording will start here, if TRAINING = 0)
     disp('STERNBERG TASK...');
     OCC_Sternberg;

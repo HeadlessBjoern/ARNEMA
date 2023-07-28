@@ -131,8 +131,6 @@ while t < NrOfTrials
         Eyelink('command', 'record_status_message "eyeC"');
         sendtrigger(par.CD_eyeC,port,SITE,stayup)
 
-        disp(['Resting EEG: ' num2str(tt) ' of ' num2str(NrOfTrials) ' trials']);
-
         tt = tt+1;
     end
 end

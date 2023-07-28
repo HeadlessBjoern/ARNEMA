@@ -22,9 +22,10 @@ MATCH = 4; % trigger for probe stimulus
 NO_MATCH = 5; % trigger for probe stimulus
 TASK_START = 10; % trigger for ET cutting
 FIXATION = 15; % trigger for fixation cross
-PRESENTATION1 = 21; % trigger for digit presentation
-PRESENTATION2 = 22; % trigger for digit presentation
-PRESENTATION3 = 23; % trigger for digit presentation
+PRESENTATION2 = 22; % trigger for letter presentation
+PRESENTATION4 = 24; % trigger for letter presentation
+PRESENTATION6 = 26; % trigger for letter presentation
+PRESENTATION8 = 28; % trigger for letter presentation
 DIGITOFF = 28; % trigger for change of digit to blank
 BLOCK0 = 29; % trigger for start training block
 BLOCK1 = 31; % trigger for start of block 1
@@ -33,6 +34,8 @@ BLOCK3 = 33; % trigger for start of block 3
 BLOCK4 = 34; % trigger for start of block 4
 BLOCK5 = 35; % trigger for start of block 5
 BLOCK6 = 36; % trigger for start of block 6
+BLOCK7 = 37; % trigger for start of block 7
+BLOCK8 = 38; % trigger for start of block 8
 ENDBLOCK0 = 39; % trigger for end training block
 ENDBLOCK1 = 41; % trigger for end of block 1
 ENDBLOCK2 = 42; % trigger for end of block 2
@@ -40,9 +43,12 @@ ENDBLOCK3 = 43; % trigger for end of block 3
 ENDBLOCK4 = 44; % trigger for end of block 4
 ENDBLOCK5 = 45; % trigger for end of block 5
 ENDBLOCK6 = 46; % trigger for end of block 6
-RETENTION1 = 51; % trigger for retention (setSize = 2)
-RETENTION2 = 52; % trigger for retention (setSize = 6)
-RETENTION3 = 53; % trigger for retention (setSize = 8)
+ENDBLOCK7 = 47; % trigger for end of block 7
+ENDBLOCK8 = 48; % trigger for end of block 8
+RETENTION2 = 52; % trigger for retention (setSize = 2)
+RETENTION4 = 54; % trigger for retention (setSize = 4)
+RETENTION6 = 56; % trigger for retention (setSize = 6)
+RETENTION8 = 58; % trigger for retention (setSize = 8)
 RESP_YES = 77; % trigger for response yes (depends on changing key bindings)
 RESP_NO = 78; % trigger for response no (depends on changing key bindings)
 badResponse = 79; % trigger for wrong keyboard input (any key apart from 'A', 'L' or 'Space')
@@ -53,9 +59,9 @@ TASK_END = 90; % trigger for ET cutting
 if TRAINING == 1
     experiment.nTrials = 10;
 else
-    experiment.nTrials = 25;            % 6 blocks x 25 trials = 150 trials
+    experiment.nTrials = 50;            % 8 blocks x 50 trials = 400 trials
 end
-experiment.setSizes = [2,6,8];          % Number of items presented on the screen
+experiment.setSizes = [2, 4, 6, 8];     % Number of items presented on the screen
 
 % Set up equipment parameters
 equipment.viewDist = 800;               % Viewing distance in millimetres
@@ -99,19 +105,19 @@ else
     if BLOCK == 1
         loadingText = 'Loading actual task...';
         startExperimentText = ['On each trial, you will be shown a number of letters in a row. \n\n' ...
-        'The sides will be filled with ''Xs''. These do not count! \n\n' ...
-        'Example:  X X S A + R K X X \n\n' ...
-        '\n\n' ...
-        'Please always fixate the central fixation cross. \n\n' ...
-        'After each presentation there will be a blank screen. \n\n' ...
-        'Please look at the center of the screen during this interval as well. \n\n' ...
-        'Afterwards, you will be presented with a white letter. \n\n' ...
-        'Your task is to determine if this white letter was included previously. \n\n' ...
-        'There will be no feedback (e.g., ''Correct!'') anymore. \n\n' ...
-        'Press any key to continue.'];
+            'The sides will be filled with ''Xs''. These do not count! \n\n' ...
+            'Example:  X X S A + R K X X \n\n' ...
+            '\n\n' ...
+            'Please always fixate the central fixation cross. \n\n' ...
+            'After each presentation there will be a blank screen. \n\n' ...
+            'Please look at the center of the screen during this interval as well. \n\n' ...
+            'Afterwards, you will be presented with a white letter. \n\n' ...
+            'Your task is to determine if this white letter was included previously. \n\n' ...
+            'There will be no feedback (e.g., ''Correct!'') anymore. \n\n' ...
+            'Press any key to continue.'];
     else
         loadingText = 'Loading actual task...';
-        startExperimentText = ['Block ' num2str(BLOCK) ' / 6 \n\n' ...
+        startExperimentText = ['Block ' num2str(BLOCK) ' / 8 \n\n' ...
             'Press any key to continue.'];
     end
 end
@@ -123,7 +129,7 @@ performanceBonusText = ['In the following task there is a performance bonus! \n\
 startBlockText = 'Press any key to begin the next block.';
 
 % Set up temporal parameters (in seconds)
-timing.digitPresentation = 0.2;     % Duration of digit presentation
+timing.letterPresentation = 0.2;     % Duration of digit presentation
 timing.rest = 2;                    % Duration of blank resting interval
 timing.retentionInterval = 2.8;     % Duration of blank retention interval
 
@@ -166,8 +172,8 @@ DrawFormattedText(ptbWindow,loadingText,'center','center',color.textVal);
 Screen('Flip',ptbWindow);
 
 % Retrieve response keys
-KeyCodeA = KbName('A');         % Retrieve key code for the 1 button
-KeyCodeL = KbName('L');% KbName('/?');    % Retrieve key code for the 3 button (/? is the PTB code for the keyboard rather than numpad slash button)
+KeyCodeA = KbName('A');                     % Retrieve key code for the 1 button
+KeyCodeL = KbName('L');% KbName('/?');      % Retrieve key code for the 3 button (/? is the PTB code for the keyboard rather than numpad slash button)
 spaceKeyCode = KbName('Space'); % Retrieve key code for spacebar
 
 % Assign response keys
@@ -209,24 +215,26 @@ data.allResponses(1, experiment.nTrials) = 0;
 data.allCorrect(1, experiment.nTrials) = NaN;
 
 % Fixate randomized setSizes for each block
-setS2 = ones(1, 8)*experiment.setSizes(1);
-setS6 = ones(1, 8)*experiment.setSizes(2);
-setS8 = ones(1, 8)*experiment.setSizes(3);
-chance = randsample(1:3, 1);
+setS2 = ones(1, 12)*experiment.setSizes(1);
+setS4 = ones(1, 12)*experiment.setSizes(2);
+setS6 = ones(1, 12)*experiment.setSizes(3);
+setS8 = ones(1, 12)*experiment.setSizes(4);
+chance = randsample(1:4, 1);
 if chance == 1
-    extraNum = experiment.setSizes(1);
+    extraNums = [experiment.setSizes(1) experiment.setSizes(1)];
 elseif chance == 2
-    extraNum = experiment.setSizes(2);
+    extraNums = [experiment.setSizes(2) experiment.setSizes(2)];
 elseif chance == 3
-    extraNum = experiment.setSizes(3);
+    extraNums = [experiment.setSizes(3) experiment.setSizes(3)];
+elseif chance == 4
+    extraNums = [experiment.setSizes(4) experiment.setSizes(4)];
 end
-setALL = [setS2, setS6, setS8, extraNum];
+setALL = [setS2, setS4, setS6, setS8, extraNums];
 for trialSetSizes = 1:experiment.nTrials
     data.trialSetSize(trialSetSizes) = randsample(setALL, 1);
 end
 
 % Preallocate looping variables
-blankJitter(1:experiment.nTrials) = 0;
 reactionTime(1:experiment.nTrials) = 0;
 count5trials = 0;
 
@@ -290,6 +298,10 @@ elseif BLOCK == 5
     TRIGGER = BLOCK5;
 elseif BLOCK == 6
     TRIGGER = BLOCK6;
+elseif BLOCK == 7
+    TRIGGER = BLOCK7;
+elseif BLOCK == 8
+    TRIGGER = BLOCK8;
 else
     TRIGGER = BLOCK0;
 end
@@ -319,7 +331,7 @@ for thisTrial = 1:experiment.nTrials
     disp(['Start of Trial ' num2str(thisTrial)]); % Output of current trial #
 
     % Randomize letterSequence
-    lettersRand = randperm(25);
+    lettersRand = randperm(50);
     thisTrialSequenceIdx = lettersRand(1:data.trialSetSize(thisTrial)); % Pick # of letters (# up to length of trialSetSize)
     clear thisTrialSequenceLetters
     for numLoc = 1:data.trialSetSize(thisTrial)
@@ -351,20 +363,23 @@ for thisTrial = 1:experiment.nTrials
     % Define stimulus
     if data.trialSetSize(thisTrial) == experiment.setSizes(1)
         stimulusText = ['X ', 'X ', 'X ', num2str(thisTrialSequenceLetters(1)), ' + ', ...
-                        num2str(thisTrialSequenceLetters(2)), ' X', ' X', ' X'];
+            num2str(thisTrialSequenceLetters(2)), ' X', ' X', ' X'];
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(2)
-        stimulusText = ['X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
-                        num2str(thisTrialSequenceLetters(3)), ' + ', num2str(thisTrialSequenceLetters(4)), ' ', ...
-                        num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6)), ' X'];
+        stimulusText = ['X ', 'X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' + ', ...
+            num2str(thisTrialSequenceLetters(4)), ' ', num2str(thisTrialSequenceLetters(5)), ' X', ' X'];
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(3)
+        stimulusText = ['X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
+            num2str(thisTrialSequenceLetters(3)), ' + ', num2str(thisTrialSequenceLetters(4)), ' ', ...
+            num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6)), ' X'];
+    elseif data.trialSetSize(thisTrial) == experiment.setSizes(4)
         stimulusText = [num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
-                        num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' + ', ...
-                        num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6)), ' ', ...
-                        num2str(thisTrialSequenceLetters(7)), ' ', num2str(thisTrialSequenceLetters(8))];
+            num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' + ', ...
+            num2str(thisTrialSequenceLetters(5)), ' ', num2str(thisTrialSequenceLetters(6)), ' ', ...
+            num2str(thisTrialSequenceLetters(7)), ' ', num2str(thisTrialSequenceLetters(8))];
     end
     stimulusLetters(thisTrial) = {thisTrialSequenceLetters(1:data.trialSetSize(thisTrial))};
     data.stimulusText(thisTrial) = {stimulusText};
-    % Present stimuli (with cross in middle)
+    % Present stimuli
     DrawFormattedText(ptbWindow, stimulusText,'center','center',text.color);
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('DrawDots',ptbWindow, stimPos, stimDiameter, stimColor,[],1);
@@ -373,13 +388,14 @@ for thisTrial = 1:experiment.nTrials
     Screen('TextSize', ptbWindow, 20);
     % Send triggers for Presentation
     if data.trialSetSize(thisTrial) == experiment.setSizes(1)
-        TRIGGER = PRESENTATION1;
-    elseif data.trialSetSize(thisTrial) == experiment.setSizes(2)
         TRIGGER = PRESENTATION2;
+    elseif data.trialSetSize(thisTrial) == experiment.setSizes(2)
+        TRIGGER = PRESENTATION4;
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(3)
-        TRIGGER = PRESENTATION3;
+        TRIGGER = PRESENTATION6;
+    elseif data.trialSetSize(thisTrial) == experiment.setSizes(4)
+        TRIGGER = PRESENTATION8;
     end
-
     if TRAINING == 1
         %             EThndl.sendMessage(TRIGGER);
         Eyelink('Message', num2str(TRIGGER));
@@ -390,7 +406,8 @@ for thisTrial = 1:experiment.nTrials
         Eyelink('command', 'record_status_message "STIMULUS"');
         sendtrigger(TRIGGER,port,SITE,stayup);
     end
-    WaitSecs(timing.digitPresentation);
+    WaitSecs(timing.letterPresentation);
+
     if TRAINING == 1
         %             EThndl.sendMessage(DIGITOFF);
         Eyelink('Message', num2str(DIGITOFF));
@@ -406,11 +423,13 @@ for thisTrial = 1:experiment.nTrials
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     if data.trialSetSize(thisTrial) == experiment.setSizes(1)
-        TRIGGER = RETENTION1;
-    elseif data.trialSetSize(thisTrial) == experiment.setSizes(2)
         TRIGGER = RETENTION2;
+    elseif data.trialSetSize(thisTrial) == experiment.setSizes(2)
+        TRIGGER = RETENTION4;
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(3)
-        TRIGGER = RETENTION3;
+        TRIGGER = RETENTION6;
+    elseif data.trialSetSize(thisTrial) == experiment.setSizes(4)
+        TRIGGER = RETENTION8;
     end
 
     if TRAINING == 1
@@ -579,7 +598,7 @@ for thisTrial = 1:experiment.nTrials
         feedbackText = 'Incorrect!';
     elseif data.allCorrect(thisTrial) == 0 && badResponseFlag == true
         feedbackText = ['Wrong button! \n\n' ...
-                        'Use only A or L.'];
+            'Use only A or L.'];
     end
     disp(['Response to Trial ' num2str(thisTrial) ' in Block ' num2str(BLOCK) ' is ' feedbackText]);
 
@@ -589,13 +608,13 @@ for thisTrial = 1:experiment.nTrials
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
         WaitSecs(2);
-    % Give feedback for wrong button presses (DOESNT WORK - GetResponse doesnt search for responses other than A & L)
+        % Give feedback for wrong button presses (DOESNT WORK - GetResponse doesnt search for responses other than A & L)
     elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && badResponseFlag == true
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
         WaitSecs(2);
-    % Give feedback for no response (too slow)
+        % Give feedback for no response (too slow)
     elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && data.allResponses(thisTrial) == 0
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
@@ -622,7 +641,7 @@ for thisTrial = 1:experiment.nTrials
         end
     end
 
-    % Blank screen for resting interval (2000ms)
+    %% Blank screen for resting interval (2000ms)
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     WaitSecs(timing.rest);
@@ -643,6 +662,10 @@ elseif BLOCK == 5
     TRIGGER = ENDBLOCK5;
 elseif BLOCK == 6
     TRIGGER = ENDBLOCK6;
+elseif BLOCK == 7
+    TRIGGER = ENDBLOCK7;
+elseif BLOCK == 8
+    TRIGGER = ENDBLOCK8;
 else
     TRIGGER = ENDBLOCK0;
 end
@@ -676,6 +699,7 @@ end
 data.SetSizeOccurences(1) = numel(find(data.trialSetSize == experiment.setSizes(1)));
 data.SetSizeOccurences(2) = numel(find(data.trialSetSize == experiment.setSizes(2)));
 data.SetSizeOccurences(3) = numel(find(data.trialSetSize == experiment.setSizes(3)));
+data.SetSizeOccurences(4) = numel(find(data.trialSetSize == experiment.setSizes(4)));
 
 % Save data
 subjectID = num2str(subject.ID);
@@ -716,9 +740,10 @@ trigger.MATCH = MATCH;
 trigger.NO_MATCH = NO_MATCH;
 trigger.FIXATION = FIXATION;
 trigger.TASK_START = TASK_START;
-trigger.PRESENTATION2 = PRESENTATION1;
-trigger.PRESENTATION4 = PRESENTATION2;
-trigger.PRESENTATION6 = PRESENTATION3;
+trigger.PRESENTATION2 = PRESENTATION2;
+trigger.PRESENTATION4 = PRESENTATION4;
+trigger.PRESENTATION6 = PRESENTATION6;
+trigger.PRESENTATION8 = PRESENTATION8;
 trigger.DIGITOFF = DIGITOFF;
 trigger.BLOCK0 = BLOCK0;
 trigger.BLOCK1 = BLOCK1;
@@ -727,6 +752,8 @@ trigger.BLOCK3 = BLOCK3;
 trigger.BLOCK4 = BLOCK4;
 trigger.BLOCK5 = BLOCK5;
 trigger.BLOCK6 = BLOCK6;
+trigger.BLOCK7 = BLOCK7;
+trigger.BLOCK8 = BLOCK8;
 trigger.ENDBLOCK0 = ENDBLOCK0;
 trigger.ENDBLOCK1 = ENDBLOCK1;
 trigger.ENDBLOCK2 = ENDBLOCK2;
@@ -734,15 +761,18 @@ trigger.ENDBLOCK3 = ENDBLOCK3;
 trigger.ENDBLOCK4 = ENDBLOCK4;
 trigger.ENDBLOCK5 = ENDBLOCK5;
 trigger.ENDBLOCK6 = ENDBLOCK6;
-trigger.RETENTION2 = RETENTION1;
-trigger.RETENTION4 = RETENTION2;
-trigger.RETENTION6 = RETENTION3;
+trigger.ENDBLOCK7 = ENDBLOCK7;
+trigger.ENDBLOCK8 = ENDBLOCK8;
+trigger.RETENTION2 = RETENTION2;
+trigger.RETENTION4 = RETENTION4;
+trigger.RETENTION6 = RETENTION6;
+trigger.RETENTION8 = RETENTION8;
 trigger.RESP_YES = RESP_YES;
 trigger.RESP_NO = RESP_NO;
 trigger.badResponse = badResponse;
 trigger.TASK_END = TASK_END;
 
-if BLOCK == 6
+if BLOCK == 8
     amountCHFextraTotal = sum(amountCHFextra);
     saves.amountCHFextraTotal = amountCHFextraTotal;
 end
@@ -772,7 +802,7 @@ if BLOCK == 0
     format default % Change format back to default
     Screen('Flip',ptbWindow);
     WaitSecs(5);
-elseif BLOCK == 6
+elseif BLOCK == 8
     totalCorrect = sum(data.allCorrect);
     totalTrials = thisTrial;
     percentTotalCorrect(BLOCK) = totalCorrect / totalTrials * 100;
@@ -813,7 +843,7 @@ if TRAINING == 1
         breakInstructionText = ['Score too low! ' num2str(percentTotalCorrect) ' % correct. ' ...
             '\n\n Press any key to repeat the training task.'];
     end
-elseif BLOCK == 6
+elseif BLOCK == 8
     breakInstructionText = ['End of the Task! ' ...
         '\n\n Press any key to view your stats.'];
 else
@@ -828,7 +858,7 @@ while waitResponse
     waitResponse = 0;
 end
 
-%% Wait at least 15 Seconds between Blocks (only after Block 1 has finished, not after Block 6)
+%% Wait at least 15 Seconds between Blocks (only after Block 1 has finished, not after Block 8)
 if TRAINING == 1 && percentTotalCorrect < THRESH
     waitTime = 15;
     intervalTime = 1;
@@ -852,7 +882,7 @@ if TRAINING == 1 && percentTotalCorrect < THRESH
         DrawFormattedText(ptbWindow,waitTimeText,'center','center',color.textVal);
         Screen('Flip',ptbWindow);
     end
-elseif BLOCK >= 1 && BLOCK < 6
+elseif BLOCK >= 1 && BLOCK < 8
     waitTime = 15;
     intervalTime = 1;
     timePassed = 0;
@@ -880,7 +910,7 @@ elseif BLOCK >= 1 && BLOCK < 6
 end
 
 %% Display total amount
-if BLOCK == 6
+if BLOCK == 8
     endTextCash = ['Well done! You have completed the task.' ...
         ' \n\n Because of your accuracy you have been awarded an additional CHF ' num2str(amountCHFextraTotal) ' in total.' ...
         ' \n\n ' ...
@@ -890,6 +920,8 @@ if BLOCK == 6
         ' \n\n Block 4: ' num2str(percentTotalCorrect(4)) ' % accuracy earned you ' num2str(amountCHFextra(4)) ' CHF.' ...
         ' \n\n Block 5: ' num2str(percentTotalCorrect(5)) ' % accuracy earned you ' num2str(amountCHFextra(5)) ' CHF.' ...
         ' \n\n Block 6: ' num2str(percentTotalCorrect(6)) ' % accuracy earned you ' num2str(amountCHFextra(6)) ' CHF.' ...
+        ' \n\n Block 7: ' num2str(percentTotalCorrect(7)) ' % accuracy earned you ' num2str(amountCHFextra(7)) ' CHF.' ...
+        ' \n\n Block 8: ' num2str(percentTotalCorrect(8)) ' % accuracy earned you ' num2str(amountCHFextra(8)) ' CHF.' ...
         ' \n\n ' ...
         ' \n\n ' ...
         'Press any key to end the task.'];
@@ -900,7 +932,9 @@ if BLOCK == 6
         ' \n\n Block 3: Participant ' num2str(subjectID) ' earned ' num2str(amountCHFextra(3)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(3)) '%.' ...
         ' \n\n Block 4: Participant ' num2str(subjectID) ' earned ' num2str(amountCHFextra(4)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(4)) '%.' ...
         ' \n\n Block 5: Participant ' num2str(subjectID) ' earned ' num2str(amountCHFextra(5)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(5)) '%.' ...
-        ' \n\n Block 6: Participant ' num2str(subjectID) ' earned ' num2str(amountCHFextra(6)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(6)) '%.'];
+        ' \n\n Block 6: Participant ' num2str(subjectID) ' earned ' num2str(amountCHFextra(6)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(6)) '%.' ...
+        ' \n\n Block 7: Participant ' num2str(subjectID) ' earned ' num2str(amountCHFextra(7)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(7)) '%.'...
+        ' \n\n Block 8: Participant ' num2str(subjectID) ' earned ' num2str(amountCHFextra(8)) ' CHF for an accuracy of ' num2str(percentTotalCorrect(8)) '%.'];
     disp(statsCW)
     DrawFormattedText(ptbWindow,endTextCash,'center','center',color.textVal); % Display output for participant
     format default % Change format back to default

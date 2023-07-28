@@ -1,8 +1,8 @@
 %% Master script for the OCC (Arne MA) study
 
 % - Resting EEG
-% - Sternberg training (5 trials)
-% - Sternberg actual task (6 blocks x 25 trials)
+% - Sternberg training (10 trials)
+% - Sternberg actual task (8 blocks x 50 trials)
 % - N-back training (10 trials)
 % - N-back task (3 blocks x 100 trials)
 
