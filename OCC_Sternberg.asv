@@ -126,7 +126,7 @@ startBlockText = 'Press any key to begin the next block.';
 timing.digitPresentation = 0.2;     % Duration of digit presentation
 timing.rest = 2;                    % Duration of blank resting interval
 timing.retentionInterval = 2.8;     % Duration of blank retention interval
-timing.stimulusPresentation = 1;    % Duration of stimulus presentation interval
+timing.probe = 1;                   % Duration of probe stimulus
 
 % Shuffle rng for random elements
 rng('default');
@@ -471,8 +471,9 @@ for thisTrial = 1:experiment.nTrials
     % Return size of text to 20 pts
     Screen('TextSize', ptbWindow, 20);
 
-    % Present stimulus for stimulus presentation interval (1s)
+    % Wait for stimulus presentation interval
     WaitSecs(timing.stimulusPresentation);
+
 
     % Save probe letter
     data.probeLetter(thisTrial) = thisTrialprobeLetter;
@@ -625,6 +626,12 @@ for thisTrial = 1:experiment.nTrials
             WaitSecs(5);
         end
     end
+
+    %% Blank screen before presentation of next digit (2000ms)
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+    Screen('Flip', ptbWindow);
+    WaitSecs(timing.rest);
+
 end
 
 %% End task, save data and inform participant about accuracy and extra cash
