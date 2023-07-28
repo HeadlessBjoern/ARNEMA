@@ -126,7 +126,6 @@ startBlockText = 'Press any key to begin the next block.';
 timing.digitPresentation = 0.2;     % Duration of digit presentation
 timing.rest = 2;                    % Duration of blank resting interval
 timing.retentionInterval = 2.8;     % Duration of blank retention interval
-timing.stimulusPresentation = 1;    % Duration of stimulus presentation interval
 
 % Shuffle rng for random elements
 rng('default');
@@ -403,7 +402,7 @@ for thisTrial = 1:experiment.nTrials
         sendtrigger(DIGITOFF,port,SITE,stayup);
     end
 
-    %% Retention interval
+    %% Retention interval (2800ms)
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
     if data.trialSetSize(thisTrial) == experiment.setSizes(1)
@@ -471,9 +470,6 @@ for thisTrial = 1:experiment.nTrials
     % Return size of text to 20 pts
     Screen('TextSize', ptbWindow, 20);
 
-    % Present stimulus for stimulus presentation interval (1s)
-    WaitSecs(timing.stimulusPresentation);
-
     % Save probe letter
     data.probeLetter(thisTrial) = thisTrialprobeLetter;
     % Save match/no match
@@ -483,7 +479,7 @@ for thisTrial = 1:experiment.nTrials
     Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
     Screen('Flip', ptbWindow);
 
-    %% Get response
+    %% Get response (max 2000ms)
     getResponse = true;
     badResponseFlag = false;
     maxResponseTime = GetSecs + 2;
@@ -625,6 +621,11 @@ for thisTrial = 1:experiment.nTrials
             WaitSecs(5);
         end
     end
+
+    % Blank screen for resting interval (2000ms)
+    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
+    Screen('Flip', ptbWindow);
+    WaitSecs(timing.rest);
 end
 
 %% End task, save data and inform participant about accuracy and extra cash
