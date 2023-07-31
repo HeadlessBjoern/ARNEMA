@@ -232,14 +232,16 @@ end
 % Save letterSequence
 data.letterSequence = letterSequence; % 1x102 double
 
-% Show performance bonus incentive text
-DrawFormattedText(ptbWindow,performanceBonusText,'center','center',color.textVal);
-Screen('Flip',ptbWindow);
-disp('Participant is reading the performance bonus text');
-waitResponse = 1;
-while waitResponse
-    [time, keyCode] = KbWait(-1,2);
-    waitResponse = 0;
+if TRAINING == 0
+    % Show performance bonus incentive text
+    DrawFormattedText(ptbWindow,performanceBonusText,'center','center',color.textVal);
+    Screen('Flip',ptbWindow);
+    disp('Participant is reading the performance bonus text');
+    waitResponse = 1;
+    while waitResponse
+        [time, keyCode] = KbWait(-1,2);
+        waitResponse = 0;
+    end
 end
 
 % Show task instruction text

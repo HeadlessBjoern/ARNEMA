@@ -148,6 +148,10 @@ PsychImaging('AddTask', 'General', 'FloatingPoint32BitIfPossible');
 PsychImaging('AddTask', 'General', 'NormalizedHighresColorRange');
 Screen('Preference', 'SkipSyncTests', 0); % For linux (can be 0)
 
+% Set verbosity to disallow CW output
+Screen('Preference','Verbosity', 0);
+% PsychTweak('ScreenVerbosity', 2)
+
 % Window set-up
 [ptbWindow, winRect] = PsychImaging('OpenWindow', screenID, equipment.greyVal);
 PsychColorCorrection('SetEncodingGamma', ptbWindow, equipment.gammaVals);
