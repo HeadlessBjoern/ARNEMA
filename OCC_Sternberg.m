@@ -129,9 +129,9 @@ performanceBonusText = ['In the following task there is a performance bonus! \n\
 startBlockText = 'Press any key to begin the next block.';
 
 % Set up temporal parameters (in seconds)
-timing.letterPresentation = 0.2;     % Duration of digit presentation
-timing.rest = 2;                    % Duration of blank resting interval
-timing.retentionInterval = 2.8;     % Duration of blank retention interval
+timing.letterPresentation = 0.2;            % Duration of digit presentation
+timing.rest = 2;                            % Duration of blank resting interval
+timing.retentionInterval = 2.8;             % Duration of blank retention interval
 
 % Shuffle rng for random elements
 rng('default');
@@ -203,7 +203,7 @@ fixCoords = [fixHorizontal; fixVertical];
 
 % Define alphabet (stimulus pool)
 alphabet = 'A' : 'Z';
-alphabetNoX = alphabet([1:23, 25:26]);
+alphabetNoX = alphabet([1:23, 25:26, 1:23, 25:26]);
 
 % Create data structure for preallocating data
 data = struct;
@@ -366,7 +366,7 @@ for thisTrial = 1:experiment.nTrials
             num2str(thisTrialSequenceLetters(2)), ' X', ' X', ' X'];
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(2)
         stimulusText = ['X ', 'X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' + ', ...
-            num2str(thisTrialSequenceLetters(4)), ' ', num2str(thisTrialSequenceLetters(5)), ' X', ' X'];
+            num2str(thisTrialSequenceLetters(3)), ' ', num2str(thisTrialSequenceLetters(4)), ' X', ' X'];
     elseif data.trialSetSize(thisTrial) == experiment.setSizes(3)
         stimulusText = ['X ', num2str(thisTrialSequenceLetters(1)), ' ', num2str(thisTrialSequenceLetters(2)), ' ', ...
             num2str(thisTrialSequenceLetters(3)), ' + ', num2str(thisTrialSequenceLetters(4)), ' ', ...
@@ -616,6 +616,7 @@ for thisTrial = 1:experiment.nTrials
         WaitSecs(2);
         % Give feedback for no response (too slow)
     elseif TRAINING == 0 && data.allCorrect(thisTrial) == 0 && data.allResponses(thisTrial) == 0
+        feedbackText = 'TOO SLOW!';
         DrawFormattedText(ptbWindow,feedbackText,'center','center',color.textVal);
         Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
         Screen('Flip',ptbWindow);
@@ -637,7 +638,7 @@ for thisTrial = 1:experiment.nTrials
             DrawFormattedText(ptbWindow,feedbackLastTrials,'center','center',color.textVal);
             Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
             Screen('Flip',ptbWindow);
-            WaitSecs(5);
+            WaitSecs(3);
         end
     end
 
