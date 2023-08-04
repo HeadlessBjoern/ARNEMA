@@ -498,10 +498,6 @@ for thisTrial = 1:experiment.nTrials
     % Save match/no match
     data.trialMatch(thisTrial) = thisTrialMatch;
 
-    %% Draw blank screen for response interval
-    Screen('DrawDots',ptbWindow, backPos, backDiameter, backColor,[],1);
-    Screen('Flip', ptbWindow);
-
     %% Get response (max 2000ms)
     getResponse = true;
     badResponseFlag = false;
