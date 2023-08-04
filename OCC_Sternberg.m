@@ -569,7 +569,7 @@ for thisTrial = 1:experiment.nTrials
         end
 
         % Get and save reaction time for each trial
-        reactionTime(thisTrial) = maxResponseTime - time;
+        reactionTime(thisTrial) = time - maxResponseTime - 2;
 
     end
 
