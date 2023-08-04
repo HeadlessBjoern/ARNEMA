@@ -863,6 +863,40 @@ while waitResponse
     waitResponse = 0;
 end
 
+%% Show accuracy for each condition
+
+% Convert ASCII to letters
+saves.data.probeLetter = char(saves.data.probeLetter);
+
+tblRAW = table(saves.data.trialMatch', saves.data.allResponses', saves.data.allCorrect', saves.data.sequenceLetters', ...
+    saves.data.trialSetSize', saves.data.probeLetter', rt', ...
+    'VariableNames', {'Match', 'Response', 'Correct', 'SequenceLetters', 'SetSize', 'probeLetters', 'reactionTime [ms]'});
+
+% Delete NO RESPONSE trials
+noResponseTrials = tblRAW.Response == 0;
+tbl = tblRAW(not(noResponseTrials), :);
+
+tbl2 = tbl(tbl.SetSize == 2, :);
+tbl4 = tbl(tbl.SetSize == 4, :);
+tbl6 = tbl(tbl.SetSize == 6, :);
+tbl8 = tbl(tbl.SetSize == 8, :);
+corrPercSetSize2(block) = (sum(tbl2.Correct)/height(tbl2.Correct))*100;
+corrPercSetSize4(block) = (sum(tbl4.Correct)/height(tbl4.Correct))*100;
+corrPercSetSize6(block) = (sum(tbl6.Correct)/height(tbl6.Correct))*100;
+corrPercSetSize8(block) = (sum(tbl8.Correct)/height(tbl8.Correct))*100;
+corrSetSize2(subj) = mean(corrPercSetSize2);
+corrSetSize4(subj) = mean(corrPercSetSize4);
+corrSetSize6(subj) = mean(corrPercSetSize6);
+corrSetSize8(subj) = mean(corrPercSetSize8);
+
+resultsSternbergALLsubj = table(corrSetSize2', corrSetSize4', corrSetSize6', corrSetSize8', ...
+    'VariableNames', {'Correct2 [%]', 'Correct4 [%]', 'Correct6 [%]', 'Correct8 [%]'});
+resultsSternberg = resultsSternbergALLsubj;
+% Find rows with all zeroes
+rowsToDelete = all(resultsSternberg{:,:} == 0, 2);
+% Delete rows with all zeroes
+resultsSternberg(rowsToDelete, :) = []
+
 %% Wait at least 15 Seconds between Blocks (only after Block 1 has finished, not after Block 8)
 if TRAINING == 1 && percentTotalCorrect < THRESH
     waitTime = 15;
