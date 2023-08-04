@@ -773,11 +773,6 @@ trigger.RESP_NO = RESP_NO;
 trigger.badResponse = badResponse;
 trigger.TASK_END = TASK_END;
 
-if BLOCK == 8
-    amountCHFextraTotal = sum(amountCHFextra);
-    saves.amountCHFextraTotal = amountCHFextraTotal;
-end
-
 % stop and close EEG and ET recordings
 disp(['BLOCK ' num2str(BLOCK) ' FINISHED...']);
 disp('SAVING DATA...');
