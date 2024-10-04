@@ -1,0 +1,31 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14580\viewh10540\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs36 \cf0 README OCC ARNEMA Scripts\
+
+\fs24 \
+
+\f1\b\fs28 Cutting of the Data:
+\f0\b0\fs24 \
+\
+\'82doCutting.m\'91 takes the filepath of the raw data (in methlab_data folder) and executes \'82cutData.m\'91\
+\
+\'82cutData\'91 looks for start (10) and end (90) triggers and cuts the data into segments representing the Resting EEG, NBack and Sternberg tasks. The order varies depending on the subjectID. The resulting files are saved - with the subjectID attached as affixes - in the folder named by the subjectID in /Volumes/methlab/Students/Arne/MA/data.\
+\
+\'82testTriggers.m\'92 loads the files from \'82cutData.m\'91 and the raw Eye Tracking files from methlab_data and synchronizes them using the start (10) and end (90) triggers. The resulting merged files are stored saved in the folder named by the subjectID in /Volumes/methlab/Students/Arne/MA/data.\
+\
+
+\f1\b\fs28 Preprocessing:
+\f0\b0\fs24 \
+\
+\'82occ_preprocessing\'91 reads, segments, and converts the merged files from \'82testTriggers.m\'92 to the FieldTrip data structure. These files are appended depending on the load (1, 4 or 7 Sternberg item load). The data is filtered with a onepass-zerophase, hamming-windowed sinc finite impulse response filter with a cutoff from 1 Hz to 45 Hz (bandpass filter of 1-45Hz). The data is resegmented again to avoid filter ringing and re-referenced to an average or common reference. Bad channels are identified and excluded. \
+\
+In order to apply the ICA the data from \'82dataPrePro.mat\'91 is downsampled first in order to speed up the ICA (this is undone afterwards) and saved as \'82comp.mat\'91. The data is evaluated for artifacts, these components are rejected and the resulting clean data is saved as \'82dataICA.mat\'91.\
+\
+\'82occ_frequency_analysis\'91 uses the file \'82dataICA.mat\'92 to sort trials to conditions and performs a Time-Frequency-Analysis and a Frequency-Analysis. \
+\
+	}

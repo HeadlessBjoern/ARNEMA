@@ -1,0 +1,322 @@
+%% Heat map creation for ARNEMA Sternberg task
+clear
+close all
+addpath('/Volumes/methlab/Students/Arne/MA/scripts/lib/');
+mycolormap = customcolormap_preset('red-white-blue');
+
+subjects = {'34';'35';'42'; '45';'52';'55';'59';'87';'93';'95'};
+path = '/Volumes/methlab/Students/Arne/MA/data/mergedSIM/';
+%% Load data
+for subj= 1:length(subjects)
+    datapath = strcat(path,subjects{subj});
+    load([datapath, filesep 'dataETstern'])
+    %% Segment data per condition
+    ind2=find(dataet.trialinfo==52);
+    ind4=find(dataet.trialinfo==54);
+    ind6=find(dataet.trialinfo==56);
+    ind8=find(dataet.trialinfo==58);
+
+    %% split into high and low load sternberg
+    cfg =[];
+    cfg.latency=[0 3];
+    cfg.trials = ind2;
+    dataetL2 = ft_selectdata(cfg,dataet);
+    cfg.trials = ind4;
+    dataetL4 = ft_selectdata(cfg,dataet);
+    cfg.trials = ind6;
+    dataetL6 = ft_selectdata(cfg,dataet);
+    cfg.trials = ind8;
+    dataetL8 = ft_selectdata(cfg,dataet);
+
+    %% Filter data for out-of-screen data points and zeros from blinks
+    condcounter=0;
+    for condition = 2:2:8
+        condcounter=condcounter+1;
+        if condition == 2
+            data=dataetL2;
+            data=horzcat(dataetL2.trial{:});
+        elseif condition == 4
+            data=dataetL4;
+            data=horzcat(dataetL4.trial{:});
+        elseif condition == 6
+            data=dataetL6;
+            data=horzcat(dataetL6.trial{:});
+        elseif condition == 8
+            data=dataetL8;
+            data=horzcat(dataetL8.trial{:});
+        end
+
+        % Filter out data points outside the screen boundaries
+        valid_data_indices = data(1, :) >= 0 & data(1, :) <= 800 & data(2, :) >= 0 & data(2, :) <= 600; % Check that x and y positions are in boundaries of screen
+        valid_data = data(:, valid_data_indices);
+
+        % Remove data points that contain zeros (assuming your data contains x, y, and pupil size)
+        data = valid_data(:, all(valid_data(1:2, :) ~= 0, 1));
+        
+        x_positions = data(1, :);
+        y_positions = data(2, :);
+
+        %% Create scatterplot for data check
+        % figure;
+        % 
+        % scatterhist(x_positions, y_positions, 'Location', 'SouthEast', 'Color', 'k', 'Marker', '.');
+        % 
+        % % Calculate mean values
+        % mean_x = mean(x_positions);
+        % mean_y = mean(y_positions);
+        % 
+        % % Add mean markers and labels
+        % hold on;
+        % plot(mean_x, mean_y, 'ro', 'MarkerSize', 10);
+        % 
+        % % Set axis labels
+        % xlabel('X Position');
+        % ylabel('Y Position');
+        % title('Scatterhist of Eye Tracker Data');
+        % % Invert y-axis to match the typical eye-tracking coordinate system
+        % set(gca, 'YDir','reverse')
+        % xlim([0 800]);
+        % ylim([0 600])
+        %% Create custom grid for heatmap in pixels
+        num_bins = 100;  % You can adjust this based on your data
+        x_grid_pixels = linspace(0, 800, num_bins);
+        y_grid_pixels = linspace(0, 600, num_bins);
+
+        %% Bin data and apply gaussian smoothing
+
+        % Adjust this for desired smoothing
+        smoothing_factor = 5;
+
+        % Bin the data
+        binned_data_pixels = histcounts2(x_positions, y_positions, x_grid_pixels, y_grid_pixels);
+
+        % Apply Gaussian smoothing to the binned data
+        smoothed_data_pixels(subj,condcounter, :, :) = imgaussfilt(binned_data_pixels, smoothing_factor);
+
+        %%
+        freq=[];
+        freq.freq       = linspace(0, 600, 99);
+        % pow=zeros(1,numel(freq.powspctrm(:,1)),numel(freq.powspctrm(1,:)));
+        % pow(1,:,:) =freq.powspctrm;
+        % freq.powspctrm=pow;
+        freq.time       = linspace(0, 800, 99);
+        freq.label      ={'et'};
+        freq.dimord     = 'chan_freq_time';
+        tmp(1,:,:)      = squeeze(smoothed_data_pixels(subj,condcounter, :, :));
+        freq.powspctrm  = tmp;
+
+        cfg = [];
+        cfg.frequency = [0 600];
+
+        if condition     == 2
+            l2g{subj}    = freq;
+        elseif condition == 4
+            l4g{subj}    = freq;
+        elseif condition == 6
+            l6g{subj}    = freq;
+        elseif condition == 8
+            l8g{subj}    = freq;
+        end
+    end
+end
+
+%% Aggregate data for subjects
+subject_average = squeeze(mean(smoothed_data_pixels, 1));
+l2 = subject_average(1, :, :);
+l4 = subject_average(2, :, :);
+l6 = subject_average(3, :, :);
+l8 = subject_average(4, :, :);
+
+%% Calculate significant differences l2 and l8
+cfg                    = [];
+cfg.spmversion         = 'spm12';
+cfg.method             = 'analytic';
+cfg.statistic          = 'ft_statfun_depsamplesT';
+cfg.tail               = 0;
+cfg.clustertail        = 0;
+cfg.alpha              = 0.05;
+cfg.numrandomization   = 1000;
+cfg.neighbours         = [];
+
+clear design
+subj = length(subjects);
+design = zeros(2,2*subj);
+for i = 1:subj
+    design(1,i) = i;
+end
+for i = 1:subj
+    design(1,subj+i) = i;
+end
+design(2,1:subj)        = 1;
+design(2,subj+1:2*subj) = 2;
+
+cfg.design   = design;
+cfg.uvar     = 1;
+cfg.ivar     = 2;
+
+[stat] = ft_freqstatistics(cfg, l2g{:}, l8g{:});
+stat.stat(stat.mask==0)=0;% mask out all non significant
+statstern=stat;
+cohensd=2*((statstern.stat)./sqrt(numel(design)));
+statstern.stat=cohensd;
+
+%% Transpose and interpolate
+% close all
+% cfg = [];
+% cfg.avgoverchan = 'yes';
+% % cfg.frequency = [-10 10];
+% % cfg.latency   = [-10 10];
+% freq = ft_selectdata(cfg,statstern);
+% meanpow = squeeze(mean(freq.stat, 1));
+% meanmask = squeeze(mean(freq.mask, 1));
+% % The finer time and frequency axes:
+% tim_interp = linspace(freq.time(1), freq.time(end), 800);
+% freq_interp = linspace(0, 800, 600);
+% mask_interp = linspace(0, 800, 600);
+% 
+% % We need to make a full time/frequency grid of both the original and
+% % interpolated coordinates. Matlab's meshgrid() does this for us:
+% [tim_grid_orig, freq_grid_orig] = meshgrid(freq.time, freq.freq);
+% [tim_grid_interp, freq_grid_interp] = meshgrid(tim_interp, freq_interp);
+% 
+% % And interpolate:
+% % pow_interp = interp2(tim_grid_orig, freq_grid_orig, meanpow,...
+% %     tim_grid_interp, freq_grid_interp, 'spline');
+% % mask_interp = interp2(tim_grid_orig, freq_grid_orig, meanmask,...
+% %     tim_grid_interp, freq_grid_interp, 'spline');
+% 
+% pow_interp = interp2([1:99], [1:99], meanpow,...
+%     [freq.time(1) freq.time(end)], freq_interp, 'spline');
+% mask_interp = interp2(tim_grid_orig, freq_grid_orig, meanmask,...
+%     tim_grid_interp, freq_grid_interp, 'spline');
+
+%% Plot WM load 2
+freq.powspctrm(1,:,:)= squeeze(l2)';
+freq.time = x_grid_pixels(2:end);
+freq.freq = y_grid_pixels(2:end);
+freq.label={'et'};
+freq.dimord= 'chan_freq_time';
+
+clf;
+close all;
+figure;
+addpath('/Volumes/methlab/Students/Arne/MA/scripts/lib/');
+mycolormap = customcolormap_preset('red-white-blue');
+set(gcf, 'Position', [0, 0, 1200, 800]); % Specify the figure size
+colormap(mycolormap);
+cfg =[];
+cfg.figure='gcf';
+ft_singleplotTFR([],freq);
+set(gcf,'color','w');
+set(gca,'Fontsize',30);
+set(gca, 'YDir', 'reverse')
+title('');
+clim([0 650]);
+
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/gaze/Sternberg_gaze_wm2.png');
+
+%% Plot WM load 8
+freq.powspctrm(1,:,:)= squeeze(l8)';
+freq.time = x_grid_pixels(2:end);
+freq.freq = y_grid_pixels(2:end);
+freq.label={'et'};
+freq.dimord= 'chan_freq_time';
+
+clf;
+close all;
+figure;
+addpath('/Volumes/methlab/Students/Arne/MA/scripts/lib/');
+mycolormap = customcolormap_preset('red-white-blue');
+set(gcf, 'Position', [0, 0, 1200, 800]); % Specify the figure size
+colormap(mycolormap);
+cfg =[];
+cfg.figure='gcf';
+ft_singleplotTFR([],freq);
+set(gcf,'color','w');
+set(gca,'Fontsize',30);
+set(gca, 'YDir', 'reverse')
+title('');
+clim([0 650]);
+
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/gaze/Sternberg_gaze_wm8.png');
+
+%% Plot diff 8-2
+diff = l8-l2;
+freq.powspctrm(1,:,:)= squeeze(diff)';
+freq.time = x_grid_pixels(2:end);
+freq.freq = y_grid_pixels(2:end);
+freq.label={'et'};
+freq.dimord= 'chan_freq_time';
+
+clf;
+close all;
+figure;
+addpath('/Volumes/methlab/Students/Arne/MA/scripts/lib/');
+mycolormap = customcolormap_preset('red-white-blue');
+set(gcf, 'Position', [0, 0, 1200, 800]); % Specify the figure size
+colormap(mycolormap);
+cfg =[];
+cfg.figure='gcf';
+ft_singleplotTFR([],freq);
+set(gcf,'color','w');
+set(gca,'Fontsize',30);
+set(gca, 'YDir', 'reverse')
+title('');
+clim([-90 90])
+
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/gaze/Sternberg_gaze_stat_diff_gen.png');
+
+%% Plot t-value stats
+mycolormap = flipud(customcolormap_preset('red-white-blue'));
+freq.powspctrm(1,:,:)= squeeze(stat.stat)';
+freq.time = x_grid_pixels(2:end);
+freq.freq = y_grid_pixels(2:end);
+freq.label={'et'};
+freq.dimord= 'chan_freq_time';
+
+clf;
+close all;
+figure;
+
+set(gcf, 'Position', [0, 0, 1200, 800]); % Specify the figure size
+colormap(mycolormap);
+cfg =[];
+cfg.figure='gcf';
+ft_singleplotTFR([],freq);
+set(gcf,'color','w');
+set(gca,'Fontsize',30);
+set(gca, 'YDir', 'reverse')
+title('');
+clim([-3.25 3.25])
+
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/gaze/Sternberg_gaze_stat_diff_fine.png');
+% clf;
+% close all;
+
+%% Define function for fixation cross
+function drawFixationCross()
+    hold on;
+    % Set the cross length
+    crossLength = 20;
+    
+    % Get the current figure size
+    figPosition = get(gcf, 'Position');
+    figWidth = figPosition(3);
+    figHeight = figPosition(4);
+    
+    % Calculate the center coordinates
+    centerX = figWidth / 2;
+    centerY = figHeight / 2;
+    
+    % Coordinates for the horizontal line of the cross
+    x_horizontal = [centerX - crossLength, centerX + crossLength];
+    y_horizontal = [centerY, centerY];
+    
+    % Coordinates for the vertical line of the cross
+    x_vertical = [centerX, centerX];
+    y_vertical = [centerY - crossLength, centerY + crossLength];
+    
+    % Plot the cross lines
+    plot(x_horizontal, y_horizontal, 'k', 'LineWidth', 2);
+    plot(x_vertical, y_vertical, 'k', 'LineWidth', 2);
+end

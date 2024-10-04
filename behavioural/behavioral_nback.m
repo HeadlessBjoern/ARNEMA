@@ -1,0 +1,374 @@
+%% Analysis of behavioral data
+clear all;
+close all;
+clc;
+
+%% Define data path
+% dataPath = '/Users/Arne/Downloads/';
+% dataPath = '/Volumes/methlab/Students/Arne/MA/data/SternbergSIM';
+dataPath = '/Volumes/methlab_data/OCC/ARNEMA/data/';
+
+%% Define subject
+% defAns = {'99'};
+% prompt = {'Subject Number'};
+% box = inputdlg(prompt, 'Enter Subject Information', 1, defAns);
+% subjectID = {char(box(1))};
+
+subjectID = {'34';'35';'42'; '45';'52';'55';'59';'87';'93';'95'};
+RTsALL = cell(length(subjectID), 3);
+
+for subj= 1:length(subjectID)
+    for block = 1:3
+        %% Get reaction times
+        % Load merged file
+        load(['/Volumes/methlab/Students/Arne/MA/data/SternbergSIM/' char(subjectID(subj)) '/' char(subjectID(subj)) '_OCC_Sternberg_block' num2str(block) '_task_EEG.mat']);
+        % latency=[EEG.event.latency];
+        % pre=latency(find(ismember({EEG.event.type},{'4' '5'})==1));
+        % pst=latency(find(ismember({EEG.event.type},{'4' '5'})==1)+1);
+        % rt=pst-pre;
+        latency = [EEG.event.latency];
+            types = {EEG.event.type};
+            pre_indices = find(ismember(types, {'4', '5'}));
+            pre = latency(pre_indices);
+            pst = NaN(size(pre)); % Initialize pst with NaN
+
+            % Find indices for button press events
+            button_press_indices = find(ismember(types, {'77', '78', '79'}));
+
+            % Loop through each pre-stimulus event
+            for i = 1:length(pre_indices)
+                current_index = pre_indices(i);
+
+                % Find the next button press event that comes after the current stimulus
+                next_bp_index = button_press_indices(button_press_indices > current_index);
+
+                if ~isempty(next_bp_index)
+                    pst(i) = latency(next_bp_index(1));
+                end
+            end
+
+            rt = pst - pre;
+
+            rt(rt>2000) = NaN;
+
+        %% Load matlab data file
+        load(['/Volumes/methlab_data/OCC/ARNEMA/data/' char(subjectID(subj)) '/' char(subjectID(subj)) '_OCC_Nback_block' num2str(block) '_task.mat'])
+
+        tbl = table(saves.data.letterSequence(1:end-2)', saves.data.trialMatch', saves.data.allResponses', saves.data.allCorrect',   ...
+              'VariableNames', {'Letter', 'Match', 'Response', 'Correct'});
+        rtIDX = find(ismember(tbl.Response, 66)==1);
+        
+        tbl.reactionTime = zeros(height(tbl), 1);
+        for rtidxs = 1:numel(rtIDX)
+        tbl.reactionTime(rtIDX(rtidxs)) = rt(rtidxs);
+        end
+
+        %% Calculate N-back corrPercentage per condition
+        corrTotal = (nansum(tbl.Correct)/(height(tbl.Correct)-1))*100;
+        if block == 1
+            corrN1(subj) = corrTotal;
+        elseif block == 2
+            corrN2(subj) = corrTotal;
+        elseif block == 3
+            corrN3(subj) = corrTotal;
+        end
+
+        %% Calculate N-back Reaction Time per condition
+        tblRT = tbl(tbl.Response == 66, :);
+        if block == 1
+            RTN1(subj) = nanmean(tblRT.reactionTime);
+            RTsALL{subj, 1} = tblRT.reactionTime;
+        elseif block == 2
+            RTN2(subj) = nanmean(tblRT.reactionTime);
+            RTsALL{subj, 2} = tblRT.reactionTime;
+        elseif block == 3
+            RTN3(subj) = nanmean(tblRT.reactionTime);
+            RTsALL{subj, 3} = tblRT.reactionTime;
+        end
+        disp(['Block ' num2str(block) '/3 for subject ' num2str(subj) '/10 done.'])
+    end
+end
+
+%% Results N-Back
+save('/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_nback_RTdata.mat', 'RTsALL');
+
+resultsNBack = table(corrN1', corrN2', corrN3', RTN1', RTN2', RTN3', ...
+    'VariableNames', {'corrN1', 'corrN2', 'corrN3', 'RTN1', 'RTN2', 'RTN3'});
+
+corrN1ALLsubj = nanmean(corrN1);
+corrN2ALLsubj = nanmean(corrN2);
+corrN3ALLsubj = nanmean(corrN3);
+RTN1ALLsubj = nanmean(RTN1);
+RTN2ALLsubj = nanmean(RTN2);
+RTN3ALLsubj = nanmean(RTN3);
+
+resultsNBackALLsubj = table(corrN1ALLsubj', corrN2ALLsubj', corrN3ALLsubj', RTN1ALLsubj', RTN2ALLsubj', RTN3ALLsubj', ...
+    'VariableNames', {'corrN1', 'corrN2', 'corrN3', 'RTN1', 'RTN2', 'RTN3'});
+
+writetable(tbl, '/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_nback_overview.xlsx')
+writetable(resultsNBack, '/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_nback.xlsx')
+writetable(resultsNBackALLsubj, '/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_nback_ALL.xlsx')
+
+%% Comparison RT N3 - N1
+clc
+close all
+
+resultsNBack = readtable('/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_nback.xlsx');
+RTN1 = resultsNBack.RTN1;
+RTN3 = resultsNBack.RTN3;
+comparisonN3_N1 = RTN3 - RTN1;
+
+% Create a vector for the x-axis (you can customize this as needed)
+x = 1:length(RTN3);
+
+% Create a figure and hold it
+figure('Color', 'w');
+set(gcf, "Position", [200, 100, 1200, 800])
+hold on;
+
+% Define the colors based on the sign of comparisonN3_N1
+colors = zeros(size(comparisonN3_N1, 1), 3); % Initialize an Nx3 matrix for RGB colors
+
+% Set positive values to red (R=1)
+colors(comparisonN3_N1 > 0, 1) = 1; % Set the R component to 1 for positive values
+
+% Set negative values to blue (B=1)
+colors(comparisonN3_N1 < 0, 3) = 1; % Set the B component to 1 for negative values
+
+% Plot comparisonN3_N1 as bars with the specified colors
+b = bar(x, comparisonN3_N1, 'BarWidth', 0.5, 'FaceColor', 'flat', 'CData', colors);
+
+% Customize the plot
+xlabel('Subject', 'FontSize', 15);
+ylabel('Reaction Time [ms]', 'FontSize', 15);
+title('');
+
+% Plot RTN1 as filled blue dots
+p1 = plot(x, RTN1, 'bo', 'MarkerSize', 8, 'MarkerFaceColor', 'b');
+
+% Plot RTN3 as filled red dots
+p3 = plot(x, RTN3, 'ro', 'MarkerSize', 8, 'MarkerFaceColor', 'r');
+
+% Create dummy bars for the legend
+blueBar = bar(nan, 'BarWidth', 0.5, 'FaceColor', 'b');
+redBar = bar(nan, 'BarWidth', 0.5, 'FaceColor', 'r');
+
+% Create the legend using handles to the plots
+lgd = legend([blueBar, redBar, p1, p3], {'\Delta RT', '\Delta RT', 'RTN1', 'RTN3'}, 'FontSize', 15);
+
+% Set the dummy bars' visibility to off
+set(get(get(blueBar,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+set(get(get(redBar,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+
+% Customize the x-axis labels if needed
+xticks(x);
+xticklabels({'1', '2', '3', '4', '5', '6', '7', '8', '9', '10'});
+
+% Hold off to stop further plotting on this figure
+hold off;
+
+% Save the figure
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/behavioural/nback_RT_compN3-N1_bars_dots.png');
+
+
+%% N-back Figures
+
+%% Line plot for all RTs
+Participant = 1:10;
+resultsNBack = readtable('/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_nback.xlsx');
+RTN1 = resultsNBack.RTN1';
+RTN2 = resultsNBack.RTN2';
+RTN3 = resultsNBack.RTN3';
+
+% Create a figure
+figure('Position', [100, 100, 800, 600]);
+
+% Plot each participant's data with a different color
+hold on;
+for i = 1:10
+    plot([1, 2, 3], [RTN1(i), RTN2(i), RTN3(i)], 'LineWidth', 2, 'LineStyle', '--');
+end
+hold off;
+
+% Customize the plot
+xlim([0.8, 3.35]);
+xticks([1, 2, 3]);
+xticklabels({'1-back', '2-back', '3-back'});
+xlabel('N-back Condition');
+ylabel('Reaction Times [ms]');
+
+% Add a legend
+legend(cellstr(num2str(Participant')), 'Location', 'northeast');
+
+% Save
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/behavioural/Nback_RT_overview_ALL.png');
+
+%% Line plot for all accuracy values
+
+% Define your data
+Participant = 1:10;
+corrN1 = [100, 98.99, 97.98, 100, 91.919, 98.99, 98.99, 95.96, 98.99, 100];
+corrN2 = [96.97, 95.96, 93.939, 98.99, 95.96, 87.879, 91.919, 85.859, 94.949, 98.99];
+corrN3 = [87.879, 95.96, 92.929, 83.838, 79.798, 81.818, 90.909, 81.818, 93.939, 85.859];
+
+% Create a figure
+figure('Position', [100, 100, 800, 600]);
+
+% Plot each participant's data with a different color
+hold on;
+for i = 1:10
+    plot([1, 2, 3], [corrN1(i), corrN2(i), corrN3(i)], 'LineWidth', 2, 'LineStyle', '--');
+end
+hold off;
+
+% Customize the plot
+xlim([0.8, 3.35]);
+xticks([1, 2, 3]);
+xticklabels({'1-back', '2-back', '3-back'});
+xlabel('N-back Condition');
+ylabel('Accuracy (%)');
+
+% Add a legend
+legend(cellstr(num2str(Participant')), 'Location', 'northeast');
+
+% Save
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/behavioural/Nback_Acc_overview_ALL.png');
+
+%% Line plot for all accuracy values BOXWHISKERS
+
+% Load the RT data for N-back task
+load('/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_nback_RTdata.mat', 'RTsALL');
+
+% Updated Subject IDs for N-back task
+subjectID = {'34'; '35'; '42'; '45'; '52'; '55'; '59'; '87'; '93'; '95'};
+numSubjects = length(subjectID);
+
+% Concatenate all subjects' RTs into one matrix for each N-back load
+RTs_all_Subjects_1back = vertcat(RTsALL{:, 1});
+RTs_all_Subjects_2back = vertcat(RTsALL{:, 2});
+RTs_all_Subjects_3back = vertcat(RTsALL{:, 3});
+
+% Create combined matrix with all data for boxplot
+RT_matrix_Nback = [RTs_all_Subjects_1back; RTs_all_Subjects_2back; RTs_all_Subjects_3back];
+
+% Create groups for each N-back load
+groups_Nback = [ones(size(RTs_all_Subjects_1back)); 2 * ones(size(RTs_all_Subjects_2back)); 3 * ones(size(RTs_all_Subjects_3back))];
+
+% Create a figure for the RT line plot with Box-Whisker plots
+figure('Position', [100, 100, 1024*0.75, 768*0.75], 'Color', 'w');
+hold on;
+
+% Plot box-whisker plots
+boxplot(RT_matrix_Nback, groups_Nback, 'Widths', 0.5);
+
+% Plot each participant's data with a line plot
+colors = lines(numSubjects);  % Create a colormap for the subjects
+for i = 1:numSubjects
+    plot([1, 2, 3], [nanmean(RTsALL{i, 1}), nanmean(RTsALL{i, 2}), nanmean(RTsALL{i, 3})], ...
+        'LineWidth', 2, 'LineStyle', '-', 'Color', colors(i, :), 'Marker', 'o');
+end
+
+% Customize the plot
+xlim([0.5, 3.5]);
+xticks([1, 2, 3]);
+xticklabels({'1-back', '2-back', '3-back'});
+xlabel('N-back Condition');
+ylabel('Reaction Times [ms]');
+legend(arrayfun(@num2str, 1:numSubjects, 'UniformOutput', false), 'Location', 'northeast');
+title('');
+
+hold off;
+
+% Save the RT plot with Box-Whisker plots
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/behavioural/Nback_RT_overview_ALL_boxwhiskers.png');
+
+% For 1-back
+mean_1back = nanmean(RTs_all_Subjects_1back);
+iqr_1back = nan_iqr(RTs_all_Subjects_1back);
+std_1back = nanstd(RTs_all_Subjects_1back);
+
+% For 2-back
+mean_2back = nanmean(RTs_all_Subjects_2back);
+iqr_2back = nan_iqr(RTs_all_Subjects_2back);
+std_2back = nanstd(RTs_all_Subjects_2back);
+
+% For 3-back
+mean_3back = nanmean(RTs_all_Subjects_3back);
+iqr_3back = nan_iqr(RTs_all_Subjects_3back);
+std_3back = nanstd(RTs_all_Subjects_3back);
+
+% Display the results
+fprintf('1-back: Mean = %f ms, IQR = %f ms, Std = %f ms\n', mean_1back, iqr_1back, std_1back);
+fprintf('2-back: Mean = %f ms, IQR = %f ms, Std = %f ms\n', mean_2back, iqr_2back, std_2back);
+fprintf('3-back: Mean = %f ms, IQR = %f ms, Std = %f ms\n', mean_3back, iqr_3back, std_3back);
+
+%% %% Line plot with box-whisker plots for all Accs
+
+% Load the accuracy results for N-back task
+resultsNback = readtable('/Volumes/methlab/Students/Arne/MA/data/behavioural/behavioral_Nback.xlsx');
+
+% Extract accuracy data for each N-back load
+Acc_1back = resultsNback.corrN1;
+Acc_2back = resultsNback.corrN2;
+Acc_3back = resultsNback.corrN3;
+
+% Create combined matrix with all data for boxplot
+Acc_matrix_Nback = [Acc_1back, Acc_2back, Acc_3back];
+
+% Create a figure for the Accuracy line plot with Box-Whisker plots
+figure('Position', [100, 100, 1024*0.75, 768*0.75], 'Color', 'w');
+hold on;
+
+% Plot box-whisker plots
+boxplot(Acc_matrix_Nback, 'Widths', 0.5);
+
+% Plot each participant's data with a line plot
+colors = lines(size(Acc_matrix_Nback, 1));  % Create a colormap for the subjects
+for i = 1:size(Acc_matrix_Nback, 1)
+    plot([1, 2, 3], [Acc_1back(i), Acc_2back(i), Acc_3back(i)], ...
+        'LineWidth', 2, 'LineStyle', '-', 'Color', colors(i, :), 'Marker', 'o');
+end
+
+% Customize the plot
+xlim([0.5, 3.65]);
+ylim([79 101]);
+xticks([1, 2, 3]);
+xticklabels({'1-back', '2-back', '3-back'});
+xlabel('N-back Condition');
+ylabel('Accuracy [%]');
+legend(arrayfun(@num2str, 1:size(Acc_matrix_Nback, 1), 'UniformOutput', false), 'Location', 'northeast');
+title('');
+
+hold off;
+
+% Save the Accuracy plot with Box-Whisker plots
+saveas(gcf, '/Volumes/methlab/Students/Arne/MA/figures/behavioural/Nback_Acc_overview_ALL_boxwhiskers.png');
+
+% For 1-back accuracy
+mean_Acc_1back = nanmean(Acc_1back);
+iqr_Acc_1back = nan_iqr(Acc_1back);
+std_Acc_1back = nanstd(Acc_1back);
+
+% For 2-back accuracy
+mean_Acc_2back = nanmean(Acc_2back);
+iqr_Acc_2back = nan_iqr(Acc_2back);
+std_Acc_2back = nanstd(Acc_2back);
+
+% For 3-back accuracy
+mean_Acc_3back = nanmean(Acc_3back);
+iqr_Acc_3back = nan_iqr(Acc_3back);
+std_Acc_3back = nanstd(Acc_3back);
+
+% Display the results
+fprintf('1-back: Mean Accuracy = %f %%, IQR = %f, Std = %f\n', mean_Acc_1back, iqr_Acc_1back, std_Acc_1back);
+fprintf('2-back: Mean Accuracy = %f %%, IQR = %f, Std = %f\n', mean_Acc_2back, iqr_Acc_2back, std_Acc_2back);
+fprintf('3-back: Mean Accuracy = %f %%, IQR = %f, Std = %f\n', mean_Acc_3back, iqr_Acc_3back, std_Acc_3back);
+
+%% Function to calculate IQR while handling NaN values
+
+function iqr_value = nan_iqr(data)
+    % Remove NaN values
+    data = data(~isnan(data));
+    % Calculate IQR
+    iqr_value = iqr(data);
+end
